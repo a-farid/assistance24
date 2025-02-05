@@ -1,5 +1,5 @@
 
-### **Backend**
+### **Backend** ✅
 - Framework: **FastAPI**
 - Notifications: Email-based notifications using **FastAPI-Mail**.
 
@@ -12,10 +12,11 @@
 
 ### **Phase 1: Define Requirements and Architecture**
 1. Design a relational database schema:
-   - `Users`: Stores user data (roles: Admin, Worker, Client).
-   - `Clients`: Stores client details.
-   - `Workers`: Stores worker details.
-   - `WorkLogs`: Records work hours, descriptions, and statuses (pending, approved, declined).
+   - `Users`: Stores user data (roles: Admin, Worker, Client). ✅
+   - `Clients`: Stores client details. ✅
+   - `Workers`: Stores worker details. ✅
+   - `Contracts`: Contracts between workers and clients with detailed hours count and sessions. ✅
+   - `Meetings`: Records work hours, descriptions, and statuses (pending, approved, declined). ✅
 2. Plan the API endpoints:
    - Authentication: `/auth` (login, logout, registration).
    - CRUD for clients, workers, and assignments.
