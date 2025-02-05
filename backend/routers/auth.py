@@ -1,113 +1,101 @@
-from fastapi import Header, HTTPException, Depends, status, APIRouter
-from pydantic import BaseModel
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from typing import Annotated
+from fastapi import Body, Cookie, HTTPException, Depends, status, APIRouter, Response
+from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
+from datetime import timedelta
+import json
 from jose import jwt, JWTError
-from datetime import datetime, timedelta
-from passlib.context import CryptContext
+from tools.cach_redis import redis_delete, redis_set, redis_get
+from tools.jwt_token import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, REFRESH_TOKEN_EXPIRE_DAYS, SECRET_KEY, authenticate_user, create_token, create_user, get_user, verify_jwt_token_cookie
+from tools.pydantic_types import T_Token, T_User, T_UserInDb
 
 
 router = APIRouter()
 
-# Constants
-SECRET_KEY = "mysecretkeyfortesting"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
+@router.post("/register")
+async def register_user(body: T_UserInDb = Body(...)):
+    new_user = create_user(body)
+    return new_user
 
 
-def get_hashed_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-# Fake in-memory database
-fake_db = {
-    "user1": {
-        "username": "user1",
-        "full_name": "John Doe",
-        "email": "john.doe@example.com",
-        "hashed_password": get_hashed_password("password1"),
-        "disabled": False,
-    },
-    "user2": {
-        "username": "user2",
-        "full_name": "Jane Smith",
-        "email": "jane.smith@example.com",
-        "hashed_password": get_hashed_password("password2"),
-        "disabled": False,
-    },
-    "user3": {
-        "username": "user3",
-        "full_name": "Alice Johnson",
-        "email": "alice.johnson@example.com",
-        "hashed_password": get_hashed_password("password3"),
-        "disabled": True,
-    },
-    "user4": {
-        "username": "user4",
-        "full_name": "Bob Brown",
-        "email": "bob.brown@example.com",
-        "hashed_password": get_hashed_password("password4"),
-        "disabled": False,
-    },
-}
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-class User(BaseModel):
-    username: str
-    email: str
-    full_name: str | None = None
-    disabled: bool | None = None
-
-class UserInDb(User):
-    hashed_password: str
-
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDb(**user_dict)
-
-def authenticate_user(db, username: str, password: str):
-    user = get_user(db, username)
+@router.post("/login")
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+) -> T_Token:
+    user = authenticate_user(form_data.username, form_data.password)
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username")
-    if not verify_password(password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect password")
-    return user
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    redis_set(user.id, user)
 
-def create_jwt_token(data: dict, expires_in: int = ACCESS_TOKEN_EXPIRE_MINUTES):
-    to_encode = data.copy()
-    if expires_in:
-        expire = datetime.utcnow() + timedelta(minutes=expires_in)
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    data={"username": user.username, "role": user.role, "user_id": user.id}
 
-async def get_current_user(token: str = Depends(oauth_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+    access_token = create_token(data=data, expires_delta=access_token_expires)
+    refresh_token = create_token(data=data, expires_delta=refresh_token_expires)
+    # Create response with JSON and set cookie
+    response = JSONResponse(content={"Success": True, "data": {"access_token": access_token, "refresh_token": refresh_token}})
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        httponly=True,  # Prevents JavaScript access for security
+        secure=True,  # Send only over HTTPS
+        samesite="Lax",  # Prevent CSRF attacks
     )
+    response.set_cookie(
+        key="refresh_token",
+        value=f"Bearer {refresh_token}",
+        httponly=True,  # Prevents JavaScript access for security
+        secure=True,  # Send only over HTTPS
+        samesite="Lax",  # Prevent CSRF attacks
+    )
+    return response
+
+
+@router.post("/logout", status_code=200)
+async def logout(response: Response, access_token = Depends(verify_jwt_token_cookie)):
+    """
+    Logout the user by clearing the authentication cookie.
+    """
+    response.delete_cookie("access_token")  # Remove token from cookies
+    response.delete_cookie("refresh_token")
+    redis_delete(access_token.get("user_id"))
+    return {"success": True, "message": "Successfully logged out"}
+
+
+@router.post("/refresh")
+async def refresh_access_token(refresh_token: str = Cookie(None)):
+    print("refresh_token", refresh_token)
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh token is required")
+
     try:
+        token = refresh_token.replace("Bearer ", "")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
+        print("payload refresh_access_token", payload)
+        user = redis_get(payload.get("user_id"), T_UserInDb)
+
+        if not user:
+            print("Request the DB")
+            user = get_user(payload.get("username"))
+            if not user:
+                raise HTTPException(status_code=401, detail="User not found")
+            redis_set(user.id, user)
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        data={"username": user.username, "role": user.role, "user_id": user.id}
+
+        access_token = create_token(data=data, expires_delta=access_token_expires)
+        refresh_token = create_token(data=data, expires_delta=refresh_token_expires)
+        # Create response with JSON and set cookie
+        response = JSONResponse(content={"Success": True, "data": {"access_token": access_token, "refresh_token": refresh_token}})
+
+        response.set_cookie(key="access_token", value=f"Bearer {access_token}",httponly=True, secure=True, samesite="Lax")
+        response.set_cookie(key="refresh_token", value=f"Bearer {refresh_token}",httponly=True, secure=True, samesite="Lax")
+        return response
     except JWTError:
-        raise credentials_exception
-    user = get_user(fake_db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
