@@ -1,63 +1,33 @@
-from typing import Annotated
-from fastapi import Body, Cookie, HTTPException, Depends, status, APIRouter, Response
-from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordRequestForm
-from datetime import timedelta
-import json
-from jose import jwt, JWTError
+from fastapi import Body, Cookie, HTTPException, Depends, APIRouter, Response
+from jose import jwt
+from requests import session
+from services.user_services import authenticate_user, create_admin, get_user, get_user_from_token
+from tools.Bd_BaseModel import DB_BaseModel
 from tools.cach_redis import redis_delete, redis_set, redis_get
-from tools.jwt_token import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, REFRESH_TOKEN_EXPIRE_DAYS, SECRET_KEY, authenticate_user, create_token, create_user, get_user, verify_jwt_token_cookie
-from tools.pydantic_types import T_Token, T_User, T_UserInDb
+from tools.jwt_token import ALGORITHM, SECRET_KEY, create_refresh_access_tokens, get_hashed_password, verify_cookie_token, verify_password
+from tools.models import User
+from tools.pydantic_types import T_Login_User, T_Token, T_User, T_UserInDb, T_UserInDbAdmin
+from tools.standarization import StandardResponse
 
 
 router = APIRouter()
+sessionDb = DB_BaseModel.get_session()
 
-@router.post("/register")
-async def register_user(body: T_UserInDb = Body(...)):
-    new_user = create_user(body)
-    return new_user
+@router.post("/register", response_model=StandardResponse[T_User], description="Register a new user.")
+async def register_user(body: T_UserInDbAdmin = Body(...)):
+    new_user = create_admin(body)
+    return {"success": True, "data": new_user}
 
 
-@router.post("/login")
-async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-) -> T_Token:
-    user = authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+@router.post("/login", description="Login the user and return the access token.")
+async def login_for_access_token(login: T_Login_User = Body(...)) -> T_Token:
+    user = authenticate_user(**login.model_dump())
     redis_set(user.id, user)
-
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    data={"username": user.username, "role": user.role, "user_id": user.id}
-
-    access_token = create_token(data=data, expires_delta=access_token_expires)
-    refresh_token = create_token(data=data, expires_delta=refresh_token_expires)
-    # Create response with JSON and set cookie
-    response = JSONResponse(content={"Success": True, "data": {"access_token": access_token, "refresh_token": refresh_token}})
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {access_token}",
-        httponly=True,  # Prevents JavaScript access for security
-        secure=True,  # Send only over HTTPS
-        samesite="Lax",  # Prevent CSRF attacks
-    )
-    response.set_cookie(
-        key="refresh_token",
-        value=f"Bearer {refresh_token}",
-        httponly=True,  # Prevents JavaScript access for security
-        secure=True,  # Send only over HTTPS
-        samesite="Lax",  # Prevent CSRF attacks
-    )
-    return response
+    return create_refresh_access_tokens(user)
 
 
-@router.post("/logout", status_code=200)
-async def logout(response: Response, access_token = Depends(verify_jwt_token_cookie)):
+@router.post("/logout", status_code=200, description="Logout the user by clearing the authentication cookie.")
+async def logout(response: Response, access_token = Depends(verify_cookie_token)):
     """
     Logout the user by clearing the authentication cookie.
     """
@@ -67,35 +37,37 @@ async def logout(response: Response, access_token = Depends(verify_jwt_token_coo
     return {"success": True, "message": "Successfully logged out"}
 
 
+@router.put("/change_password", response_model=StandardResponse[bool], description="Change the user's password.")
+async def change_password(
+    old_password: str = Body(...),
+    new_password: str = Body(...),
+    user: T_UserInDb = Depends(get_user_from_token)
+):
+    """
+    Change the user's password.
+    """
+    if not verify_password(old_password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Invalid old password")
+
+    user.hashed_password = get_hashed_password(new_password)
+
+    updated_user = User.update(user.id, **user.model_dump())
+    sessionDb.add(updated_user)
+    sessionDb.commit()
+    sessionDb.refresh(updated_user)
+
+
+    return {"success": True, "data": True}
+
 @router.post("/refresh")
 async def refresh_access_token(refresh_token: str = Cookie(None)):
-    print("refresh_token", refresh_token)
-    if not refresh_token:
-        raise HTTPException(status_code=401, detail="Refresh token is required")
-
-    try:
-        token = refresh_token.replace("Bearer ", "")
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print("payload refresh_access_token", payload)
-        user = redis_get(payload.get("user_id"), T_UserInDb)
-
+    token = refresh_token.replace("Bearer ", "")
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    user = redis_get(payload.get("user_id"), T_UserInDb)
+    if user is None:
+        user = get_user(payload.get("username"))
         if not user:
-            print("Request the DB")
-            user = get_user(payload.get("username"))
-            if not user:
-                raise HTTPException(status_code=401, detail="User not found")
-            redis_set(user.id, user)
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-        data={"username": user.username, "role": user.role, "user_id": user.id}
+            raise HTTPException(status_code=401, detail="User not found")
+        redis_set(user.id, user)
 
-        access_token = create_token(data=data, expires_delta=access_token_expires)
-        refresh_token = create_token(data=data, expires_delta=refresh_token_expires)
-        # Create response with JSON and set cookie
-        response = JSONResponse(content={"Success": True, "data": {"access_token": access_token, "refresh_token": refresh_token}})
-
-        response.set_cookie(key="access_token", value=f"Bearer {access_token}",httponly=True, secure=True, samesite="Lax")
-        response.set_cookie(key="refresh_token", value=f"Bearer {refresh_token}",httponly=True, secure=True, samesite="Lax")
-        return response
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    return create_refresh_access_tokens(user)
