@@ -3,6 +3,6 @@ from pydantic import BaseModel
 T = TypeVar("T")
 
 class StandardResponse(BaseModel, Generic[T]):
-    Success: bool
+    success: bool
     data: Optional[T]
 

@@ -12,6 +12,7 @@ class User(DB_BaseModel, Base):
     hashed_password = Column(String(100), nullable=False)
     adress = Column(String(255), nullable=True)
     disabled = Column(Boolean, default=False)
+    is_verifier = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     first_name = Column(String(200), nullable=False)
     last_name = Column(String(200), nullable=False)
@@ -21,6 +22,7 @@ class User(DB_BaseModel, Base):
 
     worker = relationship("Worker", uselist=False, back_populates="user")
     client = relationship("Client", uselist=False, back_populates="user")
+    
 
 class Client(DB_BaseModel, Base):
     __tablename__ = 'clients'
