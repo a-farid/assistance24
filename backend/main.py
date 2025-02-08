@@ -20,7 +20,7 @@ app.include_router(pointers.router, prefix="/api/pointers", tags=["Pointers"])
 async def http_exception_handler(request: Request, exc: HTTPException):
     # Extract traceback information
     tb = traceback.format_exc().splitlines()
-    # Extract the most recent call from the traceback
+    # Extract the most recent call from the traceback check
     error_location = tb[-2] if len(tb) > 2 else "No traceback available"
     return JSONResponse(
         status_code=exc.status_code,
