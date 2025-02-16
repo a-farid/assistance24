@@ -28,7 +28,6 @@ class ContractServices:
         """Create a new contract in the database."""
         # Remove ID if exists (optional, but ensures no conflicts)
         contract_data = contract.model_dump(exclude={"id"})
-        # Create and save the new user
         new_contract = await Contract.create(**contract_data)
 
         return new_contract

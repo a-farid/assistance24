@@ -1,13 +1,23 @@
+import pprint
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from db.redis import redis_get, redis_set
-from schemas.user_schemas import T_TokenData, T_User, T_UserInDb, T_UserInDbAdmin
+from schemas.user_schemas import T_TokenData, T_User, T_UserInDb, T_UserInDbAdmin, T_Worker
 from services.jwt_services import JWTService
 from db.models import Client, User, Worker
 from settings import Config
 
+
 jwt_s = JWTService()
 
+
+async def get_user(user_data: Worker) -> dict:
+    """Fetch and return worker and client as T_Profile."""
+    data = {}
+    if user_data.user:
+        client_data = user_data.to_dict()
+        data["user"] = T_User(**client_data["user"].to_dict())
+    return data
 
 class UserServices:
     def __init__(self):
@@ -94,7 +104,16 @@ class UserServices:
 
     async def get_all_workers(self):
         workers = await Worker.get_all()
-        return workers
+
+        result = []
+        for worker in workers:
+            worker_data = worker.to_dict()
+            worker_data["user"] = T_User(**worker_data["user"].to_dict())
+
+            result.append(worker_data)
+
+        return result
+
 
     async def get_all_clients(self):
         clients = await Client.get_all()

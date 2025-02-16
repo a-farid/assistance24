@@ -32,7 +32,7 @@ class Client(DB_BaseModel, Base):
     user = relationship("User", back_populates="client", lazy="selectin")
 
 
-    contracts = relationship("Contract", back_populates="client", cascade="all, delete, save-update")
+    contracts = relationship("Contract", back_populates="client", lazy="select", cascade="all, delete, save-update")
 
 class Worker(DB_BaseModel, Base):
     __tablename__ = 'workers'
@@ -40,7 +40,8 @@ class Worker(DB_BaseModel, Base):
     user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE", onupdate="CASCADE"))
     user = relationship("User", back_populates="worker", lazy="selectin")
 
-    contracts = relationship("Contract", back_populates="worker", lazy="selectin", cascade="all, delete, save-update")
+    contracts = relationship("Contract", back_populates="worker", lazy="select", cascade="all, delete, save-update")
+    # contracts = relationship("Contract", back_populates="worker", lazy="selectin", cascade="all, delete, save-update")
 
 
 class Contract(DB_BaseModel, Base):

@@ -5,7 +5,7 @@ from services.user_services import UserServices
 from db.redis import redis_delete, redis_set, redis_get
 from services.jwt_services import JWTService
 from db.models import User
-from tools.standarization import ApiResponse
+from settings.standarization import ApiResponse
 from settings import Config
 
 
