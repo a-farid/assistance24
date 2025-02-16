@@ -1,138 +1,126 @@
-import os
-from sqlalchemy import Column, Date, String
-import uuid
-from datetime import datetime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
+# import os
+# from sqlalchemy import Column, Date, String, DateTime
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+# from sqlalchemy.ext.asyncio import async_sessionmaker
+# from sqlalchemy.future import select
+# import uuid
+# from datetime import datetime
+# from typing import Optional, List, Type, TypeVar
 
+# # Database setup
+# database_dir = os.path.join(os.getcwd(), 'db')
+# database_path = os.path.join(database_dir, f'async_db_local.db')
+# DATABASE_URL = f'sqlite+aiosqlite:///{database_path}'  # Use aiosqlite for async SQLite
 
-database_dir = os.path.join(os.getcwd(), 'database')
-database_path = os.path.join(database_dir, f'database_local.db')
-DATABASE_URL = f'sqlite:///{database_path}'
-# Create the Base class for defining models
-engine = create_engine(DATABASE_URL, echo=False)
-Base = declarative_base()
+# # Create the async engine and sessionmaker
+# engine = create_async_engine(DATABASE_URL, echo=False)
+# AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
-class DB_BaseModel:
-    __abstract__ = True
-    id = Column(String(60), unique=True, nullable=False, primary_key=True)
-    createAt = Column(Date, default=datetime.now, nullable=False)
-    updateAt = Column(Date, default=datetime.now, onupdate=datetime.now, nullable=False)
+# # Base class for models
+# Base = declarative_base()
 
-    def __init__(self, *args, **kwargs):
-        if kwargs:
-            for key, value in kwargs.items():
-                if key == "created_at" or key == "updated_at":
-                    value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
-                if key != "__class__":
-                    setattr(self, key, value)
-            if "id" not in kwargs:
-                self.id = str(uuid.uuid4())
-            if "createAt" not in kwargs:
-                self.createAt = datetime.now()
-            if "updateAt" not in kwargs:
-                self.updateAt = datetime.now()
-        else:
-            self.id = str(uuid.uuid4())
-            self.createAt = self.updateAt = datetime.now()
+# # Type variable for model classes
+# T = TypeVar('T', bound='DB_BaseModel2')
 
-    def __str__(self):
-        return f"[{type(self).__name__}] ({self.id}) {self.__dict__}"
+# class DB_BaseModel2(Base):
+#     __abstract__ = True
+#     id = Column(String(60), unique=True, nullable=False, primary_key=True)
+#     createAt = Column(DateTime, default=datetime.now, nullable=False)
+#     updateAt = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
-    def __repr__(self):
-        return self.__str__()
+#     def __init__(self, *args, **kwargs):
+#         if kwargs:
+#             for key, value in kwargs.items():
+#                 if key == "created_at" or key == "updated_at":
+#                     value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+#                 if key != "__class__":
+#                     setattr(self, key, value)
+#             if "id" not in kwargs:
+#                 self.id = str(uuid.uuid4())
+#             if "createAt" not in kwargs:
+#                 self.createAt = datetime.now()
+#             if "updateAt" not in kwargs:
+#                 self.updateAt = datetime.now()
+#         else:
+#             self.id = str(uuid.uuid4())
+#             self.createAt = self.updateAt = datetime.now()
 
-    def to_dict(self):
-        my_dict = dict(self.__dict__)
-        my_dict["__class__"] = str(type(self).__name__)
-        my_dict["createAt"] = self.createAt.isoformat()
-        my_dict["updateAt"] = self.updateAt.isoformat()
-        my_dict.pop('_sa_instance_state', None)
-        return my_dict
+#     def __str__(self):
+#         return f"[{type(self).__name__}] ({self.id}) {self.__dict__}"
 
-    @staticmethod
-    def get_session():
-        Session = sessionmaker(bind=engine)
-        return Session()
+#     def __repr__(self):
+#         return self.__str__()
 
-    @classmethod
-    def get_all(cls):
-        session = cls.get_session()
-        try:
-            return session.query(cls).all()
-        finally:
-            session.close()
+#     def to_dict(self):
+#         my_dict = dict(self.__dict__)
+#         my_dict["__class__"] = str(type(self).__name__)
+#         my_dict["createAt"] = self.createAt.isoformat()
+#         my_dict["updateAt"] = self.updateAt.isoformat()
+#         my_dict.pop('_sa_instance_state', None)
+#         return my_dict
 
-    @classmethod
-    def filter_by(cls, **criteria):
-        # Filter by criteria on record in database
-        session = cls.get_session()
-        try:
-            query = session.query(cls).filter_by(**criteria).first()
-            return query
-        finally:
-            session.close()
+#     @classmethod
+#     async def get_session(cls) -> AsyncSession:
+#         """Get an async database session."""
+#         return AsyncSessionLocal()
 
-    @classmethod
-    def create(cls, **kwargs):
-        # Create new record in database
-        session = cls.get_session()
-        try:
-            record = cls(**kwargs)
-            session.add(record)
-            session.commit()
-            return record
-        except SQLAlchemyError as e:
-            session.rollback()
-            raise e
-        finally:
-            session.close()
+#     @classmethod
+#     async def get_all(cls: Type[T]) -> List[T]:
+#         """Get all records of the model."""
+#         async with cls.get_session() as session:
+#             result = await session.execute(select(cls))
+#             return result.scalars().all()
 
-    @classmethod
-    def update(cls, idRecord, **kwargs):
-        # Update record in database
-        session = cls.get_session()
-        try:
-            record = session.query(cls).filter_by(id=idRecord).first()
-            if record:
-                for key, value in kwargs.items():
-                    setattr(record, key, value)
-                session.commit()
-                return record
-            else:
-                return None
-        except SQLAlchemyError as e:
-            session.rollback()
-            raise e
-        finally:
-            session.close()
+#     @classmethod
+#     async def filter_by(cls: Type[T], **criteria) -> Optional[T]:
+#         """Filter records by criteria and return the first match."""
+#         async with cls.get_session() as session:
+#             result = await session.execute(select(cls).filter_by(**criteria))
+#             return result.scalars().first()
 
-    @classmethod
-    def delete(cls, idRecord):
-        # Delete a record from database
-        session = cls.get_session()
-        try:
-            record = session.query(cls).filter_by(id=idRecord).first()
-            if record:
-                session.delete(record)
-                session.commit()
-                return True
-            else:
-                return False
-        except SQLAlchemyError as e:
-            session.rollback()
-            raise e
-        finally:
-            session.close()
+#     @classmethod
+#     async def create(cls: Type[T], **kwargs) -> T:
+#         """Create a new record in the database."""
+#         async with cls.get_session() as session:
+#             record = cls(**kwargs)
+#             session.add(record)
+#             await session.commit()
+#             await session.refresh(record)
+#             return record
 
+#     @classmethod
+#     async def update(cls: Type[T], idRecord: str, **kwargs) -> Optional[T]:
+#         """Update a record in the database."""
+#         async with cls.get_session() as session:
+#             result = await session.execute(select(cls).filter_by(id=idRecord))
+#             record = result.scalars().first()
+#             if record:
+#                 for key, value in kwargs.items():
+#                     setattr(record, key, value)
+#                 await session.commit()
+#                 await session.refresh(record)
+#                 return record
+#             return None
 
-def check_db():
-    # Create database of application
-    if os.path.exists(database_path):
-        return print("Warning:","Database already exists. Skipping creation...")
-    else:
-        from .models import User, Client, Worker, Contract, Meeting
-        Base.metadata.create_all(engine)
-        print('Database created successfully')
+#     @classmethod
+#     async def delete(cls: Type[T], idRecord: str) -> bool:
+#         """Delete a record from the database."""
+#         async with cls.get_session() as session:
+#             result = await session.execute(select(cls).filter_by(id=idRecord))
+#             record = result.scalars().first()
+#             if record:
+#                 await session.delete(record)
+#                 await session.commit()
+#                 return True
+#             return False
+
+# async def check_db():
+#     """Create the database if it doesn't exist."""
+#     if os.path.exists(database_path):
+#         print("Warning: Database already exists. Skipping creation...")
+#     else:
+#         async with engine.begin() as conn:
+#             from .models import User, Client, Worker, Contract, Meeting  # Import your models
+#             await conn.run_sync(Base.metadata.create_all)
+#         print('Database created successfully')
