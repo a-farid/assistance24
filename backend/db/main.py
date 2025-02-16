@@ -7,6 +7,8 @@ from sqlalchemy.future import select
 import uuid
 from datetime import datetime
 from typing import Optional, List, Type, TypeVar
+from sqlalchemy.orm import selectinload
+
 
 # Database setup
 database_dir = os.path.join(os.getcwd(), 'db')
@@ -66,11 +68,25 @@ class DB_BaseModel(Base):
         async with AsyncSessionLocal() as session:
             return session
 
+    # @classmethod
+    # async def get_all(cls: Type[T]) -> List[T]:
+    #     """Get all records of the model."""
+    #     async with AsyncSessionLocal() as session:
+    #         result = await session.execute(select(cls))
+    #         return result.scalars().all()
+
     @classmethod
-    async def get_all(cls: Type[T]) -> List[T]:
-        """Get all records of the model."""
+    async def get_all(cls: Type[T], relationships: Optional[List[str]] = None) -> List[T]:
+        """Get all records of the model, with optional relationship loading."""
         async with AsyncSessionLocal() as session:
-            result = await session.execute(select(cls))
+            query = select(cls)
+
+            if relationships:
+                for relation in relationships:
+                    if hasattr(cls, relation):  # Ensure the attribute exists
+                        query = query.options(selectinload(getattr(cls, relation)))
+
+            result = await session.execute(query)
             return result.scalars().all()
 
     @classmethod
@@ -80,25 +96,67 @@ class DB_BaseModel(Base):
             result = await session.execute(select(cls.id).filter_by(**criteria))
             return result.scalar()
 
+    # @classmethod
+    # async def filter_by(cls: Type[T], **criteria) -> Optional[T]:
+    #     """Filter records by criteria and return the first match."""
+    #     async with AsyncSessionLocal() as session:
+    #         result = await session.execute(select(cls).filter_by(**criteria))
+    #         return result.scalars().first()
+
+    # @classmethod
+    # async def filter_all(cls: Type[T], **criteria) -> Optional[T]:
+    #     """Filter records by criteria and return the first match."""
+    #     async with AsyncSessionLocal() as session:
+    #         result = await session.execute(select(cls).filter_by(**criteria))
+    #         return result.scalars().all()
+
+    # @classmethod
+    # async def filter_by_id(cls: Type[T], idRecord: str) -> Optional[T]:
+    #     """Filter records by id and return the first match."""
+    #     async with AsyncSessionLocal() as session:
+    #         result = await session.execute(select(cls).filter_by(id=idRecord))
+    #         return result.scalars().first()
+
     @classmethod
-    async def filter_by(cls: Type[T], **criteria) -> Optional[T]:
-        """Filter records by criteria and return the first match."""
+    async def filter_by(cls: Type[T], relationships: Optional[List[str]] = None, **criteria) -> Optional[T]:
+        """Filter records by criteria and return the first match, with optional relationship loading."""
         async with AsyncSessionLocal() as session:
-            result = await session.execute(select(cls).filter_by(**criteria))
+            query = select(cls).filter_by(**criteria)
+
+            if relationships:
+                for relation in relationships:
+                    if hasattr(cls, relation):
+                        query = query.options(selectinload(getattr(cls, relation)))
+
+            result = await session.execute(query)
             return result.scalars().first()
 
     @classmethod
-    async def filter_all(cls: Type[T], **criteria) -> Optional[T]:
-        """Filter records by criteria and return the first match."""
+    async def filter_all(cls: Type[T], relationships: Optional[List[str]] = None, **criteria) -> List[T]:
+        """Filter records by criteria and return all matches, with optional relationship loading."""
         async with AsyncSessionLocal() as session:
-            result = await session.execute(select(cls).filter_by(**criteria))
+            query = select(cls).filter_by(**criteria)
+
+            if relationships:
+                for relation in relationships:
+                    if hasattr(cls, relation):
+                        query = query.options(selectinload(getattr(cls, relation)))
+
+            result = await session.execute(query)
             return result.scalars().all()
 
     @classmethod
-    async def filter_by_id(cls: Type[T], idRecord: str) -> Optional[T]:
-        """Filter records by id and return the first match."""
+    async def filter_by_id(cls: Type[T], idRecord: str, relationships: Optional[List[str]] = None) -> Optional[T]:
+        """Filter records by id and return the first match, with optional relationship loading."""
         async with AsyncSessionLocal() as session:
-            result = await session.execute(select(cls).filter_by(id=idRecord))
+            query = select(cls).filter_by(id=idRecord)
+
+            if relationships:
+                for relation in relationships:
+                    if hasattr(cls, relation):
+                        query = query.options(selectinload(getattr(cls, relation)))
+
+            result = await session.execute(query)
             return result.scalars().first()
 
     @classmethod

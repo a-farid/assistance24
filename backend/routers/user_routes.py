@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Body, Depends as Ds, HTTPException, Path
-from schemas.user_schemas import T_Email, T_Profile, T_UserInDb
+from schemas.user_schemas import T_Email, T_Profile, T_UserInDb, T_Worker, T_Client
 from services.user_services import UserServices
 from db.redis import redis_delete, redis_set
 from db.models import User
 from services.jwt_services import JWTService
+from settings.standarization import json_response
 
 
 router = APIRouter()
@@ -22,7 +23,8 @@ async def get_users(tk=Ds(jwt_s.roles_allowed(["admin"]))):
 @router.get("/workers/all", status_code=200)
 async def get_all_workers(tk=Ds(jwt_s.roles_allowed(["admin"]))):
     workers_list = await user_service.get_all_workers()
-    return {"success": True, "data": workers_list}
+
+    return json_response(data=workers_list, message="All workers retrieved")
 
 @router.get("/clients/all", status_code=200)
 async def get_all_clients(tk=Ds(jwt_s.roles_allowed(["admin"]))):

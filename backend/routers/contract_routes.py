@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Depends as Ds, Path
 from schemas.contract_schemas import T_Contract, T_ContractUpdate
 from services import UserServices, JWTService, ContractServices
-from tools.standarization import json_response
+from settings.standarization import json_response
 
 
 router = APIRouter()
