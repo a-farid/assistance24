@@ -1,0 +1,44 @@
+{
+  "name": "utaj-client",
+  "version": "0.1.0",
+  "proxy": "http://127.0.0.1:8000",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^5.15.20",
+    "@reduxjs/toolkit": "^2.2.5",
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "formik": "^2.4.6",
+    "lucide-react": "^0.396.0",
+    "next": "14.2.3",
+    "next-themes": "^0.3.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^5.2.1",
+    "react-redux": "^9.1.2",
+    "socket.io-client": "^4.7.5",
+    "yup": "^1.4.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.3",
+    "postcss": "^8",
+    "prettier": "^3.3.2",
+    "prettier-plugin-tailwindcss": "^0.6.3",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}

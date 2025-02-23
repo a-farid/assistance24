@@ -1,35 +1,34 @@
 from fastapi import APIRouter, Body, Depends as Ds, Path
 from schemas.contract_schemas import T_Contract, T_ContractUpdate
 from services import UserServices, JWTService, ContractServices
-from settings.standarization import json_response
+from settings.standarization import json_response, pagination_params
 
 
 router = APIRouter()
-user_service = UserServices()
 jwt_s = JWTService()
 contract_service = ContractServices()
 
 
 
+@router.post("/create", description="Create a new contract [admin]")
+async def create_new_contract(body: T_Contract = Body(...), _=Ds(jwt_s.roles_allowed(["admin"]))):
+    new_contract = await contract_service.create_contract(body)
+    return json_response(new_contract, 200)
+
 @router.get("/my_contracts", description="Get contracts for the current user")
-async def get_my_contracts(token: str = Ds(jwt_s.authorized_token)):
-    contracts = await contract_service.get_my_contracts(token)
-    return json_response(data=contracts, message="User contracts retrieved")
+async def get_my_contracts(pagination: dict = Ds(pagination_params),token =Ds(jwt_s.roles_allowed(["worker", "client"]))):
+    response = await contract_service.get_my_contracts(token, pagination)
+    return json_response(**response, message="User contracts retrieved")
 
 @router.get("/all", description="Get all contracts")
-async def get_all_contracts(tet: dict =Ds(jwt_s.authorized_token)):
-    contracts = await contract_service.get_all_contracts()
-    return json_response(data=contracts, message="All contracts retrieved", count=len(contracts))
+async def get_all_contracts(pagination: dict = Ds(pagination_params), _: dict =Ds(jwt_s.authorized_token)):
+    contracts = await contract_service.get_all_contracts(pagination)
+    return json_response(**contracts, message="All contracts retrieved")
 
 @router.get("/{contract_id}", description="Get a contract by id")
 async def get_all_contracts(contract_id: str = Path(...),token=Ds(jwt_s.authorized_token)):
     contract = await contract_service.get_contract(contract_id, token)
     return json_response(data=contract, message="Contract retrieved")
-
-@router.post("/create", description="Create a new contract [admin]")
-async def create_new_contract(body: T_Contract = Body(...), _=Ds(jwt_s.roles_allowed(["admin"]))):
-    new_contract = await contract_service.create_contract(body)
-    return json_response(new_contract, 200)
 
 @router.put("/{contract_id}/worker/{worker_id}", description="Assigne a worker to a contract [admin]")
 async def assign_worker_to_contract(contract_id: str = Path(...), worker_id: str = Path(...), _=Ds(jwt_s.roles_allowed(["admin"]))):
@@ -49,8 +48,7 @@ async def update_contract(contract_id: str = Path(...), body: T_ContractUpdate =
 @router.delete("/{contract_id}", description="Delete a contract [admin]")
 async def delete_contract(contract_id: str = Path(...), _=Ds(jwt_s.roles_allowed(["admin"]))):
     await contract_service.delete_contract(contract_id)
-    return json_response(status_code=204)
-
+    return json_response(status_code=201)
 
 @router.delete("/{contract_id}/worker", description="Remove worker from contract [admin]")
 async def detach_worker_from_contract(contract_id: str = Path(...), _=Ds(jwt_s.roles_allowed(["admin"]))):

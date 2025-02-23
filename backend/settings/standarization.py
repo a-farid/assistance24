@@ -4,6 +4,10 @@ from fastapi.responses import JSONResponse
 from datetime import datetime, date
 from uuid import UUID
 from fastapi.encoders import jsonable_encoder
+from typing import Any, Dict, Union
+
+from schemas.user_schemas import T_Client, T_User, T_Worker
+
 
 T = TypeVar("T")
 
@@ -25,8 +29,48 @@ def serialize_data(data):
         return [serialize_data(item) for item in data]
     return data
 
+async def get_user_model(data: Union[T_Worker, T_Client]) -> dict:
+    """Fetch and return worker and client as T_Profile."""
+    result = {}
+    if data.user:
+        user_dict = data.user.to_dict()
+        result["user"] = T_User(**user_dict)
+    return result
 
-def json_response(data=None, status_code=200, message="Request passed succesfully", count=None, page=None, skip=None, limit=None):
+async def format_paginated_response(result: Dict[str, Any], model: BaseModel, key: str = "data", nested_user: bool = False):
+    """Formats paginated response, converting the given data into a Pydantic model list."""
+    items = result.get(key, [])
+
+    # Convert SQLAlchemy objects to dictionaries if necessary
+    formatted_items = []
+    for item in items:
+            item_dict = item.to_dict()
+
+            # If the item has a user and we need to nest it, handle it here
+            if nested_user:
+                item_dict = await get_user_model(item)  # Await the result of get_user_model
+
+            # Convert the cleaned-up dictionary to the Pydantic model
+            formatted_items.append(model.model_validate(item_dict))
+
+    return {
+        key: formatted_items,
+        "total_records": result.get("total_records"),
+        "total_pages": result.get("total_pages"),
+        "current_page": result.get("current_page"),
+        "limit": result.get("limit"),
+    }
+
+
+from fastapi import Query
+
+def pagination_params(page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    """Dependency to handle pagination parameters for all routes."""
+    return {"page": page, "limit": limit}
+
+
+
+def json_response(data=None,  current_page=None, total_pages=None, total_records=None, limit=None,status_code=200, message=None):
     """
     Standardized JSON response with optional pagination details.
 
@@ -45,15 +89,17 @@ def json_response(data=None, status_code=200, message="Request passed succesfull
 
     serialized_data = serialize_data(data)
 
-    response_content = {"success": True, "message": message}
+    response_content = {"success": True}
 
     # Add optional pagination details only if provided
-    if count is not None:
-        response_content["count"] = count
-    if page is not None:
-        response_content["page"] = page
-    if skip is not None:
-        response_content["skip"] = skip
+    if message is not None:
+        response_content["message"] = message
+    if current_page is not None:
+        response_content["current_page"] = current_page
+    if total_pages is not None:
+        response_content["total_pages"] = total_pages
+    if total_records is not None:
+        response_content["total_records"] = total_records
     if limit is not None:
         response_content["limit"] = limit
     if data is not None:

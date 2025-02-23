@@ -1,0 +1,26 @@
+
+Use npm
+
+Use a <script> tag
+If you're already using npm and a module bundler such as webpack or Rollup, you can run the following command to install the latest SDK (Learn more):
+
+npm install firebase
+Then, initialize Firebase and begin using the SDKs for the products you'd like to use.
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC2daIrs-boXH1ELpwau6s-nbPCBK6K32I",
+  authDomain: "asistanz365.firebaseapp.com",
+  projectId: "asistanz365",
+  storageBucket: "asistanz365.firebasestorage.app",
+  messagingSenderId: "434883459357",
+  appId: "1:434883459357:web:6510f8ef7cbb88579189f4",
+  measurementId: "G-8KXS7H7VGS"
+};

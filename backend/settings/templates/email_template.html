@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Welcome {{ username }}, Email Verification for Assistenz365</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        text-align: center;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 500px;
+        margin: auto;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+      .logo {
+        width: 120px;
+        margin-bottom: 20px;
+      }
+      h2 {
+        color: #333;
+      }
+      p {
+        color: #555;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .otp-box {
+        display: inline-block;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 5px;
+        background: #04172c;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      .button {
+        display: inline-block;
+        background-color: #007bff;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        font-size: 16px;
+        border-radius: 5px;
+        margin-top: 10px;
+      }
+      .footer {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #777;
+      }
+      .footer a {
+        color: #007bff;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img src="assets/assistenz365_logo.png" alt="Assistenz365 Logo" class="logo" />
+
+      <h2>Hello {{ first_name }}!</h2>
+
+      <p>
+        Du erhältst diese E-Mail, weil
+        <b>Samantha HINTERPLATTNER (GESCHÄFTSFÜHRERIN)</b> von Assistenz365 dich
+        zur Mitarbeit eingeladen hat. Bitte bestätige deine E-Mail-Adresse mit dem
+        unten stehenden Code und Link:
+      </p>
+
+      <p><b>Dein Benutzername ist:</b></p>
+      <div class="otp-box">{{ username }}</div>
+
+
+      <p>Klicke auf den folgenden Link, um deine E-Mail zu bestätigen:</p>
+      <a href="{{ verification_link }}" class="button">Verify Email</a>
+
+      <p class="footer">
+        Dieser Link ist 24 Stunden gültig. Falls du Fragen hast, besuche bitte
+        <a href="https://www.assistenz365.at/">Assistenz365</a>.
+      </p>
+    </div>
+  </body>
+</html>
