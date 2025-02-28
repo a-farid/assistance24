@@ -13,7 +13,6 @@ jwt_s = JWTService()
 @router.get("/unread")
 async def get_unread_notifications(pagination = Ds(pagination_params),payload= Ds(jwt_s.authorized_token)):
     """Get all unread notifications for a user"""
-    print("payload",payload.get("user_id"))
     # Get unread notifications
     unread_notifications = await db.notification.filter_all(receiver_id=payload.get("cw_id"), read=False, **pagination)
 

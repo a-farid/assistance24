@@ -25,17 +25,15 @@ class T_Contract(BaseModel):
     @field_validator("hours_confirmed")
     def check_hours_confirmed(cls, v, values):
         hours_count = values.data.get("hours_count")
-        print("hours_count", hours_count)
         if hours_count is None:
             return v
-        print("v", v)
         if hours_count is not None and v > hours_count:
             raise ValueError("hours_confirmed must be less than or equal to hours_count")
         return v
 
     @field_validator("date_end")
     def check_date_end(cls, v, values):
-        date_start = values.data.get("date_start")  # Use `.get()` to avoid KeyError
+        date_start = values.data.get("date_start")
         if date_start is not None and v < date_start:
             raise ValueError("date_end must be greater than or equal to date_start")
         return v

@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int
     SEKRET_KEY_ADMIN: str
     APP_URL: str
+    FRONTEND_URL: str
     EMAIL_VERIFICATION_SECRET: str
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

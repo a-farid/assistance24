@@ -116,7 +116,7 @@ def register_all_errors(app: FastAPI):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "success": False,
-                "message": "A database error occurred",
+                "message": f"A database error: {str(exc)}",
                 "error_code": "database_error",
                 "info": str(exc),
             },
@@ -129,10 +129,10 @@ def register_all_errors(app: FastAPI):
             status_code=exc.status_code,
             content={
                 "success": False,
-                "message": "HTTP error occurred",
+                "message": exc.detail,
                 "status_code": exc.status_code,
                 "error_code": "http_exception",
-                "info": exc.detail,
+                "info": str(exc.detail),
                 "path": request.url.path,
                 "exception": error_location,
             },

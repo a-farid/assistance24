@@ -6,10 +6,10 @@ from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await check_db()  # Runs at startup
+    await check_db()  # Runs at startuproot_path
     yield  # Runs the app
 
-app = FastAPI(lifespan=lifespan, openapi_prefix="/api")
+app = FastAPI(lifespan=lifespan, root_path="/api")
 
 register_all_errors(app)
 register_middleware(app)

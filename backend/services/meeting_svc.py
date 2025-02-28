@@ -17,7 +17,6 @@ class MeetingServices:
     async def create_meeting(self, body: T_Meeting, user: T_User) -> dict:
         """Create a new meeting while ensuring uniqueness and minimizing database calls."""
         body_dict = body.model_dump(exclude={"id"})  # Let SQLAlchemy generate the ID
-        print("user", user)
 
         # Fetch the contract in a single query and ensure the worker is assigned
         contract = await db.contract.filter_by_first(relationships=["worker", "client"], id=body_dict["contract_id"])

@@ -18,19 +18,17 @@ def register_middleware(app: FastAPI):
         print(f"{request.client.host}:{request.client.port} - {request.method} - {request.url.path} - {response.status_code} completed after {processing_time}s")
         return response
 
-    # Define allowed origins explicitly
-    allowed_origins = [
-        "http://localhost:3000",  # Next.js running locally
-        "http://127.0.0.1:3000",  # Alternative localhost
-        "https://your-production-frontend.com",  # Add your real frontend URL here
+    origins = [
+        "http://localhost:3000",  # Frontend (React, Next.js, etc.)
+        "http://127.0.0.1:3000",
     ]
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000", "https://yourfrontend.com"],  # ✅ Replace with actual frontend domains
-        allow_methods=["*"],
-        allow_headers=["*"],
-        allow_credentials=True,  # ✅ Allows cookies & credentials
+        allow_origins=origins,  # Allow specific frontend origins
+        allow_credentials=True,  # Allow sending cookies
+        allow_methods=["*"],  # Allow all methods (GET, POST, PUT, DELETE)
+        allow_headers=["*"],  # Allow all headers
     )
 
     app.add_middleware(

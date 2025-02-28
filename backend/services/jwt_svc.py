@@ -48,6 +48,7 @@ class JWTService:
             "access": timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINUTES),
             "refresh": timedelta(days=Config.REFRESH_TOKEN_EXPIRE_DAYS),
             "activation": timedelta(days=1),
+            "reset": timedelta(minutes=15),
         }
 
         if token_type not in token_expiry:
@@ -130,12 +131,12 @@ class JWTService:
         access_token = await self.create_token(data, "access")
         refresh_token = await self.create_token({"user_id": user.id}, "refresh")
 
-        response = JSONResponse(content={"success": True, "data": {"access_token": access_token, "refresh_token": refresh_token}})
-        response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True, secure=True, samesite="None")
-        response.set_cookie(key="refresh_token", value=f"Bearer {refresh_token}", httponly=True, secure=True, samesite="None")
+        response = JSONResponse(content={"success": True, "data": {"user": user.model_dump(),"access_token": access_token, "refresh_token": refresh_token}})
+        response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=False, secure=True, samesite="None")
+        response.set_cookie(key="refresh_token", value=f"Bearer {refresh_token}", httponly=False, secure=True, samesite="None")
 
         return response
-    
+
     def create_email_activation_tokens(self, user: T_UserInDb):
         """
         Create new access and refresh tokens and set them in HTTP-only cookies.

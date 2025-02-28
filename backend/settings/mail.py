@@ -91,3 +91,20 @@ class MailServices:
             raise HTTPException(status_code=400, detail="Failed to send email")
 
         return result
+
+    async def send_reset_password_mail(self, user:T_User):
+
+        token = await jwt_s.create_token({"email": user.email}, "refresh")
+
+        verification_link = f"{Config.FRONTEND_URL}/reset_password?token={token}"
+
+        result = await send_email(
+            recipients=[user.email],
+            subject=f"Hi {user.first_name}, Passwort vergessen?? Klicken Sie auf den Link unten, um Ihr Passwort zurückzusetzen",
+            template_name="reset_password.html",
+            context={"username": user.username, "first_name": user.first_name, "verification_link": verification_link}
+        )
+        if not result:
+            raise HTTPException(status_code=400, detail="Failed to send email")
+
+        return result

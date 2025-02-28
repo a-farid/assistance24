@@ -15,7 +15,6 @@ async def get_image(image_name: str):
 
     # Check if the file exists
     if not os.path.exists(image_path):
-        print("Image path", image_path)
         return {"error": "Image not found", "Image path": image_path}
 
     return FileResponse(image_path)
