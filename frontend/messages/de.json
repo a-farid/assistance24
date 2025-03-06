@@ -1,0 +1,16 @@
+{
+  "LocaleSwitcher": {
+    "de": "Deutsch",
+    "en": "English",
+    "label": "Sprache"
+  },
+  "HomePage": {
+    "hero": "Bei dieser Anwendung handelt es sich um ein Vertrags- und Personalverwaltungstool für das Unternehmen Assistanz365. Sie können damit Akten, Personal und Verträge verwalten.",
+    "search": "Suchen Sie nach einem Vertrag oder einer Besprechung"
+  },
+  "LoginPage": {
+    "login": "Anmelden",
+    "password": "Passwort",
+    "title": "Willkommen zurück"
+  }
+}

@@ -32,7 +32,7 @@ function Profile({ user, setOpenProileBar }: Props) {
   if (!user) return null;
   return (
     <>
-      <div className="absolute right-10 top-10 w-[280px] border p-2 bg-gradient-global">
+      <div className="absolute right-10 top-10 w-[280px] border p-2 bg-gradient-global text-black dark:bg-slate-900 dark:text-white rounded-md shadow-lg">
         <div className="flex items-center justify-center flex-col w-full">
           <div className="flex items-center justify-evenly w-full py-5">
             <Avatar
@@ -42,7 +42,7 @@ function Profile({ user, setOpenProileBar }: Props) {
             />
             <div>
               <h1 className="w-full text-center font-bold text-[15px]">
-                Mr {user.username}
+                Mr  {user.username}
               </h1>
               <p className="w-full text-center">{user.departement}</p>
             </div>

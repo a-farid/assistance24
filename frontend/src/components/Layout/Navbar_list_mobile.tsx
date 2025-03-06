@@ -24,7 +24,7 @@ export const Navbar_list_mobile = ({ setOpenSideBar }: Props) => {
         }
       }, [user]);
   return (
-    <div className="md:hidden bg-gray-50 dark:bg-slate-800 absolute left-0  w-full h-screen top-[80px]">
+    <div className="bg-gray-50 dark:bg-slate-800 absolute left-0  w-full h-screen top-[80px]">
       <div className="w-full py-6 text-center flex items-center flex-col gap-6">
         {navbar_list.map((item, index) => (
           <NavbarItem key={index} setOpenSideBar={setOpenSideBar} {...item} />

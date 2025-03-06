@@ -1,11 +1,12 @@
 "use client";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {userLoggedOut,AuthState, userLoggedIn} from "../auth/authSlice";
+import { userLoggedOut, AuthState, userLoggedIn } from "../auth/authSlice";
 import { RootState } from "../../store";
 
+// ✅ Base API configuration
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
-  credentials: "include", // ✅ Ensures cookies are included
+  credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
     const { token } = state.auth as AuthState;
@@ -18,29 +19,28 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-const modelQuery: any = (method: string, url: string, body: any=null) => {
-  if (body){
-    return{
-      url: url,
-      method: method,
-      body,
-      credentials: "include" as const,
-    }
-  } else {
-    return{
-      url: url,
-      method: method,
-      credentials: "include" as const,
-    }
-  }
-}
+// ✅ Helper function for API requests
+const modelQuery = (method: string, url: string, body?: any) => ({
+  url,
+  method,
+  ...(body && { body }),
+  credentials: "include" as const,
+});
 
+// ✅ Base Query with Re-authentication
 const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
   let result = await baseQuery(args, api, extraOptions);
+
   if (result.error?.status === 401) {
-    const refreshResult = (await baseQuery({ url: "/auth/refresh", method: "GET" }, api, extraOptions)) as any;
-    if (refreshResult?.data) {
-      api.dispatch(userLoggedIn({ access_token: refreshResult.data.data.access_token, user: refreshResult.data.data.user }));
+    const refreshResult = await baseQuery({ url: "/auth/refresh", method: "GET" }, api, extraOptions);
+
+    if ((refreshResult as any)?.data) {
+      api.dispatch(
+        userLoggedIn({
+          access_token: (refreshResult as any).data.data.access_token,
+          user: (refreshResult as any).data.data.user,
+        })
+      );
       result = await baseQuery(args, api, extraOptions);
     } else {
       api.dispatch(userLoggedOut());
@@ -49,33 +49,31 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
   return result;
 };
 
+// ✅ Create the main API slice
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
-    refreshToken: builder.query({query: () => (modelQuery("GET", "/auth/refresh")),
+    refreshToken: builder.query({
+      query: () => modelQuery("GET", "/auth/refresh"),
       onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
         const result = await queryFulfilled;
-        dispatch(userLoggedIn({ access_token: result?.data.data.access_token, user: result?.data.data.user }))},
+        dispatch(
+          userLoggedIn({
+            access_token: result?.data.data.access_token,
+            user: result?.data.data.user,
+          })
+        );
+      },
     }),
     checkUsername: builder.mutation({
-          query: (data) => ({
-            url: "auth/check_username",
-            method: "POST",
-            body: data,
-            credentials: "include",
-          }),
-        }),
+      query: (data) => modelQuery("POST", "auth/check_username", data),
+    }),
     checkEmail: builder.mutation({
-          query: (data) => ({
-            url: "auth/check_email",
-            method: "POST",
-            body: data,
-            credentials: "include",
-          }),
-        }),
-
+      query: (data) => modelQuery("POST", "auth/check_email", data),
+    }),
   }),
 });
 
+// ✅ Export hooks
 export const { useRefreshTokenQuery, useCheckEmailMutation, useCheckUsernameMutation } = apiSlice;

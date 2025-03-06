@@ -1,4 +1,4 @@
-import {LucideIcon, Check } from "lucide-react";
+import {LucideIcon, Check, Newspaper, LayoutDashboard } from "lucide-react";
 
   export interface I_SidebarItem {
     label: string;
@@ -14,23 +14,23 @@ import {LucideIcon, Check } from "lucide-react";
 
   export const admin_navbar_list: I_NavBarList[] = [
     {
-      name: "Dossiers",
-      link: "/dossiers",
-      icon: Check,
+      name: "Contracts",
+      link: "/contracts",
+      icon: Newspaper,
       subItems: [
         {
+          label: "All contracts",
+          href: "/contracts/all",
+          icon: Check,
+        },
+        {
+          label: "Create new contract",
+          href: "/contracts/create",
+          icon: Check,
+        },
+        {
           label: "Statistiques",
-          href: "/dossiers/nouveau",
-          icon: Check,
-        },
-        {
-          label: "Documents",
-          href: "/dossiers/en-cours",
-          icon: Check,
-        },
-        {
-          label: "Coordination",
-          href: "/dossiers/clotures",
+          href: "/contracts/statistiques",
           icon: Check,
         },
       ],
@@ -38,26 +38,21 @@ import {LucideIcon, Check } from "lucide-react";
     {
       name: "Admin",
       link: "/admin",
-      icon: Check,
+      icon: LayoutDashboard,
       subItems: [
-        {
-          label: "Pointage GR",
-          href: "/pointage",
-          icon: Check,
-        },
         {
           label: "Users",
           href: "/admin/users",
           icon: Check,
         },
         {
-          label: "Roles",
-          href: "/admin/roles",
+          label: "Clients",
+          href: "/admin/clients",
           icon: Check,
         },
         {
-          label: "Permissions",
-          href: "/admin/permissions",
+          label: "Workers",
+          href: "/admin/workers",
           icon: Check,
         },
       ],

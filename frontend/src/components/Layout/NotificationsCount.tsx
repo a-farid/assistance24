@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
-// import NotificationSocket from "../_hooks/NotificationSocket";
 import { Badge, IconButton } from "@mui/material"; // Assuming you're using Material-UI
 import { Bell } from "lucide-react";
+import { useTheme } from "next-themes";
+
 import NotificationsList from "./NotificationsList";
 
 interface Props {
@@ -10,11 +11,9 @@ interface Props {
   setOpenNotificationsBar: (value: boolean) => void;
 }
 
-const NotificationsCount = ({
-  openNotificationsBar,
-  setOpenNotificationsBar,
-}: Props) => {
+const NotificationsCount = ({openNotificationsBar, setOpenNotificationsBar}: Props) => {
   const [notifications, setNotifications] = useState<any[]>([]);
+  const { theme } = useTheme();
 
   const handleNotification = (notification: any) => {
     setNotifications((prevNotifications) => [
@@ -29,14 +28,11 @@ const NotificationsCount = ({
       onClick={() => setOpenNotificationsBar(!openNotificationsBar)}
     >
       <IconButton color="inherit">
-        <Badge badgeContent={5} color="error">
-          <Bell />
+        <Badge badgeContent={0} color="error">
+          {theme === "light" ? (<Bell fill="black" />) : (<Bell />)}
         </Badge>
       </IconButton>
-      {/* <NotificationSocket onNotification={handleNotification} /> */}
-      {openNotificationsBar && (
-        <NotificationsList setOpenNotificationsBar={setOpenNotificationsBar} />
-      )}
+      {openNotificationsBar && (<NotificationsList setOpenNotificationsBar={setOpenNotificationsBar}/>)}
     </div>
   );
 };

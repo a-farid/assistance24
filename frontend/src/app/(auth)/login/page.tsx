@@ -1,22 +1,22 @@
 type Props = {};
 import Button from "@mui/material/Button";
 import Link from "next/link";
-import LoginForm from "./_components/LoginForm";
+import LoginForm from "./_LoginForm";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+
 
 export const metadata: Metadata = {
   title: "Login",
   description: "Login to access your account",
 };
 
-function LoginPage({}: Props) {
+async function LoginPage({}: Props) {
+  const t = await getTranslations("LoginPage");
   return (
-    <div className="border p-2 max-w-md mx-auto mt-52">
+    <div className="border p-20 max-w-md mx-auto mt-52">
       <div>
-        <h1 className="w-full text-center font-bold text-[20px]">Login</h1>
-        <p className="w-full text-center">
-          Bonjour, login pour acceder a votre compte.
-        </p>
+        <h1 className="w-full text-center font-bold text-[20px] mb-5">{t("title")}</h1>
       </div>
       <div>
         <div className="flex items-center flex-col w-full">

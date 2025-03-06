@@ -6,7 +6,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useState } from "react";
 import { z, ZodError } from "zod";
 import FormError from "@/components/custom/FormError";
-import { useLoginMutation } from "../../../../lib/features/auth/authApi";
+import { useLoginMutation } from "../../lib/features/auth/authApi";
 import toast from "react-hot-toast";
 import Loading from "@/components/custom/Loading";
 import { useRouter } from "next/navigation";

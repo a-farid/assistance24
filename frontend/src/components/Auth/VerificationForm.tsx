@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { z, ZodError } from "zod";
 import FormError from "@/components/custom/FormError";
-import { useActivationMutation } from "../../../../lib/features/auth/authApi";
+import { useActivationMutation } from "../../lib/features/auth/authApi";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 

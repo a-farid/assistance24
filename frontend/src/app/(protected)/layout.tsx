@@ -1,5 +1,5 @@
-import { Navbar } from "./_components/Layout/Navbar";
-import Sidebar from "./_components/Layout/Sidebar";
+import { Navbar } from "../../components/Layout/Navbar";
+import Sidebar from "../../components/Layout/Sidebar";
 import React from "react";
 import Protected from "../../components/_hooks/Protected";
 

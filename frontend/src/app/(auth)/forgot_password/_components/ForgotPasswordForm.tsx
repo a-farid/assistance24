@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import CustomFormik from "@/components/custom/CustomFormik";
 import { ResetPasswordFields } from "./ForgotPassword";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 
 
@@ -17,12 +18,13 @@ const initialValues = {
 type Props = {};
 function ForgotPasswordForm({}: Props) {
   const onSubmit = async ({email}: FormValues) => {
+    const router = useRouter();
     try {
       const response:any = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot_password`, {email});
 
       if (response.data.success){
         toast.success("Password reset link sent to your email");
-        window.location.href = "/login"}
+        router.push("/")}
       else
         toast.error(response.data.message || "An error occurred");
     } catch (error) {

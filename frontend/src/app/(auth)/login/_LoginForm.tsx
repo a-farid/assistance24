@@ -6,8 +6,11 @@ import toast from "react-hot-toast";
 import { useAppDispatch } from "@/lib/hooks";
 import { useLoginMutation } from "@/lib/features/auth/authApi";
 import CustomFormik from "@/components/custom/CustomFormik";
-import { LoginFields } from "./LoginFields";
 import Loading from "@/components/custom/Loading";
+import {useTranslations} from 'next-intl';
+import { FormField } from "@/utils/interface/FormikField";
+
+
 
 const formSchema = z.object({
   username: z.string().min(3, { message: "Minimum of 6 characters" }),
@@ -17,6 +20,11 @@ type FormValues = z.infer<typeof formSchema>;
 const initialValues = { username: "", password: "" };
 
 function LoginForm({}: {}) {
+  const t = useTranslations('LoginPage');
+  const LoginFields = new FormField(t('connectBtn'), [
+    { label: "Username", name: "username", type: "text" },
+    { label: "Password", name: "password", type: "password" },
+  ]);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [login, { data, error, isSuccess, isLoading }] = useLoginMutation();

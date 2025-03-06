@@ -1,0 +1,17 @@
+{
+  "LocaleSwitcher": {
+    "de": "Deutsch",
+    "en": "English",
+    "label": "Language"
+  },
+  "HomePage": {
+    "hero": "This application is a contract and personnel management tool for the Assistanz365 company. It allows you to manage files, personnel and contracts.",
+    "search": "Search for a contract or meeting"
+  },
+  "LoginPage": {
+    "connectBtn": "Connect",
+    "login": "Sign in",
+    "password": "Password",
+    "title": "Welcome to our platform Assistenz365"
+  }
+}

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IEvent } from "../../../utils/interface/I_agenda";
+import { IEvent } from "@/utils/interface/I_agenda";
 
 export interface SecretariatState {
   events: IEvent[];

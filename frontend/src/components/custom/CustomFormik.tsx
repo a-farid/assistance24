@@ -142,7 +142,6 @@ const CustomFormik = ({initialValues,formSchema,onSubmit,fields,isLoading,childr
                       case "number":
                       case "checkbox":
                       case "date":
-                      case "password":
                       case "time":
                       case "text":
                         return (
@@ -166,6 +165,8 @@ const CustomFormik = ({initialValues,formSchema,onSubmit,fields,isLoading,childr
                             </div>
                           </>
                         );
+                      case "password":
+                      case "check_db":
                       case "custom":
                         return field.render
                           ? field.render(formik, field.name)

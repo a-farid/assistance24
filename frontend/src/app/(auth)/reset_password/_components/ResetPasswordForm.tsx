@@ -2,7 +2,7 @@
 import { z } from "zod";
 import toast from "react-hot-toast";
 import CustomFormik from "@/components/custom/CustomFormik";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 import { ResetPasswordFields } from "./ResetPassword";
 import axios from "axios";
@@ -28,6 +28,7 @@ const initialValues = {
 type Props = {};
 function ResetPasswordForm({}: Props) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
 
 
@@ -42,7 +43,7 @@ function ResetPasswordForm({}: Props) {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset_password`, { token, password });
       if(response.data.success){
         toast.success("Password reset successfully!");
-        window.location.href = "/"}
+        router.push("/")}
         else {toast.error(response.data.message || "An error occurred");}
       }
     catch (error) {
