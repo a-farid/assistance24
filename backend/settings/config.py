@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str
     EMAIL_VERIFICATION_SECRET: str
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 
 Config = Settings()

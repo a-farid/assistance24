@@ -2,8 +2,8 @@ type Props = {};
 import Button from "@mui/material/Button";
 import Link from "next/link";
 import LoginForm from "./_LoginForm";
-import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { Metadata } from "next";
 
 
 export const metadata: Metadata = {

@@ -1,5 +1,3 @@
-import clsx from 'clsx';
-import {Inter} from 'next/font/google';
 import {NextIntlClientProvider} from 'next-intl';
 import {getLocale, getMessages} from 'next-intl/server';
 import {ReactNode} from 'react';
@@ -7,6 +5,8 @@ import './globals.css';
 import { Poppins, Josefin_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/providers/theme-provider";
+
+// import { ThemeProvider } from 'next-themes'
 import ToastProvider from "../components/providers/toaster-provider";
 import Providers from "../components/providers/redux-provider";
 import { Metadata } from "next";
@@ -36,22 +36,20 @@ type Props = {
 export default async function LocaleLayout({children}: Props) {
   const locale = await getLocale();
 
-  // Providing all messages to the client
-  // side is the easiest way to get started
   const messages = await getMessages();
 
   return (
-    <html lang="en" suppressHydrationWarning>
-    <Providers>
-      <body className={`${poppins.variable} ${josefin.variable} bg-gradient-global duration-300 dark:text-white text-black transition-colors min-h-screen pb-5`} suppressHydrationWarning>
-        <ToastProvider />
+    <html lang="en" >
+      <body suppressHydrationWarning={true} className={`${poppins.variable} ${josefin.variable} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100`}>
         <ThemeProvider>
-        <NextIntlClientProvider messages={messages}>
-        {children}
-      </NextIntlClientProvider>
-      </ThemeProvider>
+        <Providers>
+        <ToastProvider />
+          <NextIntlClientProvider messages={messages}>
+            {children}
+          </NextIntlClientProvider>
+        </Providers>
+        </ThemeProvider>
       </body>
-    </Providers>
     </html>
   );
 }

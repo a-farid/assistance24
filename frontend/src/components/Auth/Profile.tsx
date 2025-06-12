@@ -6,10 +6,7 @@ import { useLogoutMutation } from "@/lib/features/auth/authApi";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
-type Props = {
-  user: any;
-  setOpenProileBar: (value: boolean) => void;
-};
+type Props = {user: any; setOpenProileBar: (value: boolean) => void};
 
 function Profile({ user, setOpenProileBar }: Props) {
   const router = useRouter();

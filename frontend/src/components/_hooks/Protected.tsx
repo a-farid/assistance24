@@ -24,7 +24,6 @@ const Protected = ({ children }: Props) => {
       }
     };
     !token && loadRefresh();
-    !user;
   }, [dispatch, router, user, token]);
 
   return children;

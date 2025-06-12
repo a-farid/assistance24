@@ -17,6 +17,7 @@ type Props = {
 export default function LocaleSwitcherSelect({defaultValue, items, label }: Props) {
   const [isPending, startTransition] = useTransition();
   const { theme } = useTheme();
+  console.log('LocaleSwitcherSelect rendered with theme:', theme);
 
 
   function onChange(value: string) {

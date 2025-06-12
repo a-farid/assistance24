@@ -12,5 +12,18 @@
     "login": "Anmelden",
     "password": "Passwort",
     "title": "Willkommen zurück"
+  },
+    "ProfilePage": {
+    "title": "Profil",
+    "editBtn": "Profil bearbeiten",
+    "logoutBtn": "Abmelden",
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefonnummer",
+    "saveChanges": "Änderungen speichern",
+    "cancel": "Abbrechen",
+    "address": "Adresse",
+    "role": "Rolle",
+    "photo": "Profilfoto"
   }
 }

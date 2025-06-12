@@ -25,8 +25,21 @@ class AuthServices:
             await send_push_notification(admin.id, admin.fcm_token, title, message, link)
 
     async def create_admin(self, user: T_UserInDbAdmin) -> T_User:
-
-        if not jwt_s.verify_password(user.admin_key, Config.SEKRET_KEY_ADMIN):
+        """
+        Create a new admin user.
+        :param user: User data
+        :return: Created user
+        """
+        print("Creating admin user:", user)
+        print("user.admin_key:", user.admin_key)
+        print("Config.SEKRET_KEY_ADMIN:", Config.SEKRET_KEY_ADMIN)
+        print("Config.SEKRET_KEY_ADMIN should be:", jwt_s.get_hashed_password("test"))
+        print("jwt_s.verify_password:", jwt_s.verify_password(user.admin_key, Config.SEKRET_KEY_ADMIN))
+        try:
+            if not jwt_s.verify_password(user.admin_key, Config.SEKRET_KEY_ADMIN):
+                raise HTTPException(status_code=400, detail="Incorrect admin key")
+        except Exception as e:
+            print("Error verifying admin key:", e)
             raise HTTPException(status_code=400, detail="Incorrect admin key")
 
         user.hashed_password = jwt_s.get_hashed_password(user.hashed_password)

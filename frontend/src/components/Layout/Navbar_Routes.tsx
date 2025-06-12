@@ -3,7 +3,7 @@ import { Navbar_list_laptop } from "./Navbar_list_laptop";
 import { ThemeSwitcher } from "@/components/custom/themeSwitcher";
 import { HiOutlineMenuAlt3 } from "react-icons/hi";
 import { useState } from "react"; 
-import NotificationsCount from "@/components/Layout/NotificationsCount";
+// import NotificationsCount from "@/components/Layout/NotificationsCount";
 import { useAppSelector } from "@/lib/hooks";
 import AvatarProfile from "./AvatarProfile";
 import { Navbar_list_mobile } from "./Navbar_list_mobile";

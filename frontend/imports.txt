@@ -1,0 +1,12 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Profile",
+  description: "Profile page to access account details",
+};
+
+import { getTranslations } from "next-intl/server"; // server components
+    const t = await getTranslations('HomePage') =>  <div> {t('hero')}</div>
+
+import { useTranslations } from "next-intl"; // client components
+      const t = useTranslations("HomePage") =>  <div> {t('hero')}</div>

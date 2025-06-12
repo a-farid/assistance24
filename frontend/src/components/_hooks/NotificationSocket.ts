@@ -13,7 +13,7 @@ const NotificationSocket = ({ onNotification }: { onNotification: any }) => {
       console.log("Connected to socket.io server");
     });
 
-    socket.on("notification", (notification) => {
+    socket.on("notification", (notification: any) => {
       console.log("New notification:", notification);
       onNotification(notification); // Pass notification data to parent component
     });

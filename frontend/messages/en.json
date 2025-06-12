@@ -13,5 +13,18 @@
     "login": "Sign in",
     "password": "Password",
     "title": "Welcome to our platform Assistenz365"
+  },
+  "ProfilePage": {
+    "title": "Profile",
+    "editBtn": "Edit Profile",
+    "logoutBtn": "Logout",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "address": "Address",
+    "role": "Role",
+    "photo": "Profile Photo"
   }
 }
