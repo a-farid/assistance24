@@ -7,6 +7,7 @@ __pycache__/
 
 .serviceAccountKey.json
 
+.settings/serviceAccountKey.txt
 settings/serviceAccountKey.txt
 
 # Distribution / packaging
