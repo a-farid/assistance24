@@ -16,3 +16,4 @@ backend/.env
 *.lock
 *.sqlite3
 backend/settings/serviceAccountKey.txt
+node_modules
