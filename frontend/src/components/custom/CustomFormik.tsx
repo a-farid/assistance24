@@ -118,7 +118,6 @@ const CustomFormik = ({initialValues,formSchema,onSubmit,fields,isLoading,childr
                           <>
                             <input
                               className="col-span-2 font-bold p-2 border w-full"
-                              autoComplete={field.autocomplete}
                               type={field.type}
                               id={field.name}
                               name={field.name}
@@ -140,6 +139,7 @@ const CustomFormik = ({initialValues,formSchema,onSubmit,fields,isLoading,childr
                           </>
                         );
                       case "number":
+                      case "tel":
                       case "checkbox":
                       case "date":
                       case "time":

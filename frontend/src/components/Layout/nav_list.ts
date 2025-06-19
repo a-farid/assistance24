@@ -55,6 +55,11 @@ import {LucideIcon, Check, Newspaper, LayoutDashboard } from "lucide-react";
           href: "/admin/workers",
           icon: Check,
         },
+        {
+          label: "FAQ",
+          href: "/admin/faq",
+          icon: Check,
+        },
       ],
     },
   ];

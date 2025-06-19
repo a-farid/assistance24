@@ -61,6 +61,8 @@ class T_Profile(BaseModel):
 
 class T_Email(BaseModel):
     email: EmailStr = Field(..., examples=["user1@mail.com"])
+class T_Username(BaseModel):
+    username: StrictStr = Field(..., min_length=3, max_length=50, examples=["user1"])
 class T_ResetPassword(BaseModel):
     password: str = Field(..., min_length=8,max_length=100, examples=["Aqwzsx@123"])
     token: str = Field(..., examples=["user1@mail.com"])
@@ -106,7 +108,7 @@ class T_PassUpdate(BaseModel):
 
         return password  # Return validated password
 class T_UserInDb(T_User):
-    hashed_password: str = Field(..., min_length=8,max_length=100, examples=["Aqwzsx@123"])
+    hashed_password: Optional[str] = Field(None, min_length=8, max_length=100, examples=["Aqwzsx@123"])
 
     @field_validator("hashed_password")
     @classmethod
@@ -128,9 +130,8 @@ class T_UserInDb(T_User):
 
         return password  # Return validated password
 
-
 class T_UserInDbAdmin(T_UserInDb):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    # id: uuid.UUID = Field(default_factory=uuid.uuid4)
     is_admin: bool = True
     admin_key: str
 

@@ -111,6 +111,10 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const result = await queryFulfilled;
+            console.log("result logout", result.data);
+            if (result.data.success) {
+            // returns true
+            }
           dispatch(userLoggedOut());
         } catch (error) {
           console.log("ErrorLogOutAction: ", error);

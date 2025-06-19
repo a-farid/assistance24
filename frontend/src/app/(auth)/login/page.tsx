@@ -25,7 +25,7 @@ async function LoginPage({}: Props) {
         </div>
       </div>
       <div className="flex items-center justify-center w-full">
-        <h1 className="text-center">Mot de passe oublie ?</h1>
+        <h1 className="text-center">{t('forgetPw')}</h1>
         <Link href={"/forgot_password"}>
           <Button className="w-full text-center ml-2" variant="text">
             Cliquer ici

@@ -57,7 +57,7 @@ export const secApi = apiSlice.injectEndpoints({
       },
     }),
     deleteEvent: builder.mutation({
-      query: (id: number) => ({
+      query: (id: string) => ({
         url: `secretariat/agenda/${id}`,
         method: "DELETE",
         credentials: "include",

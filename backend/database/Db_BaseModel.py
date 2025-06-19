@@ -72,15 +72,16 @@ class DB_BaseModel(Base):
 
     @classmethod
     async def get_all(
-        cls: Type[T], 
-        relationships: Opt[List[str]] = None, 
-        limit: int = 10, 
+        cls: Type[T],
+        relationships: Opt[List[str]] = None,
+        limit: int = 10,
         page: int = 1
     ) -> Dict[str, Union[List[T], int]]:
         async with AsyncSessionLocal() as session:
             total_records = await session.execute(select(func.count()).select_from(cls))
             total_records = total_records.scalar()
 
+            total_records = int(total_records or 0)
             total_pages = (total_records // limit) + (1 if total_records % limit != 0 else 0)
             page = max(1, page)
             offset = (page - 1) * limit
@@ -95,14 +96,14 @@ class DB_BaseModel(Base):
             query = query.limit(limit).offset(offset)
 
             result = await session.execute(query)
-            data = result.scalars().all()
+            data = list(result.scalars().all() or [])
 
             return {
                 "data": data,
-                "total_records": total_records,
-                "total_pages": total_pages,
-                "current_page": page,
-                "limit": limit
+                "total_records": int(total_records or 0),
+                "total_pages": int(total_pages or 0),
+                "current_page": int(page or 1),
+                "limit": int(limit or 10)
             }
 
     @classmethod
@@ -116,6 +117,7 @@ class DB_BaseModel(Base):
         async with AsyncSessionLocal() as session:
             total_records = await session.execute(select(func.count()).select_from(cls).filter_by(**criteria))
             total_records = total_records.scalar()
+            total_records = int(total_records or 0)
 
             total_pages = (total_records // limit) + (1 if total_records % limit != 0 else 0)
             page = max(1, page)
@@ -134,33 +136,20 @@ class DB_BaseModel(Base):
             data = result.scalars().all()
 
             return {
-                "data": data,
+                "data": list(data or []),
                 "total_records": total_records,
                 "total_pages": total_pages,
                 "current_page": page,
                 "limit": limit
             }
 
-    # @classmethod
-    # async def get_all(cls: Type[T], relationships: Opt[List[str]] = None) -> List[T]:
-    #     """Get all records of the model, with optional relationship loading."""
-    #     async with AsyncSessionLocal() as session:
-    #         query = select(cls)
-
-    #         if relationships:
-    #             for relation in relationships:
-    #                 if hasattr(cls, relation):  # Ensure the attribute exists
-    #                     query = query.options(selectinload(getattr(cls, relation)))
-
-    #         result = await session.execute(query)
-    #         return result.scalars().all()
 
     @classmethod
     async def get_id(cls: Type[T], **criteria) -> Opt[str]:
         """Fetch only the ID of the first matching record based on criteria."""
         async with AsyncSessionLocal() as session:
-            result = await session.execute(select(cls.id).filter_by(**criteria))
-            return result.scalar()
+            result = await session.execute(select(getattr(cls, "id")).filter_by(**criteria))
+            return result.scalar_one_or_none()
 
     @classmethod
     async def filter_by_first(cls: Type[T], relationships: Opt[List[str]] = None, **criteria) -> Opt[T]:
@@ -175,20 +164,6 @@ class DB_BaseModel(Base):
 
             result = await session.execute(query)
             return result.scalars().first()
-
-    # @classmethod
-    # async def filter_all(cls: Type[T], relationships: Opt[List[str]] = None, **criteria) -> List[T]:
-    #     """Filter records by criteria and return all matches, with optional relationship loading."""
-    #     async with AsyncSessionLocal() as session:
-    #         query = select(cls).filter_by(**criteria)
-
-    #         if relationships:
-    #             for relation in relationships:
-    #                 if hasattr(cls, relation):
-    #                     query = query.options(selectinload(getattr(cls, relation)))
-
-    #         result = await session.execute(query)
-    #         return result.scalars().all()
 
     @classmethod
     async def filter_by_id(cls: Type[T], idRecord: str, relationships: Opt[List[str]] = None) -> Opt[T]:

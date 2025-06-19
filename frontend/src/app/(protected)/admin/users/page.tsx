@@ -2,36 +2,37 @@
 import Loading from "@/components/custom/Loading";
 import { useGetUsersQuery } from "@/lib/features/users/usersApi";
 import { IUser } from "@/utils/interface/user_interfaces";
-import { Avatar, Button } from "@mui/material";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import CustomTableComponent from "./_components/table";
+import { allUsersHeadCells } from "./_components/table_utils";
 
-
-
-type Props = {};
-
-const page = (props: Props) => {
+const page = () => {
 
   const { data, error, isLoading } = useGetUsersQuery("users");
 
-  if (error) return <p>Error loading users</p>;
+  if (error) return <div>Error loading users</div>;
 
-  // return <p>Test</p>
-  return (
-    <div className="w-full bg-amber-300">
-      {isLoading ? <Loading/> : data.data.map((user: IUser) => (
-          <ul key={user.id} className="grid grid-cols-3 p-2">
-                      <Avatar
-            alt={`${user.username} photo profile`}
-            src={user.url_photo ? user.url_photo : "http://localhost:8000/api/images/1.png"}
-          />
-            <li className="my-2">{user.first_name} {user.last_name}</li>
-            <li>{user.email}</li>
-            <li>{user.role}</li>
-          </ul>
-        ))}
-    </div>
-  );
+
+  const rows = data?.data.map((user: IUser) => ({
+    id: user.id,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    username: user.username,
+    email: user.email,
+    phone: user.phone,
+    adress: user.adress,
+    role: user.role,
+    disabled: user.disabled ? 'Yes' : 'No',
+  })) || [];
+  interface IData {
+    id: number;
+    calories: number;
+    carbs: number;
+    fat: number;
+    name: string;
+    protein: number;
+  }
+  if(isLoading) return <Loading />;
+  return <CustomTableComponent<IData> data={rows} isLoading={isLoading} headCells={allUsersHeadCells} />;
 };
 
 export default page;

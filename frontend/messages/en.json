@@ -12,19 +12,34 @@
     "connectBtn": "Connect",
     "login": "Sign in",
     "password": "Password",
-    "title": "Welcome to our platform Assistenz365"
+    "title": "Welcome to our platform Assistenz365",
+    "forgetPw" : "Forget password?"
   },
   "ProfilePage": {
     "title": "Profile",
+    "edit_title": "Edit profile",
     "editBtn": "Edit Profile",
     "logoutBtn": "Logout",
-    "name": "Name",
+    "first_name": "First Name",
+    "last_name": "Last Name",
     "email": "Email",
     "phone": "Phone Number",
     "saveChanges": "Save Changes",
     "cancel": "Cancel",
-    "address": "Address",
+    "adress": "Address",
     "role": "Role",
     "photo": "Profile Photo"
+  },
+  "ErrorPage": {
+    "title": "Error",
+    "message": "An error occurred. Please try again later.",
+    "backToHome": "Back to Home"
+  },
+  "FaqPage": {
+    "title": "Frequently Asked Questions",
+    "searchMsg": "Search for a question...",
+    "noResults": "No results found",
+    "question": "Question",
+    "answer": "Answer"
   }
 }

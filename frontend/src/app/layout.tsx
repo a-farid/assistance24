@@ -1,5 +1,5 @@
 import {NextIntlClientProvider} from 'next-intl';
-import {getLocale, getMessages} from 'next-intl/server';
+import { getMessages} from 'next-intl/server';
 import {ReactNode} from 'react';
 import './globals.css';
 import { Poppins, Josefin_Sans } from "next/font/google";
@@ -29,12 +29,7 @@ const josefin = Josefin_Sans({
   variable: "--font-Josefin",
 });
 
-type Props = {
-  children: ReactNode;
-};
-
-export default async function LocaleLayout({children}: Props) {
-  const locale = await getLocale();
+export default async function LocaleLayout({children}: {children: ReactNode}) {
 
   const messages = await getMessages();
 

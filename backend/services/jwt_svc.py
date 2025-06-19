@@ -4,7 +4,7 @@ from fastapi import HTTPException, Depends, status, Cookie
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from schemas.user_schemas import T_UserInDb
+from schemas.user_schemas import T_User, T_UserInDb
 from database import redis_get, redis_set, db
 
 from settings import Config
@@ -57,7 +57,7 @@ class JWTService:
         data["exp"] = datetime.now(timezone.utc) + token_expiry[token_type]
         return jwt.encode(data, Config.SECRET_KEY, algorithm=Config.ALGORITHM)
 
-    def authorize(self, condition: callable, error_detail: str) -> callable:
+    def authorize(self, condition: callable, error_detail: str) -> callable: # type: ignore
         """
         Generalized authorization function that checks if a given condition
         holds for the decoded JWT token and returns the decoded token if authorized.
@@ -99,21 +99,7 @@ class JWTService:
             "You are not the owner of this resource"
         )
 
-    # async def create_refresh_access_tokens(self, user: T_UserInDb):
-    #     """
-    #     Create new access and refresh tokens and set them in HTTP-only cookies.
-    #     """
-    #     data = {"username": user.username, "role": user.role, "user_id": user.id}
-    #     access_token = await self.create_token(data, "access")
-    #     refresh_token = await self.create_token(data, "refresh")
-
-    #     response = JSONResponse(content={"success": True, "data": {"access_token": access_token, "refresh_token": refresh_token}})
-    #     response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True, secure=True, samesite="Lax")
-    #     response.set_cookie(key="refresh_token", value=f"Bearer {refresh_token}", httponly=True, secure=True, samesite="Lax")
-
-    #     return response
-
-    async def create_refresh_access_tokens(self, user: T_UserInDb):
+    async def create_refresh_access_tokens(self, user: T_User):
         """
         Create new access and refresh tokens and set them in HTTP-only cookies.
         """
@@ -132,8 +118,8 @@ class JWTService:
         refresh_token = await self.create_token({"user_id": user.id}, "refresh")
 
         response = JSONResponse(content={"success": True, "data": {"user": user.model_dump(),"access_token": access_token, "refresh_token": refresh_token}})
-        response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=False, secure=True, samesite="None")
-        response.set_cookie(key="refresh_token", value=f"Bearer {refresh_token}", httponly=False, secure=True, samesite="None")
+        response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=False, secure=True, samesite="none")
+        response.set_cookie(key="refresh_token", value=f"Bearer {refresh_token}", httponly=False, secure=True, samesite="none")
 
         return response
 
@@ -145,7 +131,7 @@ class JWTService:
         activation_token = self.create_token(data, "activation")
 
         response = JSONResponse(content={"success": True, "email": user.email, "activation_token": activation_token})
-        response.set_cookie(key="activation_token", value=f"{activation_token}", httponly=True, secure=True, samesite="Lax")
+        response.set_cookie(key="activation_token", value=f"{activation_token}", httponly=True, secure=True, samesite="lax")
 
         return response
 

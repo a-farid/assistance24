@@ -24,7 +24,6 @@ import {
 import { Input } from "@/components/ui/input"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { columns } from "./columns"
-import { useGetUsersQuery } from "@/lib/features/users/usersApi"
 import { IUser } from "@/utils/interface/user_interfaces"
 
 
@@ -78,11 +77,6 @@ export function DataTable(data: any) {
 
     const [userList, setUserList] = React.useState<IUser[]>([]);
 
-//   const { data, error, isLoading } = useGetUsersQuery("users");
-
-// React.useEffect(() => {
-//   setUserList(data?.data || []);
-//   }, [data, userList]);
 
   const table = useReactTable({
     data, columns,

@@ -30,7 +30,7 @@ const authSlice = createSlice({
     },
     userSetInfos: (state, action: PayloadAction<{ user: any }>) => {
       state.user = action.payload.user;
-    },
+    }
   },
 });
 

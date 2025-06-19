@@ -1,8 +1,18 @@
 import { apiSlice } from "../api/apiSlice";
+import { userSetInfos } from "../auth/authSlice";
 import { getAllUsers } from "./usersSlice";
+
+// Type definition for the profile update data
+type UpdateProfileData = {
+  adress?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+};
 
 // ✅ Extend apiSlice with additional endpoints
 export const usersApi = apiSlice.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     getUsers: builder.query({
       query: () => ({
@@ -19,8 +29,25 @@ export const usersApi = apiSlice.injectEndpoints({
         }
       },
     }),
+    editConnectedUser: builder.mutation<any, UpdateProfileData>({
+      query: (profileData) => ({
+        url: "users/me",
+        method: "PUT",
+        body: profileData,
+        headers: {"Content-Type": "application/json"},
+        credentials: "include",
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const result = await queryFulfilled;
+          dispatch(userSetInfos({ user: result.data.data }));
+        } catch (error) {
+          console.log("Error [editConnectedUser] updating profile: ", error);
+        }
+      },
+    }),
   }),
 });
 
 // ✅ Export the generated hooks
-export const { useGetUsersQuery } = usersApi;
+export const { useGetUsersQuery, useEditConnectedUserMutation } = usersApi;

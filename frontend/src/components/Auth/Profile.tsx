@@ -11,14 +11,17 @@ type Props = {user: any; setOpenProileBar: (value: boolean) => void};
 function Profile({ user, setOpenProileBar }: Props) {
   const router = useRouter();
   const [logout, { data, isLoading, isSuccess }] = useLogoutMutation();
-  const handleLogout = () => {
-    logout({});
-
-    if (isSuccess) {
+  const handleLogout = async () => {
+    try {
+      const response = await logout({}).unwrap();  // <--- unwrap gives you the actual data
+      toast.success(response.message || "User logged out successfully");
       router.push("/login");
-      toast.success(data.message || "User logged out successfully");
+    } catch (err) {
+      toast.error("Logout failed");
+      console.error(err);
     }
   };
+
 
   useEffect(() => {
     if (isSuccess) {

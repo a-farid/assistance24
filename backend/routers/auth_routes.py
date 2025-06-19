@@ -14,14 +14,14 @@ jwt_s = JWTService()
 
 
 @router.post("/signup", response_model=ApiResponse[T_User], description="Register a new admin.")
-async def register_new_admin(body: T_UserInDbAdmin = Body(...)):
+async def signup(body: T_UserInDbAdmin = Body(...)):
     body_dict = body.model_dump(exclude={"id"})
     body = T_UserInDbAdmin(**body_dict)
     new_user = await auth_svc.create_admin(body)
     return await jwt_s.create_refresh_access_tokens(new_user)
 
 @router.get("/check_email/{email}", response_model=ApiResponse[T_User], description="Check if the email exists.")
-async def register_new_admin(email: str = Path(...)):
+async def check_email(email: str = Path(...)):
     result=await auth_svc.check_email(email)
     if result:
         return json_response(message="The email already exists on DB", data=result)
@@ -29,7 +29,7 @@ async def register_new_admin(email: str = Path(...)):
         return json_response(message="The email does not exist on DB", data=result)
 
 @router.get("/check_username/{username}", response_model=ApiResponse[T_User], description="Check if the username exists.")
-async def register_new_admin(username: str = Path(...)):
+async def check_username(username: str = Path(...)):
     result=await auth_svc.check_username(username)
     if result:
         return json_response(message="The username already exists on DB", data=result)
@@ -48,8 +48,8 @@ async def logout(access_token=Ds(jwt_s.authorized_token)):
     """
     response = JSONResponse(content={"success": True, "message": "Logged out successfully"})
 
-    response.delete_cookie("access_token", httponly=False, secure=True, path="/", samesite="None")
-    response.delete_cookie("refresh_token", httponly=False, secure=True, path="/", samesite="None")
+    response.delete_cookie("access_token", httponly=False, secure=True, path="/", samesite="none")
+    response.delete_cookie("refresh_token", httponly=False, secure=True, path="/", samesite="none")
 
     await redis_delete(access_token.get("user_id"))
 
@@ -102,11 +102,13 @@ async def update_fcm_token(body: T_FCMToken= Body(...), _: dict = Ds(jwt_s.autho
     return json_response(data=updated_user, message="FCM token updated succesfully")
 
 @router.post("/forgot_password")
-async def reset_password(body: T_Email= Body(...)):
+async def forgot_password(body: T_Email= Body(...)):
     """Store the Firebase Cloud Messaging (FCM) token for the user."""
     body_dict = body.model_dump()
-    print("body reset password", body_dict)
-    updated_user = await auth_svc.forgot_password(body_dict.get("email"))
+    email = body_dict.get("email")
+    if email is None:
+        raise HTTPException(status_code=422, detail="Email is required")
+    updated_user = await auth_svc.forgot_password(email)
     return json_response(data=updated_user, message="FCM token updated succesfully")
 
 @router.post("/reset_password")

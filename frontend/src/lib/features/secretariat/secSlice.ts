@@ -28,7 +28,7 @@ const secretariatSlice = createSlice({
         state.events[index] = action.payload;
       }
     },
-    deleteEventAction: (state, action: PayloadAction<number>) => {
+    deleteEventAction: (state, action: PayloadAction<string>) => {
       state.events = state.events.filter(
         (event) => event.id !== action.payload
       );

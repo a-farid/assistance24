@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, Optional
+from typing import Generic, Type, TypeVar, Optional
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from datetime import datetime, date
@@ -33,13 +33,14 @@ async def get_user_model(data: Union[T_Worker, T_Client]) -> dict:
     """Fetch and return worker and client as T_Profile."""
     result = {}
     if data.user:
-        user_dict = data.user.to_dict()
+        # user_dict = data.user.to_dict() # Before types verification
+        user_dict = data.user.model_dump()
         result["user"] = T_User(**user_dict)
     return result
 
-async def format_paginated_response(result: Dict[str, Any], model: BaseModel, key: str = "data", nested_user: bool = False):
+async def format_paginated_response(result: Dict[str, Any], model: Type[BaseModel], nested_user: bool = False):
     """Formats paginated response, converting the given data into a Pydantic model list."""
-    items = result.get(key, [])
+    items = result.get("data", [])
 
     # Convert SQLAlchemy objects to dictionaries if necessary
     formatted_items = []
@@ -54,7 +55,7 @@ async def format_paginated_response(result: Dict[str, Any], model: BaseModel, ke
             formatted_items.append(model.model_validate(item_dict))
 
     return {
-        key: formatted_items,
+        "data": formatted_items,
         "total_records": result.get("total_records"),
         "total_pages": result.get("total_pages"),
         "current_page": result.get("current_page"),

@@ -1,5 +1,5 @@
 export interface IEvent {
-  id: number;
+  id: string;
   userConcerners: { nom_officier: string }[];
   uuid: string;
   created_at: string;

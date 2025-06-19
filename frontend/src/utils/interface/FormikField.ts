@@ -32,6 +32,7 @@ export interface IField {
   name: string;
   type:
     | "text"
+    | "tel"
     | "date"
     | "number"
     | "file"

@@ -4,8 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import { I_SidebarItem } from "../../../../utils/constants/nav-list";
 import { ListItemIcon } from "@mui/material";
+import { I_SidebarItem } from "./nav_list";
 
 const SidebarItem = ({ icon: Icon, label, href }: I_SidebarItem) => {
   const pathname = usePathname();

@@ -9,21 +9,37 @@
     "search": "Suchen Sie nach einem Vertrag oder einer Besprechung"
   },
   "LoginPage": {
+    "connectBtn": "Verbinden",
     "login": "Anmelden",
     "password": "Passwort",
-    "title": "Willkommen zurück"
+    "title": "Willkommen zurück",
+    "forgetPw" : "Passwort vergessen?"
   },
-    "ProfilePage": {
+  "ProfilePage": {
     "title": "Profil",
+    "edit_title": "Profil bearbeiten",
     "editBtn": "Profil bearbeiten",
     "logoutBtn": "Abmelden",
-    "name": "Name",
+    "first_name": "Vorname",
+    "last_name": "Nachname",
     "email": "E-Mail",
     "phone": "Telefonnummer",
     "saveChanges": "Änderungen speichern",
     "cancel": "Abbrechen",
-    "address": "Adresse",
+    "adress": "Adresse",
     "role": "Rolle",
-    "photo": "Profilfoto"
+    "photo": "Profilbild"
+  },
+  "ErrorPage": {
+    "title": "Fehler",
+    "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+    "backToHome": "Zurück zur Startseite"
+  },
+  "FaqPage": {
+    "title": "Häufig gestellte Fragen",
+    "searchMsg": "Geben Sie einen Suchbegriff ein...",
+    "noResults": "Keine Ergebnisse gefunden",
+    "question": "Frage",
+    "answer": "Antwort"
   }
 }
