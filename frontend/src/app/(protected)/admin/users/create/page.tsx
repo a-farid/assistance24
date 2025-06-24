@@ -1,13 +1,15 @@
 import React from "react";
-import SignupForm from "./_components/SignupForm";
+import CreateUserForm from "./_components/CreateUserForm";
+import { getTranslations } from "next-intl/server";
 
 type Props = {};
 
-const page = (props: Props) => {
+const page = async (props: Props) => {
+  const t = await getTranslations('CreateUserPage')
   return (
     <div>
-      <h2>Ajouter un utilisateur</h2>
-      <SignupForm />
+      <h2>{t('title')}</h2>
+      <CreateUserForm />
     </div>
   );
 };

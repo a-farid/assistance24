@@ -8,9 +8,9 @@ import { useLocale, useTranslations } from "next-intl";
 
 const Faq = () => {
   const [search, setSearch] = useState("");
+  const t = useTranslations('FaqPage');
+  
     const locale = useLocale();
-    const t = useTranslations('FaqPage');
-
     const FAQ_LIST = locale === "de" ? FAQ_LIST_DE : FAQ_LIST_EN;
     const filteredFaqs = FAQ_LIST.filter((faq) =>
         faq.question.toLowerCase().includes(search.toLowerCase()) ||

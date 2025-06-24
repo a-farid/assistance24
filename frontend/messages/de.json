@@ -41,5 +41,8 @@
     "noResults": "Keine Ergebnisse gefunden",
     "question": "Frage",
     "answer": "Antwort"
+  },
+  "CreateUserPage": {
+    "title": "Benutzer erstellen"
   }
 }

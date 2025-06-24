@@ -6,10 +6,12 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
-import { HeadCell, Order, tableStyles } from './table_utils';
+import { Order } from './table_utils';
+import { HeadCell } from './headers_cells';
 
 
 interface EnhancedTableProps<T> {
+  tableStyles: any;
   headCells: readonly HeadCell[];
   numSelected: number;
   onRequestSort: (event: React.MouseEvent<unknown>, property: keyof T) => void;
@@ -20,7 +22,7 @@ interface EnhancedTableProps<T> {
 }
 
 export function EnhancedTableHead<T>(props: EnhancedTableProps<T>) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, headCells,} = props;
+  const { tableStyles, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, headCells,} = props;
 
   const createSortHandler = (property: keyof T) => (event: React.MouseEvent<unknown>) => {
     onRequestSort(event, property);

@@ -15,9 +15,10 @@ export const usersApi = apiSlice.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     getUsers: builder.query({
-      query: () => ({
+      query: ({ page = 1, limit = 5 }) => ({
         url: "/users/all",
         method: "GET",
+        params: { page, limit },
         credentials: "include",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {

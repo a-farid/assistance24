@@ -52,7 +52,7 @@ const CustomFormik = ({initialValues,formSchema,onSubmit,fields,isLoading,childr
                           <>
                             <Field
                               className="col-span-2 font-bold p-2 border w-full"
-                              autoComplete={field.autocomplete}
+                              autoComplete={field.autocomplete || "off"}
                               as={field.type}
                               type={field.type}
                               id={field.name}
@@ -61,9 +61,9 @@ const CustomFormik = ({initialValues,formSchema,onSubmit,fields,isLoading,childr
                               <option
                                 key="{index}"
                                 value=""
-                                className="px-auto bg-red-500"
+                                className="text-center"
                               >
-                                ------Selectionner-------
+                                ---------- Select -----------
                               </option>
                               {field.options &&
                                 field.options.map((op, index) => (

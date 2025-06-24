@@ -3,11 +3,11 @@ import { alpha } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
-import { DeleteIcon, ListFilter } from 'lucide-react';
+import { UserRoundX, ListFilter } from 'lucide-react';
 import IconButton from '@mui/material/IconButton';
 
-export function EnhancedTableToolbar(props: {numSelected: number}) {
-  const { numSelected } = props;
+export function EnhancedTableToolbar(props: {numSelected: number,selected: any }) {
+  const { numSelected, selected } = props;
   return (
     <Toolbar
       sx={[
@@ -43,9 +43,9 @@ export function EnhancedTableToolbar(props: {numSelected: number}) {
         </Typography>
       )}
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        <Tooltip title="Deactivate selected users" onClick={() => console.log('Deactivate users', selected)}>
           <IconButton>
-            <DeleteIcon />
+            <UserRoundX />
           </IconButton>
         </Tooltip>
       ) : (
