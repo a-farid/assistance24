@@ -43,6 +43,8 @@
     "answer": "Antwort"
   },
   "CreateUserPage": {
-    "title": "Benutzer erstellen"
+    "title": "Benutzer erstellen",
+    "userCreatedSuccessfully": "Benutzer erfolgreich erstellt",
+    "createUserError": "Fehler beim Erstellen des Benutzers. Bitte versuchen Sie es erneut."
   }
 }

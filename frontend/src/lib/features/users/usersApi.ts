@@ -47,8 +47,27 @@ export const usersApi = apiSlice.injectEndpoints({
         }
       },
     }),
+    createUser: builder.mutation({
+      query: (userData) => ({
+        url: "users/create",
+        method: "POST",
+        body: userData,
+        headers: {"Content-Type": "application/json"},
+        credentials: "include",
+
+  }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const result = await queryFulfilled;
+          // Optionally handle the result, e.g., show a success message or update state
+          console.log("User created successfully:", result.data);
+        } catch (error) {
+          console.log("Error creating user:", error);
+        }
+      },
+    }),
   }),
 });
 
 // ✅ Export the generated hooks
-export const { useGetUsersQuery, useEditConnectedUserMutation } = usersApi;
+export const { useGetUsersQuery, useEditConnectedUserMutation, useCreateUserMutation } = usersApi;

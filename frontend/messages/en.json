@@ -43,6 +43,8 @@
     "answer": "Answer"
   },
   "CreateUserPage": {
-    "title": "Create User"
+    "title": "Create User",
+    "userCreatedSuccessfully": "User created successfully",
+    "createUserError": "Error creating user. Please try again."
   }
 }

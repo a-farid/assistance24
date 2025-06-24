@@ -4,10 +4,10 @@ import {
   TableRow, Paper, Checkbox, FormControlLabel, Switch
 } from '@mui/material';
 import { useTheme } from 'next-themes';
-import { HeadCell, Order, getTableStyles } from './table_utils';
+import { Order, getTableStyles } from './table_utils';
 import { EnhancedTableToolbar } from './table_toolbar';
 import { EnhancedTableHead } from './table_head';
-
+import { HeadCell } from './headers_cells';
 
 type CustomTableProps<T> = {
   rawData: {
@@ -60,6 +60,7 @@ const rows = data.map((item) => ({
     event: React.MouseEvent<unknown>,
     property: keyof T,
   ) => {
+    console.log('Sorting by:', property);
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);

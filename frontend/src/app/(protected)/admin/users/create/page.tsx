@@ -3,7 +3,7 @@ import CreateUserForm from "./_components/CreateUserForm";
 import { getTranslations } from "next-intl/server";
 
 type Props = {};
-
+// test
 const page = async (props: Props) => {
   const t = await getTranslations('CreateUserPage')
   return (
