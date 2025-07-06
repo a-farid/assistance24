@@ -20,7 +20,7 @@ const AvatarProfile = ({ user, openProileBar, setOpenProileBar }: Props) => {
           <Avatar
             alt={`${user.username} photo profile`}
             // src={user.url_photo ? user.url_photo : "http://localhost:8000/api/images/1.png"}
-            src={"http://localhost:8000/api/images/1.png"}
+            src={"http://localhost:8000/api/images/3.png"}
           />
         ) : (
           <HiOutlineUserCircle />

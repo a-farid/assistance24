@@ -20,8 +20,17 @@ const userSlice = createSlice({
     getAllUsers: (state, action: PayloadAction<{ users: IUser[]}>) => {
       state.users = action.payload.users;
     },
+    updateUser: (state, action: PayloadAction<{ user: IUser }>) => {
+      const index = state.users.findIndex(user => user.id === action.payload.user.id);
+      if (index !== -1) {
+        state.users[index] = action.payload.user;
+      }
+    },
+    addUser: (state, action: PayloadAction<{ user: IUser }>) => {
+      state.users.push(action.payload.user);
+    }
   },
 });
 
-export const { getAllUsers } = userSlice.actions;
+export const { getAllUsers, updateUser, addUser } = userSlice.actions;
 export default userSlice.reducer;

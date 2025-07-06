@@ -46,5 +46,17 @@
     "title": "Create User",
     "userCreatedSuccessfully": "User created successfully",
     "createUserError": "Error creating user. Please try again."
+  },
+  "GetAllUsersPage": {
+    "title": "All Users",
+    "addUser": "Add new user",
+    "searchPlaceholder": "Search for a user...",
+    "noUsersFound": "No users found",
+    "userDetails": "User Details",
+    "editUser": "Edit User",
+    "deleteUser": "Delete User",
+    "confirmDelete": "Are you sure you want to delete this user?",
+    "deleteSuccess": "User deleted successfully",
+    "deleteError": "Error deleting user. Please try again."
   }
 }

@@ -13,6 +13,7 @@ export interface IUser extends IProfile {
     disabled: boolean;
     is_verifier: boolean;
     role: string;
+    is_verified?: boolean;
     }
 
 export interface IWorker {

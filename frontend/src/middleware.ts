@@ -44,7 +44,6 @@ export function middleware(request: NextRequest) {
 
     // Role restriction for /admin/* routes
     if (pathname.startsWith("/admin") && userRole !== "admin") {
-      console.warn("User is not admin, redirecting to home");
       return NextResponse.redirect(new URL("/", request.url));
     }
 

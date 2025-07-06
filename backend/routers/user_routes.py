@@ -15,14 +15,15 @@ async def create_new_user(body: T_UserInDb = Body(...), dt=Ds(jwt_s.roles_allowe
     new_user = await user_service.create_user(body)
     return {"success": True, "data": new_user}
 
-@router.get("/all", status_code=200, description="Get all users.")
-async def get_users(
-    page: int=1,
-    limit: int=5,
-    _=Ds(jwt_s.roles_allowed(["admin"]))
-):
+@router.get("/all", status_code=200, description="Get all users [admin]")
+async def get_users( page: int=1, limit: int=5, _=Ds(jwt_s.roles_allowed(["admin"])) ):
     users_list = await user_service.get_all_users(page=page, limit=limit)
     return json_response(**users_list, message="All users retrieved")
+
+@router.get("/{user_id}", status_code=200, description="Get user by ID [admin]")
+async def get_user_by_id( user_id: str = Path(...), _=Ds(jwt_s.roles_allowed(["admin"])) ):
+    user = await user_service.get_user_admin(user_id)
+    return json_response(data=user, message="User returned succesfully")
 
 @router.get("/workers/all", status_code=200)
 async def get_all_workers(_=Ds(jwt_s.roles_allowed(["admin"]))):
@@ -54,10 +55,15 @@ async def update_user(user_id: str = Path(...),body: T_Profile = Body(...),_: di
     updated_user = await user_service.update_user(user_id, body)
     return json_response(data=updated_user, message="User updated succesfully")
 
-@router.put("/{user_id}/disable", description="Desactivate a user.")
+@router.put("/{user_id}/toggle_status", description="Desactivate a user [admin]")
 async def disable_user(user_id: str = Path(...),_: dict = Ds(jwt_s.roles_allowed(["admin"]))):
-    updated_user = await user_service.disable_user(user_id)
-    return json_response(data=updated_user, message="User disabled succesfully")
+    updated_user = await user_service.toggle_user_status(user_id)
+    return json_response(data=updated_user, message="User status updated succesfully")
+
+@router.put("/{user_id}/enable", description="DesactEnableivate a user [admin]")
+async def enable_user(user_id: str = Path(...),_: dict = Ds(jwt_s.roles_allowed(["admin"]))):
+    updated_user = await user_service.enable_user(user_id)
+    return json_response(data=updated_user, message="User enabled succesfully")
 
 @router.delete("/{user_id}", description="Delete a user.")
 async def delete_user(user_id: str = Path(...),_: dict = Ds(jwt_s.roles_allowed(["admin"]))):

@@ -60,8 +60,15 @@ class UserServices:
         await redis_set(getattr(updated_user, "id"), T_UserInDb(**updated_user.to_dict()))
         return updated_user
 
-    async def disable_user(self, user_id)-> T_User:
-        updated_user = await db.user.update(user_id, disabled=True)
+    async def toggle_user_status(self, user_id) -> T_User:
+        user = await db.user.filter_by_id(user_id)
+        new_status = not user.disabled
+        updated_user = await db.user.update(user_id, disabled=new_status)
+        await redis_delete(user_id)
+        return updated_user
+    
+    async def enable_user(self, user_id)-> T_User:
+        updated_user = await db.user.update(user_id, disabled=False)
         await redis_delete(user_id)
         return updated_user
 
@@ -121,6 +128,17 @@ class UserServices:
         user = await db.user.filter_by_id(user_id)
         if user.disabled:
             raise HTTPException(status_code=400, detail="User is disabled, contact the administrator")
+        await redis_set(getattr(user, "id"), T_User(**user.to_dict()))
+
+        return T_User(**user.to_dict())
+    
+    async def get_user_admin(self, user_id) -> T_User:
+        user_redis = await redis_get(user_id, T_User)
+
+        if user_redis:
+            return user_redis
+        user = await db.user.filter_by_id(user_id)
+
         await redis_set(getattr(user, "id"), T_User(**user.to_dict()))
 
         return T_User(**user.to_dict())

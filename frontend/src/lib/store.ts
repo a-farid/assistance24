@@ -3,7 +3,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { apiSlice } from "./features/api/apiSlice";
 import authSliceReducer from "./features/auth/authSlice";
-import secSliceReducer from "./features/secretariat/secSlice";
 import userSliceReducer from "./features/users/usersSlice";
 
 export const store = () => {
@@ -11,7 +10,6 @@ export const store = () => {
     reducer: {
       [apiSlice.reducerPath]: apiSlice.reducer,
       auth: authSliceReducer,
-      sec: secSliceReducer,
       user: userSliceReducer,
     },
     devTools: process.env.NODE_ENV === "development",

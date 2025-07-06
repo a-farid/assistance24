@@ -46,5 +46,18 @@
     "title": "Benutzer erstellen",
     "userCreatedSuccessfully": "Benutzer erfolgreich erstellt",
     "createUserError": "Fehler beim Erstellen des Benutzers. Bitte versuchen Sie es erneut."
+  },
+  "GetAllUsersPage": {
+    "title": "Alle Benutzer",
+    "addUser": "Benutzer hinzufügen",
+    "searchPlaceholder": "Suche nach einem Benutzer...",
+    "noUsersFound": "Keine Benutzer gefunden",
+    "userDetails": "Benutzerdetails",
+    "editUser": "Benutzer bearbeiten",
+    "deleteUser": "Benutzer löschen",
+    "confirmDelete": "Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?",
+    "deleteSuccess": "Benutzer erfolgreich gelöscht",
+    "deleteError": "Fehler beim Löschen des Benutzers. Bitte versuchen Sie es erneut."
   }
 }
+

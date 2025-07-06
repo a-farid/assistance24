@@ -13,7 +13,6 @@ const Profile = (props: Props) => {
   console.log('user', user);
   if(!user) return <LinesSkeleton />;
   return (
-    <>
     <div className="max-w-[500px] mx-auto mt-10 flex flex-col gap-4">
       <Heading title={"farid profile"} description="farid prof" />
       <TextFieldData label="Username" value={user?.username} />
@@ -27,7 +26,6 @@ const Profile = (props: Props) => {
         Update Profile
       </Button>
     </div>
-    </>
   );
 };
 

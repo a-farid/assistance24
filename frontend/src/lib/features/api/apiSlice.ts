@@ -53,6 +53,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ["User", "Auth"],
   endpoints: (builder) => ({
     refreshToken: builder.query({
       query: () => modelQuery("GET", "/auth/refresh"),
