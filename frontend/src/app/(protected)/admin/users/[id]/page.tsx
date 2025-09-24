@@ -7,7 +7,7 @@ import { useGetUserByIdQuery, useToggleUserStatusMutation } from '@/lib/features
 import Loading from '@/components/custom/Loading';
 import TextFieldData from '@/components/shared/TextFieldData';
 import Heading from '@/components/custom/Heading';
-import { Button, TextField } from '@mui/material';
+import { Button } from '@mui/material';
 import Image from 'next/image'
 import { IUser } from '@/utils/interface/user_interfaces';
 
@@ -28,9 +28,7 @@ const UserDetails = () => {
     const { data, isLoading, isError, error } = useGetUserByIdQuery(userId);
     const [toggleUserStatus, { isLoading: isToggling }] = useToggleUserStatusMutation();
 
-    if (isLoading) {
-        return <Loading />;
-    }
+    if (isLoading) { return <Loading />}
     
     if (isError) {
         log.error("UserDetails", "Error fetching user details", error);
@@ -60,10 +58,7 @@ const UserDetails = () => {
         try {
             const result = await toggleUserStatus(user.id).unwrap();
             console.log(`User ${user.disabled ? 'enabled' : 'disabled'} successfully:`, result);
-            
-            // ✅ Don't manually update user - let RTK Query cache update handle it
-            // user = result.data ← REMOVE THIS LINE
-            
+
             // Show success message with the CURRENT state (before toggle)
             const actionPerformed = user.disabled ? 'enabled' : 'disabled';
             toast(`User ${actionPerformed} successfully!`);
@@ -108,30 +103,8 @@ const UserDetails = () => {
             <TextFieldData label="Email" value={user.email} />
             <TextFieldData label="Phone" value={user.phone} />
             <TextFieldData label="Address" value={user.adress} />
-            {/* ✅ This should now update automatically via RTK Query cache */}
             <TextFieldData label="Disabled" value={user.disabled ? 'Yes' : 'No'} />
             <TextFieldData label="Verified" value={user.is_verified ? 'Yes' : 'No'} />
-
-            <div className="grid grid-cols-3 gap-4">
-            <p className="text-3xl font-bold">{"Test desabled"}</p>
-            <p className="text-3xl font-bold">{user.disabled ? 'Yes test' : 'No test'}</p>
-                <TextField className="col-span-2"
-                id="outlined-read-only-input"
-                label={user.disabled ? 'Yes' : 'No'}
-                defaultValue={user.disabled ? 'Yes' : 'No'}
-                variant="outlined"
-                slotProps={{input: {readOnly: true}}}
-                />
-            </div>
-
-            
-            
-            {/* ✅ Debug info - remove in production */}
-            <div className="text-sm text-gray-500 border p-2 rounded">
-                <p>Debug: User ID: {user.id}</p>
-                <p>Debug: Disabled status: {user.disabled ? 'true' : 'false'}</p>
-                <p>Debug: Is toggling: {isToggling ? 'true' : 'false'}</p>
-            </div>
 
             <Button variant="outlined" className="mt-5" href="/profile/edit">
                 Update Profile
@@ -139,7 +112,7 @@ const UserDetails = () => {
             
             <BtnWithAction
                 title="Edit Profile"
-                message="Are you sure you want to edit this profile? This will redirect you to the edit page."
+                message="Are you sure you want to edit this profile?"
                 confirmText="Yes, Edit"
                 cancelText="Cancel"
                 onConfirm={handleEditProfile}
@@ -179,12 +152,6 @@ const UserDetails = () => {
                     >
                         {isToggling ? 'ENABLING...' : 'ENABLE Profile'}
                     </Button>
-                )}
-                {/* ✅ These work because they're inline with the JSX render */}
-                {!user.disabled ? (
-                    <p className='text-green-600'>The user is enabled</p>
-                ) : (
-                    <p className='text-red-600'>The user is disabled</p>
                 )}
             </BtnWithAction>
         </div>

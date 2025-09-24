@@ -1,3 +1,51 @@
+📋 Project Overview
+Assistance365 is a comprehensive client-worker relationship management platform designed to handle hour tracking, notifications, and administrative tasks. It's built with a modern tech stack and follows best practices for scalability and maintainability.
+
+## 🏗️ Architecture
+Frontend (Next.js 15)
+Framework: Next.js 15 with React 19
+Styling: Tailwind CSS with custom components
+State Management: Redux Toolkit with RTK Query
+UI Components: Mix of Material-UI and Radix UI components
+Internationalization: next-intl for multi-language support (English/German)
+Authentication: JWT-based with protected routes
+Backend (FastAPI)
+Framework: FastAPI with Python
+Database: SQLAlchemy ORM with PostgreSQL
+Authentication: JWT tokens with refresh mechanism
+File Storage: Local asset management for profile images
+Email Services: Built-in email templates and notifications
+Caching: Redis integration for performance
+
+## 🔧 Key Features Implemented
+
+# Authentication System
+✅ Login/Logout functionality
+✅ User registration with admin key verification
+✅ Password reset with email verification
+✅ Protected routes with automatic token refresh
+✅ Role-based access control (Admin/Worker/Client)
+
+# User Management
+✅ User profiles with photo upload
+✅ User listing with data tables
+✅ User status management (enable/disable)
+✅ Profile editing capabilities
+
+# UI/UX Features
+✅ Responsive design with mobile sidebar
+✅ Dark/Light theme switching
+✅ Internationalization (EN/DE)
+✅ Custom form components with validation
+✅ Loading states and error handling
+✅ Toast notifications
+
+# Navigation & Layout
+✅ Role-based navigation menus
+✅ Collapsible sidebar with sub-items
+✅ Breadcrumb navigation
+✅ Mobile-responsive layout
+
 # Assistance365 web app Development Roadmap
 
 This document outlines the roadmap to develop a web application for managing client-worker relationships, including hour tracking and notifications. The app is designed to facilitate efficient management and reporting for admins, workers, and clients. test

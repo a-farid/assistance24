@@ -11,15 +11,10 @@ type Props = {
 
 const TextFieldData = ({label, value}: Props) => {
   return (
-          <div className="grid grid-cols-3 gap-4">
-            <p className="text-3xl font-bold">{label}</p>
-                <TextField className="col-span-2"
-                id="outlined-read-only-input"
-                label={label}
-                defaultValue={value ?? "---"}
-                variant="outlined"
-                slotProps={{input: {readOnly: true}}}
-              />
+          <div className="grid grid-cols-4 gap-4">
+            <p className="text-2xl font-bold">{label}</p>
+            <p className="font-bold">:</p>
+            <p className="text-2xl col-span-2">{value ?? "---"}</p>
             </div>
   )
 }
