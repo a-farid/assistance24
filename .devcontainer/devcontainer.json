@@ -1,0 +1,24 @@
+{
+  "name": "Assistance24 Monorepo Workspace",
+  // Point to the compose file at the root level
+  "dockerComposeFile": ["../docker-compose.yml"],
+  // Tell VS Code to attach its extension server to the backend container
+  "service": "backend",
+  // CRITICAL: Mount the entire root project directory into the container workspace
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Enforce standard python paths inside the container workspace
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "dbaeumer.vscode-eslint", // Added for Next.js frontend quality control
+        "esbenp.prettier-vscode"  // Added for Next.js frontend formatting
+      ]
+    }
+  },
+  "remoteUser": "root"
+}

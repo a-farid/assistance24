@@ -8,7 +8,7 @@ import FormError from "./FormError";
 
 export const Passwordfield = (formik: FormikProps<any>, fieldName: string) => {
   const [showPassword, setShowPassword] = useState(false);
-  console.log('formik errors', formik.errors);
+  // console.log('formik errors', formik.errors);
   return (
     <>
       <>

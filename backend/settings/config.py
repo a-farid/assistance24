@@ -1,13 +1,10 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
-
 class Settings(BaseSettings):
-    REDIS_HOST: str
-    REDIS_PORT: int
-    REDIS_PASSWORD: str
-    REDIS_SSL: bool
+    # Redis Infrastructure
+    REDIS_URL: str  # Updated to match our streamlined single connection string pattern
 
+    # Mail Communications
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
     MAIL_PORT: int
@@ -19,6 +16,7 @@ class Settings(BaseSettings):
     USE_CREDENTIALS: bool = True
     VALIDATE_CERTS: bool = True
 
+    # Cryptography & Core Authentication
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
@@ -28,9 +26,11 @@ class Settings(BaseSettings):
     FRONTEND_URL: str
     EMAIL_VERIFICATION_SECRET: str
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    # REMOVED: env_file references to enforce environment-agnostic execution
+    model_config = SettingsConfigDict(
+        env_file_encoding="utf-8", 
+        extra="ignore"
+    )
 
-
+# Instantiate the configuration mapping
 Config = Settings()
-
-

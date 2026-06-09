@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+
+  redis:
+    image: redis:7-alpine
+    container_name: assistance24-redis
+    ports:
+      - "6379:6379"
+    # Persist Redis cache in an anonymous volume to optimize memory cycles
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: assistance24-backend
+    ports:
+      - "8000:8000"
+    # FIX: Match the container's working directory to where you are mounting the code
+    working_dir: /workspace/backend
+    volumes:
+      - .:/workspace
+      - /workspace/backend/.venv
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./backend/.env.config
+      - ./backend/.env.secret
+    # Optimization: points directly to the app inside the corrected working directory
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: assistance24-frontend
+    ports:
+      - "3000:3000"
+    working_dir: /app
+    volumes:
+      - ./frontend:/app:cached
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+    depends_on:
+      - backend
+
+# Named volume declaration for Redis state retention
+volumes:
+  redis_data:

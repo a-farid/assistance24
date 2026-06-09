@@ -3,26 +3,13 @@ import redis.asyncio as aioredis
 import json
 from typing import Type, TypeVar, Optional
 from pydantic import BaseModel
-from settings import Config
 
 # Determine environment
 ENV = os.getenv("ENV", "development")
 
-if ENV == "production":
-    rd_async = aioredis.Redis(
-        host=Config.REDIS_HOST,
-        port=Config.REDIS_PORT,
-        password=Config.REDIS_PASSWORD,
-        ssl=True,
-        ssl_cert_reqs=None,
-    )
-else:
-    rd_async = aioredis.Redis(
-        host="localhost",
-        port=6379,
-        password=None,
-        ssl=False
-    )
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
+
+rd_async = aioredis.from_url(REDIS_URL, encoding="utf-8", decode_responses=True)
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -41,7 +28,7 @@ async def redis_get(key: str, model: Type[T]) -> Optional[T]:
 
     if data:
         print("redis_get success:", key)
-        return model(**json.loads(data.decode("utf-8")))
+        return model(**json.loads(data.encode("utf-8")))
 
     print("redis_get key not found:", key)
     return None

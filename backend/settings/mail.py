@@ -1,4 +1,4 @@
-from fastapi_mail import FastMail, ConnectionConfig, MessageSchema, MessageType
+# from fastapi_mail import FastMail, ConnectionConfig, MessageSchema, MessageType
 from jinja2 import Environment, FileSystemLoader
 from settings import Config
 from pathlib import Path
@@ -19,21 +19,21 @@ BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = (BASE_DIR / "templates").resolve()
 
 # Mail configuration
-mail_config = ConnectionConfig(
-    MAIL_USERNAME=Config.MAIL_USERNAME,
-    MAIL_PASSWORD=Config.MAIL_PASSWORD,
-    MAIL_FROM=Config.MAIL_FROM,
-    MAIL_PORT=587,
-    MAIL_SERVER=Config.MAIL_SERVER,
-    MAIL_FROM_NAME=Config.MAIL_FROM_NAME,
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-    USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True,
-    TEMPLATE_FOLDER=str(TEMPLATE_DIR),  # Ensure it's a string
-)
+# mail_config = ConnectionConfig(
+#     MAIL_USERNAME=Config.MAIL_USERNAME,
+#     MAIL_PASSWORD=Config.MAIL_PASSWORD,
+#     MAIL_FROM=Config.MAIL_FROM,
+#     MAIL_PORT=587,
+#     MAIL_SERVER=Config.MAIL_SERVER,
+#     MAIL_FROM_NAME=Config.MAIL_FROM_NAME,
+#     MAIL_STARTTLS=True,
+#     MAIL_SSL_TLS=False,
+#     USE_CREDENTIALS=True,
+#     VALIDATE_CERTS=True,
+#     TEMPLATE_FOLDER=str(TEMPLATE_DIR),  # Ensure it's a string
+# )
 
-mail = FastMail(config=mail_config)
+# mail = FastMail(config=mail_config)
 
 # Load Jinja environment
 env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)))  # ✅ Corrected path
@@ -48,11 +48,11 @@ async def send_email(recipients: list[str], subject: str, template_name: str, co
         body = template.render(context)  # Render with dynamic data
 
         # Create the message
-        message = MessageSchema(recipients=recipients, subject=subject, body=body, subtype=MessageType.html)
+        # message = MessageSchema(recipients=recipients, subject=subject, body=body, subtype=MessageType.html)
 
         # Send the email
-        mail = FastMail(mail_config)
-        await mail.send_message(message)
+        # mail = FastMail(mail_config)
+        # await mail.send_message(message)
 
         return True
     except Exception as e:

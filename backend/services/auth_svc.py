@@ -33,7 +33,7 @@ class AuthServices:
         print("Creating admin user:", user)
         print("user.admin_key:", user.admin_key)
         print("Config.SEKRET_KEY_ADMIN:", Config.SEKRET_KEY_ADMIN)
-        print("Config.SEKRET_KEY_ADMIN should be:", jwt_s.get_hashed_password("test"))
+        print("Config.SEKRET_KEY_ADMIN should be:", jwt_s.get_hashed_password("MyTopSecretKeyForAdmin"))
         print("jwt_s.verify_password:", jwt_s.verify_password(user.admin_key, Config.SEKRET_KEY_ADMIN))
         try:
             if not jwt_s.verify_password(user.admin_key, Config.SEKRET_KEY_ADMIN):

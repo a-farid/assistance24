@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +23,8 @@ def register_middleware(app: FastAPI):
     origins = [
         "http://localhost:3000",  # Frontend (React, Next.js, etc.)
         "http://127.0.0.1:3000",
+        "http://0.0.0.0:3000",
+        os.getenv("FRONTEND_URL", "http://localhost:3000")
     ]
 
     app.add_middleware(

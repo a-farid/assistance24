@@ -4,7 +4,7 @@ from jose import jwt
 from schemas.user_schemas import T_Email, T_FCMToken, T_PassUpdate, T_ResetPassword, T_User, T_UserInDb, T_UserInDbAdmin, T_Login_User
 from services.auth_svc import AuthServices
 from services.jwt_svc import JWTService
-from database import db,redis_delete, redis_set
+from database import redis_delete
 from settings.standarization import ApiResponse, json_response
 from settings import Config
 
