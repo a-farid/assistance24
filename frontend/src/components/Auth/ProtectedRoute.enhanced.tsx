@@ -23,12 +23,10 @@ export const Protected: React.FC<ProtectedProps> = ({
   const [isChecking, setIsChecking] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
 
-  console.log('The user is:', user?.username);
   useEffect(() => {
     let isMounted = true;
 
     const checkAuthentication = async () => {
-      console.log('checkAuthentication starts here');
       try {
         setIsChecking(true);
 
@@ -38,7 +36,6 @@ export const Protected: React.FC<ProtectedProps> = ({
         if (!isMounted) return;
 
         if (!isValid) {
-          console.log('Please log in (Protected enhanced');
           toast.error('Please log in to continue');
           router.replace(fallbackUrl);
           return;
@@ -106,7 +103,6 @@ export const AuthGuards: React.FC<AuthGuardProps> = ({
   ...protectedProps
 }) => {
   const { isAuthenticated, isLoading } = useAuthStore();
-  console.log('AuthGuard:', isAuthenticated, isLoading);
 
   if (isLoading) {
     return protectedProps.showLoader !== false ? <AuthLoader /> : null;
@@ -117,7 +113,6 @@ export const AuthGuards: React.FC<AuthGuardProps> = ({
   }
 
   if (isAuthenticated && (protectedProps.requiredRole || !allowUnauthenticated)) {
-    console.log('isAuthenticated now');
     return <Protected {...protectedProps}>{children}</Protected>;
   }
 

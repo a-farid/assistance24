@@ -1,13 +1,13 @@
 "use client";
 import { z } from "zod";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "@/lib/hooks";
 import { useLoginMutation } from "@/lib/features/auth/authApi";
 import CustomFormik from "@/components/custom/CustomFormik";
 import Loading from "@/components/custom/Loading";
-import {useTranslations} from 'next-intl';
+import {useTranslations, useLocale} from 'next-intl';
 import { FormField } from "@/utils/interface/FormikField";
 
 
@@ -21,6 +21,7 @@ const initialValues = { username: "", password: "" };
 
 function LoginForm({}: {}) {
   const t = useTranslations('LoginPage');
+  const locale = useLocale();
   const LoginFields = new FormField(t('connectBtn'), [
     { label: "Username", name: "username", type: "text" },
     { label: "Password", name: "password", type: "password" },
@@ -31,10 +32,10 @@ function LoginForm({}: {}) {
 
   useEffect(() => {
     if (isSuccess) {
-      const message = data.message || "User logged in successfully | isSuccess";
-      console.log('"User logged in successfully | isSuccess"');
+      const message = data.message || "User logged in successfully";
       toast.success(message);
-      router.push("/");
+      // Redirect to home with locale prefix
+      router.push(`/${locale}`);
     }
     if (error) {
       if ("data" in error) {
@@ -42,7 +43,7 @@ function LoginForm({}: {}) {
         toast.error(errorData.data.message);
       }
     }
-  }, [isSuccess, error, data, router, dispatch]);
+  }, [isSuccess, error, data, router, dispatch, locale]);
 
   const onSubmit = async ({ username, password }: FormValues) => {
       await login({ username, password }).unwrap();

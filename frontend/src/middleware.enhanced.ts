@@ -110,7 +110,6 @@ export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get('access_token')?.value;
   
   if (!accessToken) {
-    console.log(`No token found for ${pathname}, redirecting to login`);
     return createRedirectResponse(request, '/login');
   }
 
@@ -121,7 +120,6 @@ export async function middleware(request: NextRequest) {
   const payload = await verifyToken(token);
   
   if (!payload) {
-    console.log(`Invalid token for ${pathname}, redirecting to login`);
     // Clear invalid token
     const response = createRedirectResponse(request, '/login');
     response.cookies.delete('access_token');
@@ -132,7 +130,6 @@ export async function middleware(request: NextRequest) {
   // Check token expiration
   const now = Math.floor(Date.now() / 1000);
   if (payload.exp < now) {
-    console.log(`Expired token for ${pathname}, redirecting to login`);
     // Clear expired token
     const response = createRedirectResponse(request, '/login');
     response.cookies.delete('access_token');
@@ -142,7 +139,6 @@ export async function middleware(request: NextRequest) {
 
   // Check role-based access
   if (!hasRequiredRole(payload.role, pathname)) {
-    console.log(`Insufficient permissions for ${pathname} (role: ${payload.role}), redirecting to dashboard`);
     return createRedirectResponse(request, '/');
   }
 

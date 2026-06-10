@@ -33,11 +33,11 @@ import { NextRequest, NextResponse } from "next/server";
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
 
-  // if (!token) {
-  //   return NextResponse.redirect(new URL("/login_no_token", request.url));
-  // }
-
   try {
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    
     const decoded = JSON.parse(atob(token.split(".")[1])); // JWT payload
     const userRole = decoded.role;
     const pathname = request.nextUrl.pathname;

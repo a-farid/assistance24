@@ -8,7 +8,6 @@ import { Navbar } from "../../components/Layout/Navbar";
 import Sidebar from "../../components/Layout/Sidebar";
 import React from "react";
 
-console.log('Test Layout');
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Protected showLoader={true}>
