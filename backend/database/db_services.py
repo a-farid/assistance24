@@ -13,12 +13,6 @@ class DataBaseService:
         async with AsyncSessionLocal() as session:
             return session
 
-    # @classmethod
-    # async def get_all(cls, relationships: Optional[List[str]] = None):
-    #     """Fetch all records with optional relationships."""
-    #     data = await cls.model.get_all(relationships)
-    #     return data  # No exception needed
-
     @classmethod
     async def get_id(cls, **criteria) -> str:
         """Fetch by ID and raise 404 if not found."""

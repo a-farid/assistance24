@@ -8,18 +8,22 @@ import { useAppSelector } from "@/lib/hooks";
 import AvatarProfile from "./AvatarProfile";
 import { Navbar_list_mobile } from "./Navbar_list_mobile";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import { useAuthStore } from "@/lib/auth/authStore";
 
 const NavbarRoutes = () => {
   const [openSideBar, setOpenSideBar] = useState(false);
   const [openNotificationsBar, setOpenNotificationsBar] = useState(false);
   const [openProileBar, setOpenProileBar] = useState(false);
-  const { user } = useAppSelector((state: any) => state.auth);
+  // const { user } = useAppSelector((state: any) => state.auth);
+
+  const { user, isLoading } = useAuthStore();
+  
   const resetStates = () => {
     setOpenSideBar(false);
     setOpenNotificationsBar(false);
     setOpenProileBar(false);
   };
-
+console.log('User on Navbar ', user);
   return (
     <div className="flex items-center justify-between gap-x-2 p-4 h-[84px] w-full py-2">
       <div className="flex items-center ml-auto">

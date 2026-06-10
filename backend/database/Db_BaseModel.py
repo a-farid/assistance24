@@ -86,7 +86,7 @@ class DB_BaseModel(Base):
             page = max(1, page)
             offset = (page - 1) * limit
 
-            query = select(cls).order_by(cls.createAt.desc())  # Order by createAt DESC
+            query = select(cls).order_by(cls.createAt.desc())  # type: ignore # Order by createAt DESC
 
             if relationships:
                 for relation in relationships:
@@ -123,7 +123,7 @@ class DB_BaseModel(Base):
             page = max(1, page)
             offset = (page - 1) * limit
 
-            query = select(cls).filter_by(**criteria).order_by(cls.createAt.desc())  # Order by createAt DESC
+            query = select(cls).filter_by(**criteria).order_by(cls.createAt.desc())  # type: ignore # Order by createAt DESC
 
             if relationships:
                 for relation in relationships:

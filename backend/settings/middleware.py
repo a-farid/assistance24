@@ -17,10 +17,12 @@ def register_middleware(app: FastAPI):
         start_time = time.time()
         response = await call_next(request)
         processing_time = time.time() - start_time
-        print(f"{request.client.host}:{request.client.port} - {request.method} - {request.url.path} - {response.status_code} completed after {processing_time}s")
+        print(f"{request.client.host}:{request.client.port} - {request.method} - {request.url.path} - {response.status_code} completed after {processing_time}s") # type: ignore
         return response
 
     origins = [
+        "http://app.dev.local",
+        "http://api.dev.local",
         "http://localhost:3000",  # Frontend (React, Next.js, etc.)
         "http://127.0.0.1:3000",
         "http://0.0.0.0:3000",
@@ -37,35 +39,12 @@ def register_middleware(app: FastAPI):
 
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["localhost", "127.0.0.1", "bookly-api-dc03.onrender.com", "0.0.0.0"],
+        allowed_hosts=[
+            "localhost",
+            "127.0.0.1",
+            "0.0.0.0",
+            "app.dev.local",
+            "api.dev.local",
+            "bookly-api-dc03.onrender.com",
+        ],
     )
-
-
-
-
-# def register_middleware(app: FastAPI):
-
-#     @app.middleware("http")
-#     async def custom_logging(request: Request, call_next):
-#         start_time = time.time()
-
-#         response = await call_next(request)
-#         processing_time = time.time() - start_time
-
-#         message = f"{request.client.host}:{request.client.port} - {request.method} - {request.url.path} - {response.status_code} completed after {processing_time}s"
-
-#         print(message)
-#         return response
-
-#     app.add_middleware(
-#         CORSMiddleware,
-#         allow_origins=["*"],
-#         allow_methods=["*"],
-#         allow_headers=["*"],
-#         allow_credentials=True,
-#     )
-
-#     app.add_middleware(
-#         TrustedHostMiddleware,
-#         allowed_hosts=["localhost", "127.0.0.1" ,"bookly-api-dc03.onrender.com","0.0.0.0"],
-#     )

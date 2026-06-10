@@ -31,8 +31,8 @@ function LoginForm({}: {}) {
 
   useEffect(() => {
     if (isSuccess) {
-      const message = data.message || "User logged in successfully";
-      console.log('"User logged in successfully"');
+      const message = data.message || "User logged in successfully | isSuccess";
+      console.log('"User logged in successfully | isSuccess"');
       toast.success(message);
       router.push("/");
     }

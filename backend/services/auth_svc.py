@@ -42,7 +42,8 @@ class AuthServices:
             print("Error verifying admin key:", e)
             raise HTTPException(status_code=400, detail="Incorrect admin key")
 
-        user.hashed_password = jwt_s.get_hashed_password(user.hashed_password)
+        if user.hashed_password:
+            user.hashed_password = jwt_s.get_hashed_password(user.hashed_password)
         user.is_admin = True
         user.is_verified = True
         user.role = "admin"

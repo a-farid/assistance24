@@ -11,6 +11,7 @@ type Props = {user: any; setOpenProileBar: (value: boolean) => void};
 function Profile({ user, setOpenProileBar }: Props) {
   const router = useRouter();
   const [logout, { data, isLoading, isSuccess }] = useLogoutMutation();
+  console.log('user from Profile component:', user);
   const handleLogout = async () => {
     try {
       const response = await logout({}).unwrap();  // <--- unwrap gives you the actual data

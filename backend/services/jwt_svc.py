@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from schemas.user_schemas import T_User, T_UserInDb
-from database import redis_get, redis_set, db
+from database import db
 
 from settings import Config
 
@@ -32,6 +32,7 @@ class JWTService:
             raise HTTPException(status_code=401, detail="Token expired or invalid")
 
     async def verify_login(self, access_token: Optional[str] = Cookie(None)):
+        print("Verifying login with access token:", access_token)
         if not access_token: return
 
         try:
@@ -118,8 +119,19 @@ class JWTService:
         refresh_token = await self.create_token({"user_id": user.id}, "refresh")
 
         response = JSONResponse(content={"success": True, "data": {"user": user.model_dump(),"access_token": access_token, "refresh_token": refresh_token}})
-        response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=False, secure=True, samesite="none")
-        response.set_cookie(key="refresh_token", value=f"Bearer {refresh_token}", httponly=False, secure=True, samesite="none")
+        response.set_cookie(key="access_token",
+                            value=f"Bearer {access_token}",
+                            httponly=True,
+                            secure=Config.COOKIE_SECURE,
+                            samesite="lax",
+                            domain=Config.COOKIE_DOMAIN)
+        
+        response.set_cookie(key="refresh_token",
+                            value=f"Bearer {refresh_token}",
+                            httponly=True,
+                            secure=Config.COOKIE_SECURE,
+                            samesite="lax",
+                            domain=Config.COOKIE_DOMAIN)
 
         return response
 
@@ -131,7 +143,7 @@ class JWTService:
         activation_token = self.create_token(data, "activation")
 
         response = JSONResponse(content={"success": True, "email": user.email, "activation_token": activation_token})
-        response.set_cookie(key="activation_token", value=f"{activation_token}", httponly=True, secure=True, samesite="lax")
+        response.set_cookie(key="activation_token", value=f"{activation_token}", httponly=True, secure=Config.COOKIE_SECURE, samesite="lax")
 
         return response
 

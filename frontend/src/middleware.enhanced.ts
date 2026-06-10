@@ -42,7 +42,7 @@ async function verifyToken(token: string): Promise<TokenPayload | null> {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET_KEY || 'your-secret-key');
     const { payload } = await jwtVerify(token, secret);
     
-    return payload as TokenPayload;
+    return payload as unknown as TokenPayload;
   } catch (error) {
     console.error('Token verification failed:', error);
     return null;

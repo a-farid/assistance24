@@ -47,7 +47,7 @@ function ChangePwForm({}: Props) {
     if (!hasMounted) return;
 
     if (isSuccess) {
-      const message = data?.message || "User logged in successfully";
+      const message = data?.message || "User logged in successfully | ChangePwForm";
       toast.success(message);
       router.push("/");
     }

@@ -1,8 +1,3 @@
-/**
- * Enhanced Protected Route Component
- * Provides faster, more secure route protection with better UX
- */
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -10,17 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth/authStore';
 import { authService } from '@/lib/auth/authService';
 import { toast } from 'react-hot-toast';
-
-interface ProtectedProps {
-  children: React.ReactNode;
-  requiredRole?: string | string[];
-  fallbackUrl?: string;
-  showLoader?: boolean;
-}
-
-interface AuthGuardProps extends ProtectedProps {
-  allowUnauthenticated?: boolean;
-}
 
 // Loading component with skeleton
 const AuthLoader = () => (

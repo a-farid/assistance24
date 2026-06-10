@@ -11,13 +11,32 @@ services:
     volumes:
       - redis_data:/data
 
+  assistance24-db:
+    image: postgres:16-alpine
+    container_name: assistance24-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-assistance_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vault_secure_pass}
+      POSTGRES_DB: ${DB_NAME:-assistance24_prod}
+    ports:
+      - "5432:5432" # Exposed for local client tooling access (e.g., DBeaver or pgAdmin)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: assistance24-backend
-    ports:
-      - "8000:8000"
+    # ports:
+    #   - "8000:8000"
+    expose:
+      - "8000"
     # FIX: Match the container's working directory to where you are mounting the code
     working_dir: /workspace/backend
     volumes:
@@ -33,25 +52,38 @@ services:
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     depends_on:
       - redis
+      - assistance24-db
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: assistance24-frontend
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
+    expose:
+      - "3000"
     working_dir: /app
     volumes:
       - ./frontend:/app:cached
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - NEXT_PUBLIC_API_URL=http://api.dev.local/api
     command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
     depends_on:
       - backend
 
+  nginx-gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
 # Named volume declaration for Redis state retention
 volumes:
   redis_data:
+  postgres_data:

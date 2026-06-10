@@ -48,9 +48,26 @@ async def logout(access_token=Ds(jwt_s.authorized_token)):
     """
     response = JSONResponse(content={"success": True, "message": "Logged out successfully"})
 
-    response.delete_cookie("access_token", httponly=False, secure=True, path="/", samesite="none")
-    response.delete_cookie("refresh_token", httponly=False, secure=True, path="/", samesite="none")
+    # Architectural Shift: Explicitly targeting the shared root domain to wipe the session
+    response.delete_cookie(
+        "access_token", 
+        path="/", 
+        domain=Config.COOKIE_DOMAIN,    # Crucial: Tells browser to clear the subdomain pool
+        httponly=True,                  # Aligned with login security profile
+        secure=Config.COOKIE_SECURE,    # Aligned with local development environment
+        samesite="lax"                  # Aligned with our updated First-Party configuration
+    )
+    
+    response.delete_cookie(
+        "refresh_token", 
+        path="/", 
+        domain=Config.COOKIE_DOMAIN,    # Crucial: Tells browser to clear the subdomain pool
+        httponly=True,                  # Aligned with login security profile
+        secure=Config.COOKIE_SECURE,    # Aligned with local development environment
+        samesite="lax"                  # Aligned with our updated First-Party configuration
+    )
 
+    # Evict the user's active session from the Redis caching layer
     await redis_delete(access_token.get("user_id"))
 
     return response

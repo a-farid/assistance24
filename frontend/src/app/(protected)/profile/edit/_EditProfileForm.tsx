@@ -46,7 +46,7 @@ function EditProfileForm({}: {}) {
 
   useEffect(() => {
     if (isSuccess) {
-      const message = data.message || "User logged in successfully";
+      const message = data.message || "User logged in successfully | EditProfileForm";
       console.log("EditProfileForm: User data updated successfully", data);
       toast.success(message);
       router.push("/profile");

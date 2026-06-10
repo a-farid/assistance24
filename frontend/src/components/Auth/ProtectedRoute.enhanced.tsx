@@ -1,8 +1,3 @@
-/**
- * Enhanced Protected Route Component
- * Provides faster, more secure route protection with better UX
- */
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -10,70 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth/authStore';
 import { authService } from '@/lib/auth/authService';
 import { toast } from 'react-hot-toast';
-
-interface ProtectedProps {
-  children: React.ReactNode;
-  requiredRole?: string | string[];
-  fallbackUrl?: string;
-  showLoader?: boolean;
-}
-
-interface AuthGuardProps extends ProtectedProps {
-  allowUnauthenticated?: boolean;
-}
-
-// Loading component with skeleton
-const AuthLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-    <div className="text-center space-y-4">
-      <div className="relative">
-        <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
-        <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-blue-400 rounded-full animate-ping mx-auto"></div>
-      </div>
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-          Verifying authentication...
-        </p>
-        <div className="flex justify-center space-x-1">
-          <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:0ms]"></div>
-          <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:100ms]"></div>
-          <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:200ms]"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-// Unauthorized access component
-const UnauthorizedAccess = ({ requiredRole, userRole }: { requiredRole?: string | string[], userRole?: string }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-    <div className="text-center space-y-6 p-8">
-      <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-        <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m12-5a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      </div>
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Access Denied</h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          You don't have permission to access this page.
-        </p>
-        {requiredRole && (
-          <p className="text-sm text-gray-500">
-            Required role: {Array.isArray(requiredRole) ? requiredRole.join(', ') : requiredRole}
-            {userRole && ` | Your role: ${userRole}`}
-          </p>
-        )}
-      </div>
-      <button
-        onClick={() => window.history.back()}
-        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        Go Back
-      </button>
-    </div>
-  </div>
-);
+import { AuthLoader } from './AuthLoader';
+import { UnauthorizedAccess } from './UnauthorizedAccess';
 
 /**
  * Enhanced Protected Component with role-based access control
@@ -86,15 +19,16 @@ export const Protected: React.FC<ProtectedProps> = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isAuthenticated, isLoading } = useAuthStore();
+  const { user, isLoading } = useAuthStore();
   const [isChecking, setIsChecking] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
 
+  console.log('The user is:', user?.username);
   useEffect(() => {
     let isMounted = true;
 
-    console.log('isAuthenticated', isAuthenticated);
     const checkAuthentication = async () => {
+      console.log('checkAuthentication starts here');
       try {
         setIsChecking(true);
 
@@ -104,6 +38,7 @@ export const Protected: React.FC<ProtectedProps> = ({
         if (!isMounted) return;
 
         if (!isValid) {
+          console.log('Please log in (Protected enhanced');
           toast.error('Please log in to continue');
           router.replace(fallbackUrl);
           return;
@@ -165,12 +100,13 @@ export const Protected: React.FC<ProtectedProps> = ({
 /**
  * Auth Guard for conditional rendering based on authentication
  */
-export const AuthGuard: React.FC<AuthGuardProps> = ({
+export const AuthGuards: React.FC<AuthGuardProps> = ({
   children,
   allowUnauthenticated = false,
   ...protectedProps
 }) => {
   const { isAuthenticated, isLoading } = useAuthStore();
+  console.log('AuthGuard:', isAuthenticated, isLoading);
 
   if (isLoading) {
     return protectedProps.showLoader !== false ? <AuthLoader /> : null;
@@ -181,6 +117,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   }
 
   if (isAuthenticated && (protectedProps.requiredRole || !allowUnauthenticated)) {
+    console.log('isAuthenticated now');
     return <Protected {...protectedProps}>{children}</Protected>;
   }
 

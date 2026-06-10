@@ -1,22 +1,27 @@
+/**
+ * Enhanced Protected Layout with New Auth System
+ * Replace your existing protected layout with this improved version
+ */
+
+import Protected from "@/components/Auth/ProtectedRoute.enhanced";
 import { Navbar } from "../../components/Layout/Navbar";
 import Sidebar from "../../components/Layout/Sidebar";
 import React from "react";
-import Protected from "../../components/_hooks/Protected";
 
+console.log('Test Layout');
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex flex-row h-full">
-      <nav>
-        <Navbar />
-      </nav>
-      <aside>
-        <Sidebar />
-      </aside>
-
-      <Protected>
-        <main>{children}</main>
-      </Protected>
-    </div>
+    <Protected showLoader={true}>
+      <div className="flex flex-row h-full">
+        <nav>
+          <Navbar />
+        </nav>
+        <aside>
+          <Sidebar />
+        </aside>
+        <main className="flex-1 overflow-auto">{children}</main>
+      </div>
+    </Protected>
   );
 };
 
