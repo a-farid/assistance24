@@ -13,8 +13,8 @@ auth_svc = AuthServices()
 jwt_s = JWTService()
 
 
-@router.post("/signup", response_model=ApiResponse[T_User], description="Register a new admin.")
-async def signup(body: T_UserInDbAdmin = Body(...)):
+@router.post("/register", response_model=ApiResponse[T_User], description="Register a new admin.")
+async def register(body: T_UserInDbAdmin = Body(...)):
     body_dict = body.model_dump(exclude={"id"})
     body = T_UserInDbAdmin(**body_dict)
     new_user = await auth_svc.create_admin(body)

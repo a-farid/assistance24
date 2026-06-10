@@ -15,7 +15,7 @@ register_all_errors(app)
 register_middleware(app)
 register_all_routes(app)
 
-# Root endpoint
+# Root endpoint testing GITS
 @app.get("/", description="Root endpoint for the API")
 def read_root():
     return {"success": True, "detail": "Test API is running"}

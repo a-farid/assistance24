@@ -16,7 +16,7 @@ const NotLoggedRoutes = ({ setRoute, setOpenCustomModal }: Props) => {
       </Button>
       <Button
         onClick={() => {
-          setRoute("Signup");
+          setRoute("register");
           setOpenCustomModal(true);
         }}
       >

@@ -9,7 +9,7 @@ import { jwtVerify } from 'jose';
 // Public routes that don't require authentication
 const publicRoutes = [
   '/login',
-  '/signup',
+  '/register',
   '/forgot_password',
   '/reset_password',
   '/api/auth/public',

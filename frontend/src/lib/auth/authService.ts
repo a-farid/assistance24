@@ -182,7 +182,7 @@ class AuthService {
    */
   async register(userData: any): Promise<AuthResponse> {
     try {
-      const response = await this.fetchWithAuth('/auth/registre', {
+      const response = await this.fetchWithAuth('/auth/register', {
         method: 'POST',
         body: JSON.stringify(userData),
       });

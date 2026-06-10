@@ -167,7 +167,7 @@ Make sure your backend supports these endpoints:
 POST /auth/login      # Login with credentials
 POST /auth/logout     # Logout and clear tokens
 GET  /auth/refresh    # Refresh access token
-POST /auth/registre   # User registration
+POST /auth/register   # User registration
 ```
 
 ## 🛡️ Security Configuration
