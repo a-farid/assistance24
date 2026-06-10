@@ -18,6 +18,9 @@ class JWTService:
         return pwd_context.hash(password)
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+        print("#####################################################################")
+        print(f"Verifying password: {plain_password} against hash: {hashed_password}")
+        print("#####################################################################")
         return pwd_context.verify(plain_password, hashed_password)
 
     async def authorized_token(self, access_token: Optional[str] = Cookie(None)):

@@ -51,8 +51,11 @@ services:
     # Optimization: points directly to the app inside the corrected working directory
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     depends_on:
-      - redis
-      - assistance24-db
+      redis:
+        condition: service_started # <-- Ensures Redis is at least running before backend starts
+      assistance24-db:
+        condition: service_healthy # <-- Forces backend to wait until the DB healthcheck passes
+
 
   frontend:
     build:

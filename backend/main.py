@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from routers import register_all_routes
 from settings import register_all_errors, register_middleware
-from database.Db_BaseModel import check_db
+from database.Db_BaseModel import init_database
 from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await check_db()  # Runs at startuproot_path
+    await init_database()  # Runs at startuproot_path
     yield  # Runs the app
 
 app = FastAPI(lifespan=lifespan, root_path="/api")

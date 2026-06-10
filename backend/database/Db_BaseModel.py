@@ -1,5 +1,4 @@
 import os
-from fastapi import HTTPException
 from sqlalchemy import Column, String, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -10,18 +9,28 @@ from datetime import datetime
 from typing import Dict, Optional as Opt, List, Type, TypeVar, Union
 from sqlalchemy.orm import selectinload
 
+# 1. Extract environment-driven connection arguments with fallback values
+DB_USER = os.getenv("DB_USER", "assistance_admin")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "vault_secure_pass")
+DB_HOST = os.getenv("DB_HOST", "assistance24-db")  # Matches Docker service naming convention
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "assistance24_prod")
 
+# 2. Build the Async PostgreSQL connection string using the asyncpg driver
+DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# Database setup
-database_dir = os.path.join(os.getcwd(), 'database')
-database_path = os.path.join(database_dir, f'database_local.db')
-DATABASE_URL = f'sqlite+aiosqlite:///{database_path}'  # Use aiosqlite for async SQLite
+# 3. Instantiate the high-performance async communication engine
+engine = create_async_engine(
+    DATABASE_URL, 
+    echo=False,
+    pool_size=20,            # Architecture tuning: maintains 20 persistent connections
+    max_overflow=10,         # Permits surge capacity up to 30 connections during spikes
+    pool_pre_ping=True       # Healthcheck verification: tests connections before allocation
+)
 
-# Create the async engine and sessionmaker
-engine = create_async_engine(DATABASE_URL, echo=False)
+# 4. Generate the session constructor factory pool
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
-# Base class for models
 Base = declarative_base()
 
 # Type variable for model classes
@@ -143,7 +152,6 @@ class DB_BaseModel(Base):
                 "limit": limit
             }
 
-
     @classmethod
     async def get_id(cls: Type[T], **criteria) -> Opt[str]:
         """Fetch only the ID of the first matching record based on criteria."""
@@ -228,12 +236,36 @@ class DB_BaseModel(Base):
             return False
 
 
-async def check_db():
-    """Create the database if it doesn't exist."""
-    if os.path.exists(database_path):
-        print("Warning: Database already exists. Skipping creation...")
-    else:
+
+async def init_database():
+    """
+    Establishes the connection mesh with the PostgreSQL cluster 
+    and initializes schema metadata structures if missing.
+    """
+    try:
+        # Open an engine connection block to verify network transport availability
         async with engine.begin() as conn:
+            print("Architectural Sync: Checking and aligning database schema definitions...")
+            
+            # Import models to register them with the Base metadata pool
             from .models import User, Client, Worker, Contract, Meeting, Notification, FCMToken
+            
+            # Safely generates missing tables natively without destructive overwrites
             await conn.run_sync(Base.metadata.create_all)
-        print('Database created successfully')
+            
+        print("Database connectivity established and schema verification successful.")
+    except Exception as e:
+        print(f"CRITICAL: Failed to initialize database connection gateway. Error: {e}")
+        # In a production pipeline, you might want to raise this to halt container startup
+        raise e
+    
+
+# async def check_db():
+#     """Create the database if it doesn't exist."""
+#     if os.path.exists(database_path):
+#         print("Warning: Database already exists. Skipping creation...")
+#     else:
+#         async with engine.begin() as conn:
+#             from .models import User, Client, Worker, Contract, Meeting, Notification, FCMToken
+#             await conn.run_sync(Base.metadata.create_all)
+#         print('Database created successfully')
