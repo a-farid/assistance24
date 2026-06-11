@@ -58,6 +58,19 @@
     "confirmDelete": "Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?",
     "deleteSuccess": "Benutzer erfolgreich gelöscht",
     "deleteError": "Fehler beim Löschen des Benutzers. Bitte versuchen Sie es erneut."
+  },
+  "GetAllClientsPage": {
+    "title": "Kunden verwalten",
+    "addClient": "Neuen Kunden hinzufügen",
+    "searchPlaceholder": "Suche nach einem Kunden...",
+    "noClientsFound": "Keine Kunden gefunden",
+    "clientDetails": "Kundendetails",
+    "editClient": "Kunde bearbeiten",
+    "deleteClient": "Kunde löschen",
+    "confirmDelete": "Sind Sie sicher, dass Sie diesen Kunden löschen möchten?",
+    "deleteSuccess": "Kunde erfolgreich gelöscht",
+    "deleteError": "Fehler beim Löschen des Kunden. Bitte versuchen Sie es erneut.",
+    "toggleStatus": "Status ändern"
   }
 }
 

@@ -58,5 +58,18 @@
     "confirmDelete": "Are you sure you want to delete this user?",
     "deleteSuccess": "User deleted successfully",
     "deleteError": "Error deleting user. Please try again."
+  },
+  "GetAllClientsPage": {
+    "title": "Manage Clients",
+    "addClient": "Add new client",
+    "searchPlaceholder": "Search for a client...",
+    "noClientsFound": "No clients found",
+    "clientDetails": "Client Details",
+    "editClient": "Edit Client",
+    "deleteClient": "Delete Client",
+    "confirmDelete": "Are you sure you want to delete this client?",
+    "deleteSuccess": "Client deleted successfully",
+    "deleteError": "Error deleting client. Please try again.",
+    "toggleStatus": "Toggle Status"
   }
 }
