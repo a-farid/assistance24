@@ -12,13 +12,18 @@ images: {
     remotePatterns: [
       {
         protocol: 'http',
+        hostname: 'api.dev.local/',
+        pathname: '/api/images/**',
+      },
+      {
+        protocol: 'http',
         hostname: 'localhost',
         port: '8000',
         pathname: '/api/images/**',
       },
       {
         protocol: 'https',
-        hostname: 'api.myapp.com',
+        hostname: process.env.NEXT_PUBLIC_API_URL?.replace('http://', 'https://').split('/')[2] || 'api.dev.local', // Extract hostname from API URL
         pathname: '/api/images/**',
       }
     ],

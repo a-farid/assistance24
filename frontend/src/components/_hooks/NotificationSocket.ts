@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 const NotificationSocket = ({ onNotification }: { onNotification: any }) => {
   const user = useSelector((state: any) => state.auth.user);
   useEffect(() => {
-    // const socket = io(`http://localhost:8000/user/${user.id}/notifications/`);
     const socket = io(`test`);
 
     socket.on("connect", () => {

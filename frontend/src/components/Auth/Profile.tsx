@@ -38,8 +38,7 @@ function Profile({ user, setOpenProileBar }: Props) {
           <div className="flex items-center justify-evenly w-full py-5">
             <Avatar
               alt={`${user.username} photo profile`}
-              // src={user.url_photo ? user.url_photo : avatar}
-              src={"http://localhost:8000/api/images/1.png"}
+              src={`${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo ? user.url_photo : 'images/1.png'}`}
             />
             <div>
               <h1 className="w-full text-center font-bold text-[15px]">

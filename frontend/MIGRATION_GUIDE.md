@@ -176,13 +176,14 @@ POST /auth/register   # User registration
 
 ```env
 # .env.local
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_API_URL=http://app.dev.local/api
 JWT_SECRET_KEY=your-very-secure-secret-key
 ```
 
 ### Backend JWT Configuration
 
 Ensure your backend JWT service includes:
+
 - Short-lived access tokens (15 minutes)
 - Long-lived refresh tokens (7 days)
 - HttpOnly cookies for token storage
@@ -227,12 +228,14 @@ const NavigationMenu = () => {
 ## 📊 Performance Benefits
 
 ### Before (Current System)
+
 - ❌ Multiple API calls on each route change
 - ❌ No state persistence (lost on refresh)
 - ❌ Redundant token refresh calls
 - ❌ Client-side loading on every navigation
 
 ### After (Enhanced System)
+
 - ✅ Single auth check with smart caching
 - ✅ Persistent auth state across sessions
 - ✅ Singleton token refresh pattern
