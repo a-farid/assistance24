@@ -33,7 +33,7 @@ class UserServices:
 
         # Remove ID if exists (optional, but ensures no conflicts)
         user_data = user.model_dump(exclude={"id"})
-        image_name = f"{random.randint(1, 23)}.png"
+        image_name = f"{random.randint(1, 22)}.png"
         url_photo = f"images/{image_name}"
         user_data["url_photo"] = url_photo
         user_data["is_verified"] = True

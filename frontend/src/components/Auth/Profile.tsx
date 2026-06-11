@@ -11,7 +11,6 @@ type Props = {user: any; setOpenProileBar: (value: boolean) => void};
 function Profile({ user, setOpenProileBar }: Props) {
   const router = useRouter();
   const [logout, { data, isLoading, isSuccess }] = useLogoutMutation();
-  console.log('user from Profile component:', user);
   const handleLogout = async () => {
     try {
       const response = await logout({}).unwrap();  // <--- unwrap gives you the actual data
@@ -31,6 +30,8 @@ function Profile({ user, setOpenProileBar }: Props) {
     }
   }, [isSuccess, router, data]);
   if (!user) return null;
+  const avatarPhoto = user.url_photo && user.url_photo !== 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo}` : `${process.env.NEXT_PUBLIC_API_URL}/images/default.png`;
+
   return (
     <>
       <div className="absolute right-10 top-10 w-[280px] border p-2 bg-gradient-global text-black dark:bg-slate-900 dark:text-white rounded-md shadow-lg">
@@ -38,7 +39,7 @@ function Profile({ user, setOpenProileBar }: Props) {
           <div className="flex items-center justify-evenly w-full py-5">
             <Avatar
               alt={`${user.username} photo profile`}
-              src={`${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo ? user.url_photo : 'images/1.png'}`}
+            src={avatarPhoto}
             />
             <div>
               <h1 className="w-full text-center font-bold text-[15px]">

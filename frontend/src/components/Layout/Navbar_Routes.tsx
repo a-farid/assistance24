@@ -23,7 +23,6 @@ const NavbarRoutes = () => {
     setOpenNotificationsBar(false);
     setOpenProileBar(false);
   };
-console.log('User on Navbar ', user);
   return (
     <div className="flex items-center justify-between gap-x-2 p-4 h-[84px] w-full py-2">
       <div className="flex items-center ml-auto">

@@ -19,7 +19,12 @@ async def get_image(image_name: str):
 
     # Check if the file exists
     if not os.path.exists(image_path):
-        return {"error": "Image not found", "image_path": image_path}
+        # return {"error": "Image not found", "image_path": image_path}
+        print(f"Image not found at path: {image_path}")
+        return FileResponse(
+            path=f"assets/profiles/default.png",
+            media_type="image/png",  # Adjust based on actual file type if needed
+        )
 
     # Return FileResponse with media type detection
     try:

@@ -1,4 +1,6 @@
+import random
 import time
+from typing import List, Dict
 from fastapi import Depends, HTTPException
 from database import redis_get, redis_set, db
 from database.firebase_utils import send_push_notification
@@ -20,9 +22,10 @@ class AuthServices:
         pass
 
     async def notify_all_admins(self, title: str, message: str, link: str):
-        admins_list = await db.user.filter_all(roles=["admin"])
-        for admin in admins_list:
-            await send_push_notification(admin.id, admin.fcm_token, title, message, link)
+            admins_list = await db.user.filter_all(roles=["admin"])         # type: ignore
+            # Todo: check the admin list and send the notification only to the valid tokens, if the token is expired, update the status in DB to "expired" and do not send the notification
+            for admin in admins_list:
+                await send_push_notification(admin.id, admin.fcm_token, title, message, link) # type: ignore
 
     async def create_admin(self, user: T_UserInDbAdmin) -> T_User:
         """
@@ -49,6 +52,9 @@ class AuthServices:
         user.role = "admin"
 
         user_data = user.model_dump(exclude={"id"})
+        image_name = f"{random.randint(1, 22)}.png"
+        url_photo = f"images/{image_name}"
+        user_data["url_photo"] = url_photo
 
         new_user = await db.user.create(unique_fields=["username", "email"], **user_data)
         fcm_token = {"user_id": new_user.id, "status": "expired", "token": new_user.id}
@@ -56,14 +62,14 @@ class AuthServices:
 
         return T_User(**new_user.to_dict())
 
-    async def forgot_password(self, email: str) -> T_User:
+    async def forgot_password(self, email: str):
         user = await db.user.filter_by_first(email=email)
         await mail_svc.send_reset_password_mail(user)
 
-    async def reset_password(self, body: dict) -> T_User:
+    async def reset_password(self, body) -> T_User:
         decoded_email = await jwt_s.decode_activation_token(body.get("token"))
         user = await db.user.filter_by_first(email=decoded_email)
-        updated_user = await db.user.update(user.id, hashed_password=jwt_s.get_hashed_password(body.get("password")))
+        updated_user = await db.user.update(str(user.id), hashed_password=jwt_s.get_hashed_password(body.get("password")))
         return T_User(**updated_user.to_dict())
 
     async def verify_reset_password_email(self, email: str, token: str):
@@ -137,8 +143,8 @@ class AuthServices:
             raise HTTPException(status_code=400, detail="Email is already verified")
 
         # Mark user as verified
-        await db.user.update(user.id, is_verified=True)
-        await redis_set(user.id, T_UserInDb(**user.to_dict()))
+        await db.user.update(str(user.id), is_verified=True)
+        await redis_set(str(user.id), T_UserInDb(**user.to_dict()))
 
         await self.notify_all_admins("User Email Updated", f"{user.username} changed their email.", f"/users/{user.id}")
 
@@ -148,17 +154,19 @@ class AuthServices:
         """Set the user's password."""
         new_hashed_password = jwt_s.get_hashed_password(password)
         user = await db.user.filter_by_first(email=email)
-        updated_user = await db.user.update(user.id, hashed_password=new_hashed_password)
-        await redis_set(user.id, T_UserInDb(**updated_user.to_dict()))
+        updated_user = await db.user.update(str(user.id), hashed_password=new_hashed_password)
+        await redis_set(str(user.id), T_UserInDb(**updated_user.to_dict()))
         return updated_user
 
-    async def change_password(self, body: dict, token:T_User) -> T_User:
-        user = await db.user.filter_by_id(token.id)
-        if not jwt_s.verify_password(body.get("old_password"), user.hashed_password):
-            raise HTTPException(status_code=400, detail="Invalid old password")
+    async def change_password(self, body: dict, token:T_User):
+        if token.id:
+            user = await db.user.filter_by_id(token.id)
 
-        new_hashed_password = jwt_s.get_hashed_password(body.get("new_password"))
-        await db.user.update(user.id, hashed_password=new_hashed_password)
+            if not jwt_s.verify_password(body.get("old_password"), user.hashed_password): # type: ignore
+                raise HTTPException(status_code=400, detail="Invalid old password")
+
+            new_hashed_password = jwt_s.get_hashed_password(body.get("new_password")) # type: ignore
+            await db.user.update(str(user.id), hashed_password=new_hashed_password)
 
     async def set_fcm_token(self, body: T_FCMToken) -> T_FCMToken:
         """Store the Firebase Cloud Messaging (FCM) token for the user."""
@@ -169,15 +177,14 @@ class AuthServices:
         token_entry = await FCMToken.filter_by_first(user_id=user_id)
 
         if token_entry:
-            # Update the existing token
-            token_entry = await db.fcm_token.update(token_entry.id, token=body_dict["token"])
+            token_entry = await db.fcm_token.update(token_entry.id, token=body_dict["token"]) # type: ignore
         else:
             # Create a new FCM token entry
             token_entry = await db.fcm_token.create(**body_dict)
 
         # Try caching in Redis
         try:
-            await redis_set(token_entry.id, T_FCMToken(**token_entry.to_dict()))
+            await redis_set(str(token_entry.id), T_FCMToken(**token_entry.to_dict()))
         except Exception as e:
             print(f"⚠️ Redis update failed: {e}")  # Consider using proper logging
 
@@ -190,23 +197,23 @@ class AuthServices:
             raise HTTPException(status_code=400, detail="Incorrect password")
         if user.disabled:
             raise HTTPException(status_code=400, detail="User is disabled, contact the administrator")
-        await redis_set(user.id, T_User(**user.to_dict()))
+        await redis_set(str(user.id), T_User(**user.to_dict()))
         return T_User(**user.to_dict())
 
-    async def check_username(self, username: str) -> T_User:
+    async def check_username(self, username: str) -> bool:
         user = await User.filter_by_first(username=username)
 
         if user:
             return True
         else: return False
 
-    async def check_email(self, email: str) -> T_User:
+    async def check_email(self, email: str) -> bool:
         user = await User.filter_by_first(email=email)
         if user:
             return True
         else: return False
 
-    async def get_user_from_token(self, payload: T_TokenData = Depends(jwt_s.authorized_token)) -> T_User:
+    async def get_user_from_token(self, payload = Depends(jwt_s.authorized_token)) -> T_User:
         user = await self.get_user(payload.get("user_id"))
         return T_User(**user.model_dump())
 
@@ -220,7 +227,7 @@ class AuthServices:
         user = await db.user.filter_by_id(user_id)
         if user.disabled:
             raise HTTPException(status_code=400, detail="User is disabled, contact the administrator")
-        await redis_set(user.id, T_User(**user.to_dict()))
+        await redis_set(str(user.id), T_User(**user.to_dict()))
 
         return T_User(**user.to_dict())
 

@@ -35,11 +35,10 @@ class T_TokenData(BaseModel):
     role: Optional[str] = None
 
 class T_FCMToken(BaseModel):
-    id: Optional[str]
+    id: str  # id: Optional[str]
     user_id: Optional[str]
     token: str
     status: Literal["valid", "expired"]
-
 
     class Config:
         from_attributes = True

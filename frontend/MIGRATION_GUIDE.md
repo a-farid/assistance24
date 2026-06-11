@@ -176,7 +176,7 @@ POST /auth/register   # User registration
 
 ```env
 # .env.local
-NEXT_PUBLIC_API_URL=http://app.dev.local/api
+NEXT_PUBLIC_API_URL=http://api.dev.local/api
 JWT_SECRET_KEY=your-very-secure-secret-key
 ```
 

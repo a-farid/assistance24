@@ -2,19 +2,45 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { userLoggedOut, AuthState, userLoggedIn } from "../auth/authSlice";
 import { RootState } from "../../store";
+import { Content } from "next/dist/compiled/@next/font/dist/google";
 
-// ✅ Base API configuration
+// // ✅ Base API configuration
+// const baseQuery = fetchBaseQuery({
+//   baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://api.dev.local/api",
+//   credentials: "include",
+//   prepareHeaders: (headers, { getState }) => {
+//     const state = getState() as RootState;
+//     const { token } = state.auth as AuthState;
+//     if (token) {
+//       headers.set("access_Token", token);
+//       headers.set("Content-Type", "application/json");
+//       headers.set("Accept", "application/json");
+//     }
+//     return headers;
+//   },
+// });
+
+// ✅ Optimized Base API Client configuration
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://app.dev.local/api",
-  credentials: "include",
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://api.dev.local/api",
+  
+  // CRITICAL: Instructs the browser to pass cookies (refresh tokens) cross-origin
+  credentials: "include", 
+  
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
     const { token } = state.auth as AuthState;
+    
     if (token) {
+      // Architectural Refactor: Transitioning to standard enterprise token injection
+      headers.set("Authorization", `Bearer ${token}`);
       headers.set("access_Token", token);
-      headers.set("Content-Type", "application/json");
-      headers.set("Accept", "application/json");
     }
+    
+    // Global Content Type Enforcement
+    headers.set("Content-Type", "application/json");
+    headers.set("Accept", "application/json");
+    
     return headers;
   },
 });

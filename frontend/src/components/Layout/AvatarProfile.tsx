@@ -9,6 +9,8 @@ type Props = {
 };
 
 const AvatarProfile = ({ user, openProileBar, setOpenProileBar }: Props) => {
+   const avatarPhoto = user && user.url_photo && user.url_photo !== 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo}` : `${process.env.NEXT_PUBLIC_API_URL}/images/default.png`;
+
   return (
     <>
       <div
@@ -19,7 +21,7 @@ const AvatarProfile = ({ user, openProileBar, setOpenProileBar }: Props) => {
         {user ? (
           <Avatar
             alt={`${user.username} photo profile`}
-            src={`${process.env.NEXT_PUBLIC_API_URL}/images/2.png`}
+            src={avatarPhoto}
           />
         ) : (
           <HiOutlineUserCircle />
