@@ -30,13 +30,14 @@ def serialize_data(data):
     return data
 
 async def get_user_model(data: Union[T_Worker, T_Client]) -> dict:
-    """Fetch and return worker and client as T_Profile."""
+    """Fetch and return worker and client as T_Profile. """
     result = {}
     if data.user:
+        print("Data has user:", data.user)  # Debugging statement to check the content of data.user
         # user_dict = data.user.to_dict() # Before types verification
-        user_dict = data.user.model_dump()
-        result["user"] = T_User(**user_dict)
-    return result
+    #     user_dict = data.user.model_dump()
+    #     result["user"] = T_User(**user_dict)
+    # return result
 
 async def format_paginated_response(result: Dict[str, Any], model: Type[BaseModel], nested_user: bool = False):
     """Formats paginated response, converting the given data into a Pydantic model list."""
