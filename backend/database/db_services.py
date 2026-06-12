@@ -63,13 +63,13 @@ class DataBaseService:
         return result["data"]
 
     @classmethod
-    async def update(cls, id: str, **kwargs):
+    async def update(cls, id: str, relationships: Optional[List[str]] = None, **kwargs):
         """Update a record and raise 404 if not found."""
         # raise HTTPException(status_code=40, detail=f"{cls.model.__name__} testing update method {id}")
         if not id:
             raise HTTPException(status_code=400, detail="ID is required for update")
 
-        record = await cls.model.update(id, **kwargs)
+        record = await cls.model.update(id, relationships, **kwargs)
         if not record:
             raise HTTPException(status_code=404, detail=f"{cls.model.__name__} not found for [update_ID: {id}]")
         return record

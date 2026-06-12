@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI
 from routers import register_all_routes
 from settings import register_all_errors, register_middleware

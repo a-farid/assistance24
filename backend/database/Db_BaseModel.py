@@ -1,12 +1,18 @@
 import os
+# pyrefly: ignore [missing-import]
 from sqlalchemy import Column, String, DateTime, func
+# pyrefly: ignore [missing-import]
 from sqlalchemy.ext.declarative import declarative_base
+# pyrefly: ignore [missing-import]
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+# pyrefly: ignore [missing-import]
 from sqlalchemy.ext.asyncio import async_sessionmaker
+# pyrefly: ignore [missing-import]
 from sqlalchemy.future import select
 import uuid
 from datetime import datetime
 from typing import Dict, Optional as Opt, List, Type, TypeVar, Union
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import selectinload
 
 # 1. Extract environment-driven connection arguments with fallback values
@@ -47,6 +53,8 @@ class DB_BaseModel(Base):
             for key, value in kwargs.items():
                 if key == "created_at" or key == "updated_at":
                     value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+                if isinstance(value, uuid.UUID):
+                    value = str(value)
                 if key != "__class__":
                     setattr(self, key, value)
             if "id" not in kwargs:
@@ -123,6 +131,7 @@ class DB_BaseModel(Base):
         page: int = 1, 
         **criteria
     ) -> Dict[str, Union[List[T], int]]:
+        criteria = {k: (str(v) if isinstance(v, uuid.UUID) else v) for k, v in criteria.items()}
         async with AsyncSessionLocal() as session:
             total_records = await session.execute(select(func.count()).select_from(cls).filter_by(**criteria))
             total_records = total_records.scalar()
@@ -155,6 +164,7 @@ class DB_BaseModel(Base):
     @classmethod
     async def get_id(cls: Type[T], **criteria) -> Opt[str]:
         """Fetch only the ID of the first matching record based on criteria."""
+        criteria = {k: (str(v) if isinstance(v, uuid.UUID) else v) for k, v in criteria.items()}
         async with AsyncSessionLocal() as session:
             result = await session.execute(select(getattr(cls, "id")).filter_by(**criteria))
             return result.scalar_one_or_none()
@@ -162,6 +172,7 @@ class DB_BaseModel(Base):
     @classmethod
     async def filter_by_first(cls: Type[T], relationships: Opt[List[str]] = None, **criteria) -> Opt[T]:
         """Filter records by criteria and return the first match, with optional relationship loading."""
+        criteria = {k: (str(v) if isinstance(v, uuid.UUID) else v) for k, v in criteria.items()}
         async with AsyncSessionLocal() as session:
             query = select(cls).filter_by(**criteria)
 
@@ -176,6 +187,8 @@ class DB_BaseModel(Base):
     @classmethod
     async def filter_by_id(cls: Type[T], idRecord: str, relationships: Opt[List[str]] = None) -> Opt[T]:
         """Filter records by id and return the first match, with optional relationship loading."""
+        if isinstance(idRecord, uuid.UUID):
+            idRecord = str(idRecord)
         async with AsyncSessionLocal() as session:
             query = select(cls).filter_by(id=idRecord)
 
@@ -190,6 +203,7 @@ class DB_BaseModel(Base):
     @classmethod
     async def create(cls: Type[T], unique_fields: Opt[List[str]] = None, **kwargs) -> Dict[str, Union[bool, str, T]]:
         """Create a new record in the database, ensuring unique constraints."""
+        kwargs = {k: (str(v) if isinstance(v, uuid.UUID) else v) for k, v in kwargs.items()}
         async with AsyncSessionLocal() as session:
             # Check unique fields if provided
             if unique_fields:
@@ -208,23 +222,41 @@ class DB_BaseModel(Base):
             return {"success": True, "data": record}
 
     @classmethod
-    async def update(cls: Type[T], id_record: str, **kwargs) -> Opt[T]:
+    async def update(cls: Type[T], id_record: str, relationships: Opt[List[str]] = None, **kwargs) -> Opt[T]:
         """Update a record in the database and return the updated instance."""
+        if isinstance(id_record, uuid.UUID):
+            id_record = str(id_record)
+        kwargs = {k: (str(v) if isinstance(v, uuid.UUID) else v) for k, v in kwargs.items()}
         async with AsyncSessionLocal() as session:
             result = await session.execute(select(cls).filter_by(id=id_record))
             record = result.scalars().first()
+
+            if not record:
+                return None
 
             for key, value in kwargs.items():
                 setattr(record, key, value)
 
             session.add(record)
             await session.commit()
-            await session.refresh(record)
+
+            if relationships:
+                query = select(cls).filter_by(id=id_record)
+                for relation in relationships:
+                    if hasattr(cls, relation):
+                        query = query.options(selectinload(getattr(cls, relation)))
+                result = await session.execute(query)
+                record = result.scalars().first()
+            else:
+                await session.refresh(record)
+
             return record
 
     @classmethod
     async def delete(cls: Type[T], idRecord: str) -> bool:
         """Delete a record from the database."""
+        if isinstance(idRecord, uuid.UUID):
+            idRecord = str(idRecord)
         async with AsyncSessionLocal() as session:
             result = await session.execute(select(cls).filter_by(id=idRecord))
             record = result.scalars().first()
@@ -258,14 +290,3 @@ async def init_database():
         print(f"CRITICAL: Failed to initialize database connection gateway. Error: {e}")
         # In a production pipeline, you might want to raise this to halt container startup
         raise e
-    
-
-# async def check_db():
-#     """Create the database if it doesn't exist."""
-#     if os.path.exists(database_path):
-#         print("Warning: Database already exists. Skipping creation...")
-#     else:
-#         async with engine.begin() as conn:
-#             from .models import User, Client, Worker, Contract, Meeting, Notification, FCMToken
-#             await conn.run_sync(Base.metadata.create_all)
-#         print('Database created successfully')

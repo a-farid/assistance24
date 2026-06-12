@@ -1,6 +1,7 @@
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Body, Depends as Ds, Path
 from schemas.contract_schemas import T_Contract, T_ContractUpdate
-from services import UserServices, JWTService, ContractServices
+from services import JWTService, ContractServices
 from settings.standarization import json_response, pagination_params
 
 
