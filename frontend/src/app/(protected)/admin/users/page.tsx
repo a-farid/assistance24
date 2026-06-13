@@ -15,7 +15,7 @@ const UsersPage = () => {
   const t = useTranslations('GetAllUsersPage')
 
   const { data, error, isLoading } = useGetUsersQuery({ page, limit }) as GetAllDataResponse<IUser[]>;
-
+  console.log("data in users", data);
   if (isLoading) return <Loading />;
   if (error) return <div>Error loading users</div>;
   return (
@@ -27,13 +27,13 @@ const UsersPage = () => {
         onPageChange={(newPage) => setPage(newPage)}
         onRowsPerPageChange={(newLimit) => setLimit(newLimit)}
         onRowClickRoute="/admin/users/"
-        />
+      />
       <div className='flex justify-end mt-4'>
         <Button className='ml-auto' variant="contained" disableElevation href="/admin/users/create">
           {t('addUser')}
         </Button>
       </div>
-      </div>
+    </div>
   );
 };
 

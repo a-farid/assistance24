@@ -1,21 +1,23 @@
 import log from "@/utils/logger";
 import { apiSlice } from "../api/apiSlice";
+import { getAllClients } from "./clientsSlice";
 
 // ✅ Extend apiSlice with clients endpoints
 export const clientsApi = apiSlice.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     getClients: builder.query({
-      query: () => ({
+      query: ({ page = 1, limit = 5 }) => ({
         url: "/users/clients/all",
         method: "GET",
+        params: { page, limit },
         credentials: "include",
       }),
       // 🏷️ Add cache tags for invalidation
-      providesTags: (result, error) => [
+      providesTags: (result, error, { page, limit }) => [
         { type: 'Client', id: 'LIST' },
         // Tag each individual client for targeted updates
-        ...(result?.data || []).map((client: any) => ({ type: 'Client' as const, id: client.id }))
+        ...(result?.data?.data || []).map((client: any) => ({ type: 'Client' as const, id: client.id }))
       ],
       async onQueryStarted(
         _: unknown,
@@ -24,9 +26,10 @@ export const clientsApi = apiSlice.injectEndpoints({
         try {
           const result = await queryFulfilled;
           console.log("Clients fetched successfully:", result.data);
+          dispatch(getAllClients({ clients: result.data.data }));
         } catch (error) {
           console.error("Error fetching clients:", error);
-          log.error("getClients", "error", error);
+          // log.error("getClients", "error", error);
         }
       },
     }),
@@ -63,14 +66,14 @@ export const clientsApi = apiSlice.injectEndpoints({
       ],
       async onQueryStarted(client_id, { dispatch, queryFulfilled, getState }) {
         console.log('Starting optimistic update for client_id:', client_id);
-        
+
         // 🚀 OPTIMISTIC UPDATE - Update cache immediately
         const state = getState() as any;
         const patches: any[] = [];
-        
+
         // Get all cached queries from RTK Query cache
         const cachedQueries = state.api.queries;
-        
+
         // Update getClients cache
         if (cachedQueries[`getClients(undefined)`]?.data) {
           const clientListPatch = dispatch(
@@ -84,7 +87,7 @@ export const clientsApi = apiSlice.injectEndpoints({
           );
           patches.push(clientListPatch);
         }
-        
+
         // Update getClientById cache if exists
         if (cachedQueries[`getClientById("${client_id}")`]?.data) {
           const clientDetailPatch = dispatch(
@@ -98,7 +101,7 @@ export const clientsApi = apiSlice.injectEndpoints({
 
         try {
           const result = await queryFulfilled;
-          
+
           // 🔄 Update getClients cache with real server response
           dispatch(
             clientsApi.util.updateQueryData('getClients', undefined, (draft) => {
@@ -108,7 +111,7 @@ export const clientsApi = apiSlice.injectEndpoints({
               }
             })
           );
-          
+
           // 🔄 Update getClientById cache with real server response
           dispatch(
             clientsApi.util.updateQueryData('getClientById', client_id, (draft) => {
@@ -140,7 +143,7 @@ export const clientsApi = apiSlice.injectEndpoints({
       async onQueryStarted({ client_id, profileData }, { dispatch, queryFulfilled }) {
         try {
           const result = await queryFulfilled;
-          
+
           // Update getClients cache
           dispatch(
             clientsApi.util.updateQueryData('getClients', undefined, (draft) => {
@@ -150,14 +153,14 @@ export const clientsApi = apiSlice.injectEndpoints({
               }
             })
           );
-          
+
           // Update getClientById cache
           dispatch(
             clientsApi.util.updateQueryData('getClientById', client_id, (draft) => {
               draft.data = result.data.data;
             })
           );
-          
+
         } catch (error) {
           console.log("Error updating client:", error);
         }

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends as Ds, Path
+from fastapi import APIRouter, Body, Depends as Ds, Path # pyrefly: ignore [missing-import]
 from schemas.user_schemas import T_Email, T_Profile, T_User, T_UserInDb, T_Username
 from services.user_svc import UserServices
 from services.jwt_svc import JWTService
@@ -33,7 +33,7 @@ async def get_all_workers(_=Ds(jwt_s.roles_allowed(["admin"]))):
 @router.get("/clients/all", status_code=200)
 async def get_all_clients(_=Ds(jwt_s.roles_allowed(["admin"]))):
     clients_list = await user_service.get_all_clients()
-    return json_response(data=clients_list, message="All clients retrieved")
+    return json_response(**clients_list, message="All clients retrieved")
 
 @router.put("/me/email", description="Update the connected user email [owner]")
 async def update_connected_user_email(body: T_Email = Body(...), current_user=Ds(user_service.get_user_from_token)):
