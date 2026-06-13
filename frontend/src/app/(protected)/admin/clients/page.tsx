@@ -14,22 +14,22 @@ const ClientsPage = () => {
 
   if (isLoading) return <Loading />;
   if (error) return <div className="p-4 text-red-600">Error loading clients: {error?.message || 'Unknown error'}</div>;
-  
+
   const clientsData = data?.data || data || [];
 
   return (
     <div>
-      <h2 className='pl-3'>{t('title', 'Manage Clients')}</h2>
+      <h2 className='pl-3'>{t('title')}</h2>
       <CustomTableComponent
         rawData={clientsData}
         headCells={allUsersHeadCells}
-        onPageChange={() => {}}
-        onRowsPerPageChange={() => {}}
+        onPageChange={() => { }}
+        onRowsPerPageChange={() => { }}
         onRowClickRoute="/admin/users/"
       />
       <div className='flex justify-end mt-4'>
         <Button className='ml-auto' variant="contained" disableElevation href="/admin/users/create?role=client">
-          {t('addClient', 'Add Client')}
+          {t('addClient')}
         </Button>
       </div>
     </div>

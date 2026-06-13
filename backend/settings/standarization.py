@@ -1,12 +1,12 @@
 from typing import Generic, Type, TypeVar, Optional
-from pydantic import BaseModel
-from fastapi.responses import JSONResponse
+from pydantic import BaseModel # pyrefly: ignore [missing-import]
+from fastapi.responses import JSONResponse # pyrefly: ignore [missing-import]
 from datetime import datetime, date
 from uuid import UUID
-from fastapi.encoders import jsonable_encoder
+from fastapi.encoders import jsonable_encoder # pyrefly: ignore [missing-import]
 from typing import Any, Dict, Union
-
-from schemas.user_schemas import T_Client, T_User, T_Worker
+from fastapi import Query # pyrefly: ignore [missing-import]
+from schemas.user_schemas import T_Client, T_Worker
 
 
 T = TypeVar("T")
@@ -15,7 +15,6 @@ T = TypeVar("T")
 class ApiResponse(BaseModel, Generic[T]):
     success: bool
     data: Optional[T]
-
 
 def serialize_data(data):
     """Recursively apply custom serialization to handle special types."""
@@ -33,11 +32,9 @@ async def get_user_model(data: Union[T_Worker, T_Client]) -> dict:
     """Fetch and return worker and client as T_Profile. """
     result = {}
     if data.user:
-        print("Data has user:", data.user)  # Debugging statement to check the content of data.user
-        # user_dict = data.user.to_dict() # Before types verification
-    #     user_dict = data.user.model_dump()
-    #     result["user"] = T_User(**user_dict)
-    # return result
+        user_dict = data.user.to_dict()
+        result["user"] = user_dict
+    return result
 
 async def format_paginated_response(result: Dict[str, Any], model: Type[BaseModel], nested_user: bool = False):
     """Formats paginated response, converting the given data into a Pydantic model list."""
@@ -50,7 +47,8 @@ async def format_paginated_response(result: Dict[str, Any], model: Type[BaseMode
 
             # If the item has a user and we need to nest it, handle it here
             if nested_user:
-                item_dict = await get_user_model(item)  # Await the result of get_user_model
+                nested = await get_user_model(item)  # Await the result of get_user_model
+                item_dict.update(nested)  # Merge nested user into the base dict
 
             # Convert the cleaned-up dictionary to the Pydantic model
             formatted_items.append(model.model_validate(item_dict))
@@ -64,7 +62,6 @@ async def format_paginated_response(result: Dict[str, Any], model: Type[BaseMode
     }
 
 
-from fastapi import Query
 
 def pagination_params(page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
     """Dependency to handle pagination parameters for all routes."""
