@@ -5,7 +5,6 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from schemas.user_schemas import T_User, T_UserInDb
-from database import db
 
 from settings import Config
 
@@ -45,9 +44,7 @@ class JWTService:
         except JWTError: return
 
     async def create_token(self, data: dict, token_type: str) -> str:
-        """
-        Create a JWT token (access or refresh).
-        """
+        """Create a JWT token (access or refresh)."""
         token_expiry = {
             "access": timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINUTES),
             "refresh": timedelta(days=Config.REFRESH_TOKEN_EXPIRE_DAYS),
@@ -66,32 +63,22 @@ class JWTService:
         Generalized authorization function that checks if a given condition
         holds for the decoded JWT token and returns the decoded token if authorized.
         """
-
-        # Define a function to check the condition on the decoded token
         def checker(decoded_token: dict = Depends(self.authorized_token)):
             if not condition(decoded_token):
-                # If the condition fails, raise an HTTP 403 Forbidden exception
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail=error_detail
                 )
-            return decoded_token  # Return the decoded token if authorized
+            return decoded_token
 
         return checker
 
     def roles_allowed(self, required_roles: list[str]):
         """
-        Checks if the user has one of the required roles in the JWT token and
-        returns the decoded token if authorized.
-
-        Returns:
-            dict: The decoded JWT token if the user has one of the required roles.
+        Checks if the user has one of the required roles in the JWT token.
+        Returns the decoded token if authorized.
         """
-
-        # The lambda function checks if the token's 'role' is in the required roles
         condition = lambda token: token.get("role") in required_roles
-
-        # Return the checker function with the given condition and error message
         return self.authorize(
             condition,
             f"Access denied. Required roles: {required_roles}"
@@ -106,42 +93,46 @@ class JWTService:
     async def create_refresh_access_tokens(self, user: T_User):
         """
         Create new access and refresh tokens and set them in HTTP-only cookies.
+        cw_id removed — user_id is now used directly for contract lookups.
         """
-        data = {"username": user.username, "role": user.role, "user_id": user.id}
-
-        if user.role == "client":
-            client_id = await db.client.get_id(user_id=user.id)
-            data["cw_id"] = client_id
-        elif user.role == "worker":
-            worker_id = await db.worker.get_id(user_id=user.id)
-            data["cw_id"] = worker_id
-        else:
-            data["cw_id"] = None
+        data = {
+            "username": user.username,
+            "role": user.role,
+            "user_id": user.id,
+        }
 
         access_token = await self.create_token(data, "access")
         refresh_token = await self.create_token({"user_id": user.id}, "refresh")
 
-        response = JSONResponse(content={"success": True, "data": {"user": user.model_dump(),"access_token": access_token, "refresh_token": refresh_token}})
-        response.set_cookie(key="access_token",
-                            value=f"Bearer {access_token}",
-                            httponly=True,
-                            secure=Config.COOKIE_SECURE,
-                            samesite="lax",
-                            domain=Config.COOKIE_DOMAIN)
-        
-        response.set_cookie(key="refresh_token",
-                            value=f"Bearer {refresh_token}",
-                            httponly=True,
-                            secure=Config.COOKIE_SECURE,
-                            samesite="lax",
-                            domain=Config.COOKIE_DOMAIN)
+        response = JSONResponse(content={
+            "success": True,
+            "data": {
+                "user": user.model_dump(),
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            }
+        })
+        response.set_cookie(
+            key="access_token",
+            value=f"Bearer {access_token}",
+            httponly=True,
+            secure=Config.COOKIE_SECURE,
+            samesite="lax",
+            domain=Config.COOKIE_DOMAIN,
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=f"Bearer {refresh_token}",
+            httponly=True,
+            secure=Config.COOKIE_SECURE,
+            samesite="lax",
+            domain=Config.COOKIE_DOMAIN,
+        )
 
         return response
 
     def create_email_activation_tokens(self, user: T_UserInDb):
-        """
-        Create new access and refresh tokens and set them in HTTP-only cookies.
-        """
+        """Create activation token and set in HTTP-only cookie."""
         data = {"email": user.email}
         activation_token = self.create_token(data, "activation")
 

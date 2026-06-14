@@ -280,7 +280,7 @@ async def init_database():
             print("Architectural Sync: Checking and aligning database schema definitions...")
             
             # Import models to register them with the Base metadata pool
-            from .models import User, Client, Worker, Contract, Meeting, Notification, FCMToken
+            from .models import User, Contract, Meeting, Notification, FCMToken
             
             # Safely generates missing tables natively without destructive overwrites
             await conn.run_sync(Base.metadata.create_all)

@@ -1,9 +1,12 @@
+# pyrefly: ignore [missing-import]
 from fastapi import HTTPException
 from typing import Type, Optional, List
+# pyrefly: ignore [missing-import]
 from sqlalchemy.ext.asyncio import AsyncSession
 from functools import lru_cache
 from database.Db_BaseModel import AsyncSessionLocal, DB_BaseModel
-from database.models import Contract, Client, FCMToken, Worker, User, Meeting, Notification
+from database.models import Contract, FCMToken, User, Meeting, Notification
+
 
 class DataBaseService:
     model: Type[DB_BaseModel]
@@ -41,18 +44,17 @@ class DataBaseService:
     async def filter_all(cls, relationships: Optional[List[str]] = None, limit: int = 10, page: int = 1, **criteria):
         """Filter records and return paginated matches."""
         data = await cls.model.filter_all(relationships, limit=limit, page=page, **criteria)
-        return data  # No exception needed
-
+        return data
 
     @classmethod
     async def get_all(cls, relationships: Optional[List[str]] = None, limit: int = 10, page: int = 1):
         """Fetch all records with optional relationships and pagination."""
         data = await cls.model.get_all(relationships, limit=limit, page=page)
-        return data  # No exception needed
+        return data
 
     @classmethod
     async def create(cls, unique_fields: Optional[List[str]] = None, **kwargs) -> DB_BaseModel:
-        """Create a new contract ensuring uniqueness."""
+        """Create a new record ensuring uniqueness."""
         if unique_fields:
             result = await cls.model.create(unique_fields=[*unique_fields], **kwargs)
         else:
@@ -65,7 +67,6 @@ class DataBaseService:
     @classmethod
     async def update(cls, id: str, relationships: Optional[List[str]] = None, **kwargs):
         """Update a record and raise 404 if not found."""
-        # raise HTTPException(status_code=40, detail=f"{cls.model.__name__} testing update method {id}")
         if not id:
             raise HTTPException(status_code=400, detail="ID is required for update")
 
@@ -89,12 +90,6 @@ class ContractDb(DataBaseService):
 class UserDb(DataBaseService):
     model = User
 
-class ClientDb(DataBaseService):
-    model = Client
-
-class WorkerDb(DataBaseService):
-    model = Worker
-
 class MeetingDb(DataBaseService):
     model = Meeting
 
@@ -107,8 +102,6 @@ class FCMTokenDb(DataBaseService):
 class DBService:
     contract = ContractDb()
     user = UserDb()
-    client = ClientDb()
-    worker = WorkerDb()
     meeting = MeetingDb()
     notification = NotificationDb()
     fcm_token = FCMTokenDb()

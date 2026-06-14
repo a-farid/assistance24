@@ -1,7 +1,7 @@
 from fastapi import Body, Cookie, HTTPException, Depends as Ds, APIRouter, Path, Query, Response
 from fastapi.responses import JSONResponse
 from jose import jwt
-from schemas.user_schemas import T_Email, T_FCMToken, T_PassUpdate, T_ResetPassword, T_User, T_UserInDb, T_UserInDbAdmin, T_Login_User
+from schemas.user_schemas import T_Email, T_FCMToken, T_PasswordUpdate, T_ResetPassword, T_User, T_UserInDb, T_UserInDbAdmin, T_Login_User
 from services.auth_svc import AuthServices
 from services.jwt_svc import JWTService
 from database import redis_delete
@@ -78,7 +78,7 @@ async def read_connected_user(current_user= Ds(auth_svc.get_user_from_token)):
     return json_response(data=current_user)
 
 @router.put("/change_password", description="Change the user's password.")
-async def change_password(body: T_PassUpdate = Body(...),user: T_User = Ds(auth_svc.get_user_from_token)):
+async def change_password(body: T_PasswordUpdate = Body(...),user: T_User = Ds(auth_svc.get_user_from_token)):
     """
     Change the user's password.
     """

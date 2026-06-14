@@ -1,6 +1,7 @@
 import random
 import time
 from typing import List, Dict
+# pyrefly: ignore [missing-import]
 from fastapi import Depends, HTTPException
 from database import redis_get, redis_set, db
 from database.firebase_utils import send_push_notification
@@ -47,11 +48,10 @@ class AuthServices:
 
         if user.hashed_password:
             user.hashed_password = jwt_s.get_hashed_password(user.hashed_password)
-        user.is_admin = True
         user.is_verified = True
         user.role = "admin"
 
-        user_data = user.model_dump(exclude={"id"})
+        user_data = user.model_dump(exclude={"id", "admin_key"})
         image_name = f"{random.randint(1, 22)}.png"
         url_photo = f"images/{image_name}"
         user_data["url_photo"] = url_photo
