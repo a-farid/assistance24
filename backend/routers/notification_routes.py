@@ -1,4 +1,5 @@
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends as Ds, HTTPException, Path
 from schemas.notification_schemas import T_Notification
 from services.jwt_svc import JWTService
@@ -14,9 +15,9 @@ jwt_s = JWTService()
 async def get_unread_notifications(pagination = Ds(pagination_params),payload= Ds(jwt_s.authorized_token)):
     """Get all unread notifications for a user"""
     # Get unread notifications
-    unread_notifications = await db.notification.filter_all(receiver_id=payload.get("cw_id"), read=False, **pagination)
+    unread_notifications = await db.notification.filter_all(receiver_id=payload.get("user_id"), read=False, **pagination)
 
-    result = await format_paginated_response(unread_notifications, T_Notification, nested_user=False)
+    result = await format_paginated_response(unread_notifications, T_Notification)
 
     return json_response(**result, message="Unread notifications retrieved", status_code=200)
 
@@ -26,7 +27,7 @@ async def mark_notification_as_read(notification_id: str = Path(...), payload=Ds
     # Find the notification
     notification = await db.notification.filter_by_id(notification_id)
 
-    if notification.receiver_id != payload.get("cw_id"):
+    if notification.receiver_id != payload.get("user_id"):
         raise HTTPException(status_code=400, detail="You are not the receiver of this notification")
 
     updated_notification = await db.notification.update(notification_id, read=True)
@@ -39,7 +40,7 @@ async def delete_notification(notification_id: str = Path(...), payload=Ds(jwt_s
     # Find the notification
     notification = await db.notification.filter_by_id(notification_id)
 
-    if notification.receiver_id != payload.get("cw_id"):
+    if notification.receiver_id != payload.get("user_id"):
         raise HTTPException(status_code=400, detail="You are not the receiver of this notification")
 
     await db.notification.delete(notification_id)

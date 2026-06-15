@@ -1,7 +1,7 @@
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse # pyrefly: ignore [missing-import]
 from jose import jwt, JWTError
-from fastapi import HTTPException, Depends, status, Cookie
-from passlib.context import CryptContext
+from fastapi import HTTPException, Depends, status, Cookie # pyrefly: ignore [missing-import]
+from passlib.context import CryptContext # pyrefly: ignore [missing-import]
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from schemas.user_schemas import T_User, T_UserInDb
@@ -17,9 +17,6 @@ class JWTService:
         return pwd_context.hash(password)
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        print("#####################################################################")
-        print(f"Verifying password: {plain_password} against hash: {hashed_password}")
-        print("#####################################################################")
         return pwd_context.verify(plain_password, hashed_password)
 
     async def authorized_token(self, access_token: Optional[str] = Cookie(None)):
@@ -93,7 +90,6 @@ class JWTService:
     async def create_refresh_access_tokens(self, user: T_User):
         """
         Create new access and refresh tokens and set them in HTTP-only cookies.
-        cw_id removed — user_id is now used directly for contract lookups.
         """
         data = {
             "username": user.username,

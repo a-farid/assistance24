@@ -16,13 +16,13 @@ async def create_new_contract(body: T_Contract = Body(...), _=Ds(jwt_s.roles_all
     new_contract = await contract_service.create_contract(body)
     return json_response(new_contract, 200)
 
-@router.get("/my_contracts", description="Get contracts for the current user")
+@router.get("/me", description="Get the current user's contracts (anticipate by date)")
 async def get_my_contracts(pagination: dict = Ds(pagination_params),token =Ds(jwt_s.roles_allowed(["worker", "client"]))):
     response = await contract_service.get_my_contracts(token, pagination)
     return json_response(**response, message="User contracts retrieved")
 
-@router.get("/all", description="Get all contracts")
-async def get_all_contracts(pagination: dict = Ds(pagination_params), _: dict =Ds(jwt_s.authorized_token)):
+@router.get("/all", description="Get all contracts [admin]")
+async def get_all_contracts(pagination: dict = Ds(pagination_params), _: dict =Ds(jwt_s.roles_allowed(["admin"]))):
     contracts = await contract_service.get_all_contracts(pagination)
     return json_response(**contracts, message="All contracts retrieved")
 

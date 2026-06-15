@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from fastapi import Body, Cookie, HTTPException, Depends as Ds, APIRouter, Path, Query, Response
+# pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
 from jose import jwt
 from schemas.user_schemas import T_Email, T_FCMToken, T_PasswordUpdate, T_ResetPassword, T_User, T_UserInDb, T_UserInDbAdmin, T_Login_User
@@ -36,12 +38,12 @@ async def check_username(username: str = Path(...)):
     else:
         return json_response(message="The username does not exist on DB", data=result)
 
-@router.post("/login", description="Login the user and return the access token.")
+@router.post("/login", response_model=ApiResponse[T_User], description="Login the user and return the access token.")
 async def login_for_access_token(body: T_Login_User = Body(...), _= Ds(jwt_s.verify_login)):
     user = await auth_svc.authenticate_user(**body.model_dump())
     return await jwt_s.create_refresh_access_tokens(user)
 
-@router.post("/logout", status_code=200, description="Logout the user by clearing the authentication cookie.")
+@router.post("/logout", status_code=200, response_model=ApiResponse[str], description="Logout the user by clearing the authentication cookie.")
 async def logout(access_token=Ds(jwt_s.authorized_token)):
     """
     Logout the user by clearing the authentication cookie.
@@ -73,11 +75,11 @@ async def logout(access_token=Ds(jwt_s.authorized_token)):
     return response
 
 
-@router.get("/me", description="Get the connected user.")
+@router.get("/me", response_model=ApiResponse[T_User], description="Get the connected user.")
 async def read_connected_user(current_user= Ds(auth_svc.get_user_from_token)):
     return json_response(data=current_user)
 
-@router.put("/change_password", description="Change the user's password.")
+@router.put("/change_password", response_model=ApiResponse[str], description="Change the user's password.")
 async def change_password(body: T_PasswordUpdate = Body(...),user: T_User = Ds(auth_svc.get_user_from_token)):
     """
     Change the user's password.

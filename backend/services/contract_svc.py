@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from fastapi import HTTPException
 from schemas.contract_schemas import T_Contract, T_ContractUpdate
 from schemas.user_schemas import T_Profile
@@ -28,22 +29,30 @@ class ContractServices:
         pass
 
     async def create_contract(self, contract: T_Contract) -> T_Contract:
-        """Create a new contract. client_id and worker_id are now user IDs directly."""
+        """
+        Create a new contract.
+        @ Params: contract (T_Contract)
+        Returns: T_Contract
+        """
         contract_data = contract.model_dump(exclude={"id"})
         new_contract = await db.contract.create(**contract_data, unique_fields=["num_contract"])
         return new_contract
 
-    async def get_contract_by_id(self, contract_id: str) -> T_Contract:
-        """Get a contract from the database."""
-        return await db.contract.filter_by_id(contract_id)
-
     async def get_all_contracts(self, pagination) -> list[T_Contract]:
-        """Get all contracts from the database."""
+        """
+        Get all contracts from the database.
+        @ Params: pagination (dict)
+        Returns: list[T_Contract]
+        """
         result = await db.contract.get_all(**pagination)
         return await format_paginated_response(result, T_Contract)
 
-    async def get_contract(self, contract_id: str, token) -> dict:
-        """Get a contract by ID, enforcing role-based access via user_id."""
+    async def get_contract(self, contract_id: str, token) -> T_Contract:
+        """
+        Get a contract by ID, enforcing role-based access via user_id.
+        @ Params: contract_id (str), token (dict)
+        Returns: T_Contract
+        """
         contract = await db.contract.filter_by_id(contract_id, relationships=["client", "worker"])
         contract_data = contract.to_dict()
         contract_data.update(await get_worker_and_client(contract))
@@ -65,7 +74,13 @@ class ContractServices:
         return contract_data
 
     async def get_my_contracts(self, token, pagination) -> list[dict]:
-        """Retrieve contracts for the authenticated user using user_id directly."""
+        """
+        Retrieve contracts for the authenticated user using user_id directly.
+        @ Params: token (dict), pagination (dict)
+        Returns: list[dict]
+        """
+        print("user token", token)
+        print("pagination", pagination)
         user_id = token.get("user_id")
         role = token.get("role")
 
@@ -75,24 +90,34 @@ class ContractServices:
             my_contracts = await db.contract.filter_all(client_id=user_id, **pagination)
         else:
             raise HTTPException(status_code=403, detail=acces_denied)
-
         return await format_paginated_response(my_contracts, T_Contract)
 
     async def delete_contract(self, contract_id: str):
-        """Delete a contract by ID."""
+        """
+        Delete a contract by ID.
+        @ Params: contract_id (str)
+        ! Returns: dict
+        """
         return await db.contract.delete(contract_id)
 
-    async def update_contract(self, contract_id: str, body: T_ContractUpdate) -> dict:
-        """Update a contract. client_id/worker_id are user IDs — no resolution needed."""
+    async def update_contract(self, contract_id: str, body: T_ContractUpdate) -> T_Contract:
+        """
+        Update a contract.
+        @ Params: contract_id (str), body (T_ContractUpdate)
+        Returns: dict
+        """
         update_data = body.model_dump(exclude_unset=True)
         updated_contract = await db.contract.update(contract_id, relationships=["client", "worker"], **update_data)
         contract_data = updated_contract.to_dict()
-        print("updated_contract", contract_data)
         contract_data.update(await get_worker_and_client(updated_contract))
-        return contract_data
+        return T_Contract(**contract_data)
 
     async def att_worker_to_contract(self, contract_id: str, worker_id: str) -> T_Contract:
-        """Assign a worker (user_id) to a contract."""
+        """
+        Assign a worker (user_id) to a contract.
+        @ Params: contract_id (str), worker_id (str)
+        Returns: T_Contract
+        """
         await db.contract.filter_by_id(contract_id)
         updated_contract = await db.contract.update(contract_id, worker_id=worker_id)
         return T_Contract(**updated_contract.to_dict())
