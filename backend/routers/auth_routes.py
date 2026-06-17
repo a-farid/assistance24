@@ -74,7 +74,6 @@ async def logout(access_token=Ds(jwt_s.authorized_token)):
 
     return response
 
-
 @router.get("/me", response_model=ApiResponse[T_User], description="Get the connected user.")
 async def read_connected_user(current_user= Ds(auth_svc.get_user_from_token)):
     return json_response(data=current_user)
@@ -87,13 +86,11 @@ async def change_password(body: T_PasswordUpdate = Body(...),user: T_User = Ds(a
     await auth_svc.change_password(body.model_dump(), user)
     return json_response(message="Password changed successfully")
 
-
 @router.put("/set_password_activation", description="Set the user's password.")
 async def set_password_activation(new_password: str = Body(...), email=Ds(jwt_s.decode_activation_token)):
     """Set the user's password."""
     user = await auth_svc.set_password(email, new_password)
     return await jwt_s.create_refresh_access_tokens(user)
-
 
 @router.get("/verify_email")
 async def verify_email_activation(email: str = Query(...), token: str = Query(...)):

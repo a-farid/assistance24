@@ -11,16 +11,24 @@ export interface IUser extends IProfile {
     username: string;
     email: string;
     disabled: boolean;
-    is_verifier: boolean;
-    role: string;
+    role: 'admin' | 'worker' | 'client';
     is_verified?: boolean;
     }
 
-export interface IWorker {
-    id: string;
-    user: IUser;
+export interface IAuthState {
+  user: IUser | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  lastTokenRefresh: number | null;
+  sessionId: string | null;
 }
-export interface IClient {
-    id: string;
-    user: IUser;
+
+export interface IAuthActions {
+  setUser: (user: IUser | null) => void;
+  setLoading: (loading: boolean) => void;
+  setAuthenticated: (authenticated: boolean) => void;
+  updateLastTokenRefresh: () => void;
+  setSessionId: (sessionId: string | null) => void;
+  logout: () => void;
+  clearAuth: () => void;
 }

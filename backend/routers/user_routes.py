@@ -48,7 +48,7 @@ async def update_connected_user_username(body: T_Username = Body(...), current_u
 @router.put("/me", description="Update the connected user [owner]")
 async def update_connected_user(body: T_Profile = Body(...), current_user=Ds(user_service.get_user_from_token)):
     updated_user = await user_service.update_connected_user(current_user.id, body)
-    return json_response(data=updated_user.model_dump(), message="Connected user updated succesfully")
+    return json_response(data=updated_user, message="Connected user updated succesfully")
 
 @router.put("/{user_id}", description="Update a user [admin]")
 async def update_user(user_id: str = Path(...), body: T_Profile = Body(...), _: dict = Ds(jwt_s.roles_allowed(["admin"]))):

@@ -25,14 +25,13 @@ export const Protected: React.FC<ProtectedProps> = ({
 
   useEffect(() => {
     let isMounted = true;
-
     const checkAuthentication = async () => {
       try {
         setIsChecking(true);
 
         // Check if authentication is valid
         const isValid = await authService.checkAuth();
-        
+
         if (!isMounted) return;
 
         if (!isValid) {
@@ -124,7 +123,7 @@ export const AuthGuards: React.FC<AuthGuardProps> = ({
  */
 export const useAuth = () => {
   const authState = useAuthStore();
-  
+
   return {
     ...authState,
     login: authService.login.bind(authService),

@@ -1,6 +1,6 @@
 import log from "@/utils/logger";
 import { apiSlice } from "../api/apiSlice";
-import { userSetInfos } from "../auth/authSlice";
+import { userLoggedIn, userSetInfos } from "../auth/authSlice";
 import { getAllUsers, updateUser, addUser } from "./usersSlice";
 import { AppDispatch } from "@/lib/store";
 
@@ -73,7 +73,8 @@ export const usersApi = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const result = await queryFulfilled;
-          dispatch(userSetInfos({ user: result.data.data }));
+          dispatch(userSetInfos({ user: result.data }));
+
         } catch (error) {
           console.log("Error [editConnectedUser] updating profile: ", error);
         }
@@ -94,14 +95,14 @@ export const usersApi = apiSlice.injectEndpoints({
       ],
       async onQueryStarted(user_id, { dispatch, queryFulfilled, getState }) {
         console.log('Starting optimistic update for user_id:', user_id);
-        
+
         // 🚀 OPTIMISTIC UPDATE - Update ALL cached pages that contain this user
         const state = getState() as any;
         const patches: any[] = [];
-        
+
         // Get all cached queries from RTK Query cache
         const cachedQueries = state.api.queries;
-        
+
         // 1️⃣ Update getUserById cache (for user detail page)
         if (cachedQueries[`getUserById("${user_id}")`]?.data) {
           const userDetailPatch = dispatch(
@@ -112,7 +113,7 @@ export const usersApi = apiSlice.injectEndpoints({
           );
           patches.push(userDetailPatch);
         }
-        
+
         // 2️⃣ Update getUsers cache (for users list pages)
         Object.keys(cachedQueries).forEach(cacheKey => {
           if (cacheKey.startsWith('getUsers(') && cachedQueries[cacheKey]?.data) {
@@ -121,7 +122,7 @@ export const usersApi = apiSlice.injectEndpoints({
             if (match) {
               try {
                 const queryArgs = JSON.parse(match[1].replace(/'/g, '"'));
-                
+
                 // Apply optimistic update to this cached page
                 const patchResult = dispatch(
                   usersApi.util.updateQueryData('getUsers', queryArgs, (draft) => {
@@ -149,7 +150,7 @@ export const usersApi = apiSlice.injectEndpoints({
           const result = await queryFulfilled;
           // Update Redux store
           dispatch(updateUser({ user: result.data.data }));
-          
+
           // 🔄 Update getUserById cache with real server response
           dispatch(
             usersApi.util.updateQueryData('getUserById', user_id, (draft) => {
@@ -157,7 +158,7 @@ export const usersApi = apiSlice.injectEndpoints({
               draft.data = result.data.data;
             })
           );
-          
+
           // 🔄 Update ALL getUsers cached pages with real server response
           Object.keys(cachedQueries).forEach(cacheKey => {
             if (cacheKey.startsWith('getUsers(') && cachedQueries[cacheKey]?.data) {
@@ -165,7 +166,7 @@ export const usersApi = apiSlice.injectEndpoints({
               if (match) {
                 try {
                   const queryArgs = JSON.parse(match[1].replace(/'/g, '"'));
-                  
+
                   dispatch(
                     usersApi.util.updateQueryData('getUsers', queryArgs, (draft) => {
                       const userIndex = draft.data.data.findIndex((user: any) => user.id === user_id);
@@ -204,7 +205,7 @@ export const usersApi = apiSlice.injectEndpoints({
         try {
           const result = await queryFulfilled;
           console.log("User created successfully:", result.data);
-          
+
           // 🚀 OPTIMISTIC UPDATE - Add user to cache immediately
           dispatch(
             usersApi.util.updateQueryData('getUsers', { page: 1, limit: 5 }, (draft) => {
@@ -219,7 +220,7 @@ export const usersApi = apiSlice.injectEndpoints({
 
           // Update Redux store
           dispatch(addUser({ user: result.data.data }));
-          
+
         } catch (error) {
           console.log("Error creating user:", error);
         }

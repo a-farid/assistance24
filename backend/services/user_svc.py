@@ -17,6 +17,19 @@ class UserServices:
     def __init__(self):
         pass
 
+    async def get_user(self, user_id) -> T_User:
+        user_redis = await redis_get(user_id, T_User)
+
+        if user_redis:
+            if user_redis.disabled:
+                raise HTTPException(status_code=400, detail="User is disabled, contact the administrator")
+            return user_redis
+        user = await db.user.filter_by_id(user_id)
+        if user.disabled:
+            raise HTTPException(status_code=400, detail="User is disabled, contact the administrator")
+        await redis_set(getattr(user, "id"), T_User(**user.to_dict()))
+        return T_User(**user.to_dict())
+
     async def create_user(self, user: T_UserInDb) -> T_User:
         """Create a new user in the database."""
 
@@ -74,8 +87,10 @@ class UserServices:
         user_data = body.model_dump(exclude={"username", "email", "id", "disabled", "role", "is_verified", "hashed_password", "url_photo"})
         if not user_data == {'adress': None, 'first_name': None, 'last_name': None, 'phone': None}:
             updated_user = await db.user.update(user_id, **user_data)
-            await redis_set(getattr(updated_user, "id"), T_UserInDb(**updated_user.to_dict()))
-            return T_User(**updated_user.to_dict())
+            updated_user_dict = updated_user.to_dict()
+
+            await redis_set(getattr(updated_user, "id"), T_UserInDb(**updated_user_dict))
+            return T_User(**updated_user_dict)
         else:
             raise HTTPException(status_code=400, detail="No data provided, accepted fields : adress, first_name, last_name, phone")
 
@@ -90,19 +105,6 @@ class UserServices:
     async def get_all_clients(self, page: int, limit: int):
         result = await db.user.filter_all(limit=limit, page=page, role="client")
         return await format_paginated_response(result, T_User)
-
-    async def get_user(self, user_id) -> T_User:
-        user_redis = await redis_get(user_id, T_User)
-
-        if user_redis:
-            if user_redis.disabled:
-                raise HTTPException(status_code=400, detail="User is disabled, contact the administrator")
-            return user_redis
-        user = await db.user.filter_by_id(user_id)
-        if user.disabled:
-            raise HTTPException(status_code=400, detail="User is disabled, contact the administrator")
-        await redis_set(getattr(user, "id"), T_User(**user.to_dict()))
-        return T_User(**user.to_dict())
 
     async def get_user_admin(self, user_id) -> T_User:
         user_redis = await redis_get(user_id, T_User)

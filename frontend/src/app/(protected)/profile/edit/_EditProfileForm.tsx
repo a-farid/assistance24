@@ -3,13 +3,14 @@ import { z } from "zod";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import CustomFormik from "@/components/custom/CustomFormik";
+import CustomFormik from "@/components/custom/CustomFormik"; // 
 import Loading from "@/components/custom/Loading";
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { FormField } from "@/utils/interface/FormikField";
 import LinesSkeleton from "@/components/skeleton/LinesSkeleton";
-import { useEditConnectedUserMutation } from "@/lib/features/users/usersApi";
+import { useEditConnectedUserMutation } from "@/lib/features/users/usersApi"; // Will be deleted
+import { useAuthStore } from "@/lib/auth/authStore";
+
 
 
 const formSchema = z.object({
@@ -23,11 +24,12 @@ const formSchema = z.object({
     .optional(),
 });
 
-function EditProfileForm({}: {}) {
-  const user = useAppSelector((state:any) => state.auth.user);
+function EditProfileForm({ }: {}) {
+  const { user, isLoading, setUser } = useAuthStore();
 
   type FormValues = z.infer<typeof formSchema>;
-  const initialValues = { adress: user?.adress,
+  const initialValues = {
+    adress: user?.adress,
     first_name: user?.first_name,
     last_name: user?.last_name,
     phone: user?.phone
@@ -41,15 +43,17 @@ function EditProfileForm({}: {}) {
     { label: t('phone'), name: "phone", type: "text" },
   ]);
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const [editConnectedUser, { data, error, isSuccess, isLoading }] = useEditConnectedUserMutation();
+  const [editConnectedUser, { data, error, isSuccess }] = useEditConnectedUserMutation();
 
   useEffect(() => {
     if (isSuccess) {
-      const message = data.message || "User logged in successfully | EditProfileForm";
-      console.log("EditProfileForm: User data updated successfully", data);
+      const message = data?.message || "User logged in successfully";
       toast.success(message);
+      if (data?.data) {
+      setUser(data.data); 
+      }
       router.push("/profile");
+
     }
     if (error) {
       if ("data" in error) {
@@ -57,7 +61,7 @@ function EditProfileForm({}: {}) {
         toast.error(errorData.data.message);
       }
     }
-  }, [isSuccess, error, data, router, dispatch, user]);
+  }, [isSuccess, error, data, router, user]);
 
   const onSubmit = async (values: FormValues) => {
     // Filter out empty optional fields
@@ -67,23 +71,23 @@ function EditProfileForm({}: {}) {
       }
       return acc;
     }, {} as Partial<FormValues>);
-    
+
     // You might want to use a different mutation for updating profile
     // await updateProfile(filteredValues).unwrap();
     await editConnectedUser(filteredValues).unwrap();
   };
-  if(!user) return <LinesSkeleton />;
+  if (!user) return <LinesSkeleton />;
 
   return (
     <div className="max-w-[600px] mx-auto">
-    {isLoading? <Loading /> :
-          <CustomFormik
-            initialValues={initialValues}
-            formSchema={formSchema}
-            onSubmit={onSubmit}
-            fields={EditProfileFields}
-            isLoading={isLoading}
-          />}
+      {isLoading ? <Loading /> :
+        <CustomFormik
+          initialValues={initialValues}
+          formSchema={formSchema}
+          onSubmit={onSubmit}
+          fields={EditProfileFields}
+          isLoading={isLoading}
+        />}
     </div>
   );
 }

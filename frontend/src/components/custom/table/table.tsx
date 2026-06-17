@@ -13,7 +13,6 @@ import { useRouter } from 'next/navigation';
 export default function CustomTableComponent<T>(props: CustomTableProps<T>) {
   const { rawData, headCells, onPageChange, onRowsPerPageChange, onRowClickRoute, dataTransformer } = props;
   const { current_page, total_records, limit, data } = rawData;
-  console.log("rawData", rawData.data);
 
   const rows = data.map((item) => {
     const transformed = dataTransformer ? dataTransformer(item) : item;

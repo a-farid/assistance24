@@ -1,4 +1,3 @@
-
 interface ProtectedProps {
   children: React.ReactNode;
   requiredRole?: string | string[];

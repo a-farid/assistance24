@@ -7,7 +7,7 @@ import { useAppDispatch } from "@/lib/hooks";
 import { useLoginMutation } from "@/lib/features/auth/authApi";
 import CustomFormik from "@/components/custom/CustomFormik";
 import Loading from "@/components/custom/Loading";
-import {useTranslations, useLocale} from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { FormField } from "@/utils/interface/FormikField";
 
 
@@ -19,7 +19,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 const initialValues = { username: "", password: "" };
 
-function LoginForm({}: {}) {
+function LoginForm({ }: {}) {
   const t = useTranslations('LoginPage');
   const locale = useLocale();
   const LoginFields = new FormField(t('connectBtn'), [
@@ -35,7 +35,7 @@ function LoginForm({}: {}) {
       const message = data.message || "User logged in successfully";
       toast.success(message);
       // Redirect to home with locale prefix
-      router.push(`/${locale}`);
+      router.push(`/`);
     }
     if (error) {
       if ("data" in error) {
@@ -46,19 +46,19 @@ function LoginForm({}: {}) {
   }, [isSuccess, error, data, router, dispatch, locale]);
 
   const onSubmit = async ({ username, password }: FormValues) => {
-      await login({ username, password }).unwrap();
+    await login({ username, password }).unwrap();
   };
 
   return (
     <div className="max-w-[600px] mx-auto">
-    {isLoading? <Loading /> :
-          <CustomFormik
-            initialValues={initialValues}
-            formSchema={formSchema}
-            onSubmit={onSubmit}
-            fields={LoginFields}
-            isLoading={isLoading}
-          />}
+      {isLoading ? <Loading /> :
+        <CustomFormik
+          initialValues={initialValues}
+          formSchema={formSchema}
+          onSubmit={onSubmit}
+          fields={LoginFields}
+          isLoading={isLoading}
+        />}
     </div>
   );
 }

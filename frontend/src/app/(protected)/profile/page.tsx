@@ -2,6 +2,7 @@
 import Heading from "@/components/custom/Heading";
 import React from "react";
 import { useAppSelector } from "@/lib/hooks";
+import { useAuthStore } from "@/lib/auth/authStore";
 import LinesSkeleton from "@/components/skeleton/LinesSkeleton";
 import TextFieldData from "@/components/shared/TextFieldData";
 import { Button } from "@mui/material";
@@ -9,9 +10,14 @@ import { Button } from "@mui/material";
 type Props = {};
 
 const Profile = (props: Props) => {
-  const user = useAppSelector((state:any) => state.auth.user);
-  console.log('user', user);
-  if(!user) return <LinesSkeleton />;
+
+  const { user, isLoading } = useAuthStore();
+  console.log('¬¬¬User profile¬¬¬', user);
+
+  if (isLoading) {
+    return <LinesSkeleton />;
+  }
+
   return (
     <div className="max-w-[500px] mx-auto mt-10 flex flex-col gap-4">
       <Heading title={"farid profile"} description="farid prof" />

@@ -29,7 +29,9 @@ const authSlice = createSlice({
       state.token = action.payload.token;
     },
     userSetInfos: (state, action: PayloadAction<{ user: any }>) => {
+      console.log('userSetInfos', action.payload.user)
       state.user = action.payload.user;
+      console.log("state becomes", state.user)
     }
   },
 });
