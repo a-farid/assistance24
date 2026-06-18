@@ -7,8 +7,6 @@ import {Locale} from '@/i18n/config';
 import {setUserLocale} from '@/services/locale';
 import { Check, Globe } from 'lucide-react';
 import { useTheme } from "next-themes";
-// import { useAppSelector } from '@/lib/hooks';
-// import { RootState } from '@/lib/store';
 
 type Props = {
   defaultValue: string;
@@ -19,7 +17,6 @@ type Props = {
 export default function LocaleSwitcherSelect({defaultValue, items, label }: Props) {
   const [isPending, startTransition] = useTransition();
   const { theme } = useTheme();
-  // const { user, token } = useAppSelector((state: RootState) => state.auth);
 
   function onChange(value: string) {
     const locale = value as Locale;

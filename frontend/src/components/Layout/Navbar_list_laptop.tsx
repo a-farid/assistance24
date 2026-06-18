@@ -1,16 +1,15 @@
 "use client";
-import { useAppSelector } from "@/lib/hooks";
 import NavbarItem from "./Navbar_item";
 import { admin_navbar_list, client_navbar_list, I_NavBarList, worker_navbar_list } from "./nav_list";
-import { RootState } from "@/lib/store";
 import { useEffect, useState } from "react";
+import { useAuthStore } from "@/lib/auth/authStore";
 
 type Props = {
   setOpenSideBar: (open: boolean) => void;
 };
 
 export const Navbar_list_laptop = ({ setOpenSideBar }: Props) => {
-      const { user } = useAppSelector((state: RootState) => state.auth);
+    const { user } = useAuthStore();
   
       const [navbar_list, setNavbarList] = useState<I_NavBarList[]>([]);
 

@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { useAuthStore } from './authStore';
 import { authService } from './authService';
 
-export const useAuth = () => {
+export const useAuthTest = () => {
   const authState = useAuthStore();
 
   // Initialize auth check on mount

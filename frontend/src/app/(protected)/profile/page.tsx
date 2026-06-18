@@ -1,7 +1,6 @@
 "use client";
 import Heading from "@/components/custom/Heading";
 import React from "react";
-import { useAppSelector } from "@/lib/hooks";
 import { useAuthStore } from "@/lib/auth/authStore";
 import LinesSkeleton from "@/components/skeleton/LinesSkeleton";
 import TextFieldData from "@/components/shared/TextFieldData";
@@ -12,7 +11,6 @@ type Props = {};
 const Profile = (props: Props) => {
 
   const { user, isLoading } = useAuthStore();
-  console.log('¬¬¬User profile¬¬¬', user);
 
   if (isLoading) {
     return <LinesSkeleton />;

@@ -1,23 +1,24 @@
 'use client';
 
 import React from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import log from '@/utils/logger';
-import { useGetUserByIdQuery, useToggleUserStatusMutation } from '@/lib/features/users/usersApi';
 import Loading from '@/components/custom/Loading';
 import TextFieldData from '@/components/shared/TextFieldData';
 import Heading from '@/components/custom/Heading';
 import { Button } from '@mui/material';
 import Image from 'next/image'
 import { IUser } from '@/utils/interface/user_interfaces';
-
 import Fab from '@mui/material/Fab';
 import { EditIcon } from 'lucide-react';
 import BtnWithAction from '@/components/shared/BtnWithAction';
 import toast from 'react-hot-toast';
 
+import { useGetUserById, useToggleUserStatus } from '@/lib/api/users';
+
 const UserDetails = () => {
     const params = useParams()
+    const router = useRouter();
     const userId = Array.isArray(params?.id) ? params.id[0] : params?.id;
     
     if (!userId) {
@@ -25,8 +26,13 @@ const UserDetails = () => {
         return <div>Error: User ID not found</div>;
     }
     
-    const { data, isLoading, isError, error } = useGetUserByIdQuery(userId);
-    const [toggleUserStatus, { isLoading: isToggling }] = useToggleUserStatusMutation();
+    const { data, isLoading, isError, error } = useGetUserById(userId);
+    const { mutate: toggleUserStatus, isPending: isToggling } = useToggleUserStatus();
+
+
+
+    // const { data, isLoading, isError, error } = useGetUserByIdQuery(userId);
+    // const [toggleUserStatus, { isLoading: isToggling }] = useToggleUserStatusMutation();
 
     if (isLoading) { return <Loading />}
     
@@ -48,30 +54,27 @@ const UserDetails = () => {
 
     // ✅ Use data.data directly - don't create a separate variable
     const user: IUser = data.data;
+    const profileImageSrc = user.url_photo ? `${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo}` : 'No photo available';
+
 
     const handleEditProfile = () => {
         // Redirect to edit page
         window.location.href = `/admin/users/${user.id}/edit`;
     };
 
-    const handleToggleUserStatus = async () => {
-        try {
-            const result = await toggleUserStatus(user.id).unwrap();
-            console.log(`User ${user.disabled ? 'enabled' : 'disabled'} successfully:`, result);
-
-            // Show success message with the CURRENT state (before toggle)
-            const actionPerformed = user.disabled ? 'enabled' : 'disabled';
-            toast(`User ${actionPerformed} successfully!`);
-            
-        } catch (error) {
-            console.error('Error toggling user status:', error);
-            toast('Failed to update user status. Please try again.');
-        }
+    const handleToggleUserStatus = () => {
+        // Execute the mutation payload down through the network gateway
+        log.info("UserDetails", `Toggling user status for userId: ${user.id}, current status: ${user.disabled ? "Disabled" : "Enabled"}`);
+        toggleUserStatus(user.id, {
+            onSuccess: () => {
+                const actionPerformed = user.disabled ? 'enabled' : 'disabled';
+                toast.success(`User registry successfully ${actionPerformed}!`);
+            },
+            onError: () => {
+                toast.error('Failed to update the target user status registry configuration.');
+            }
+        });
     };
-
-    // ✅ Add some debug logging
-    log.success("User status:", user.disabled ? "Disabled" : "Enabled");
-    console.log("Current user data:", user);
 
     return (
         <div className="max-w-[500px] mx-auto mt-10 flex flex-col gap-4">
@@ -84,18 +87,20 @@ const UserDetails = () => {
                     <EditIcon />
                 </Fab>
                 {user.url_photo ? (
-                    <Image
-                        className="rounded-full mx-auto mb-4"
-                        src={`${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo}`}
-                        width={200}
-                        height={200}
-                        alt={`${user.first_name} ${user.last_name} profile picture`}
-                    />
-                ) : (
-                    <div className="w-[200px] h-[200px] rounded-full bg-gray-200 flex items-center justify-center mb-4">
-                        <span className="text-gray-500">No Photo</span>
-                    </div>
-                )}
+            /* 💡 Optimized Production Pattern */
+            <Image
+                className="rounded-full mx-auto mb-4 object-cover"
+                src={profileImageSrc} // Using our safely constructed absolute path variable
+                width={200}
+                height={200}
+                priority={true} // Instructs Next.js to pre-render the avatar to improve LCP metrics
+                alt={`${user.first_name} ${user.last_name} profile picture`}
+            />
+            ) : (
+                <div className="w-[200px] h-[200px] rounded-full bg-gray-200 flex items-center justify-center mb-4">
+                    <span className="text-gray-500">No Photo</span>
+                </div>
+            )}
             </div>
             <TextFieldData label="Username" value={user.username} />
             <TextFieldData label="Role" value={user.role} />
@@ -106,7 +111,7 @@ const UserDetails = () => {
             <TextFieldData label="Disabled" value={user.disabled ? 'Yes' : 'No'} />
             <TextFieldData label="Verified" value={user.is_verified ? 'Yes' : 'No'} />
 
-            <Button variant="outlined" className="mt-5" href="/profile/edit">
+            <Button variant="outlined" className="mt-5" onClick={() => router.push(`/admin/users/${user.id}/edit`)}>
                 Update Profile
             </Button>
             

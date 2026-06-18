@@ -1,4 +1,4 @@
-export type GetAllDataParams<T> = {
+export interface GetAllDataParams<T> {
       current_page: number;
       total_pages: number;
       total_records: number;
@@ -6,7 +6,7 @@ export type GetAllDataParams<T> = {
       data: T[];
     }
 
-export type GetAllDataResponse<T> = {
+export interface GetAllDataResponse<T>   {
     data: {
       current_page: number;
       total_pages: number;
@@ -17,3 +17,9 @@ export type GetAllDataResponse<T> = {
     error: any;
     isLoading: boolean;
   }
+
+export interface ProtectedProps {
+  children: React.ReactNode;
+  requiredRole?: 'admin' | 'worker' | 'client' | Array<'admin' | 'worker' | 'client'>;
+  showLoader?: boolean;
+}

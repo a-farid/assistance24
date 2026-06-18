@@ -1,137 +1,68 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuthStore } from '@/lib/auth/authStore';
-import { authService } from '@/lib/auth/authService';
-import { toast } from 'react-hot-toast';
+import React, { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuthAuthorization } from '@/lib/auth/authStore';
 import { AuthLoader } from './AuthLoader';
-import { UnauthorizedAccess } from './UnauthorizedAccess';
+import log from '@/utils/logger';
+import { ProtectedProps } from '@/utils/interface/global';
 
-/**
- * Enhanced Protected Component with role-based access control
- */
 export const Protected: React.FC<ProtectedProps> = ({
   children,
   requiredRole,
-  fallbackUrl = '/login',
   showLoader = true,
 }) => {
-  const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoading } = useAuthStore();
-  const [isChecking, setIsChecking] = useState(true);
-  const [hasAccess, setHasAccess] = useState(false);
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading, canAccess } = useAuthAuthorization();
 
+  // 💡 Architectural Fix: Manage navigation lifecycles inside an isolation hook
   useEffect(() => {
-    let isMounted = true;
-    const checkAuthentication = async () => {
-      try {
-        setIsChecking(true);
+    // Hold evaluation until the store finishes loading from local memory
+    if (isLoading) return;
 
-        // Check if authentication is valid
-        const isValid = await authService.checkAuth();
-
-        if (!isMounted) return;
-
-        if (!isValid) {
-          toast.error('Please log in to continue');
-          router.replace(fallbackUrl);
-          return;
-        }
-
-        // Check role-based access
-        if (requiredRole) {
-          const hasRequiredRole = authService.hasRole(requiredRole);
-          if (!hasRequiredRole) {
-            setHasAccess(false);
-            setIsChecking(false);
-            return;
-          }
-        }
-
-        // Check route-specific access
-        const canAccessRoute = authService.canAccess(pathname);
-        if (!canAccessRoute) {
-          setHasAccess(false);
-          setIsChecking(false);
-          return;
-        }
-
-        setHasAccess(true);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        if (isMounted) {
-          toast.error('Authentication failed');
-          router.replace(fallbackUrl);
-        }
-      } finally {
-        if (isMounted) {
-          setIsChecking(false);
-        }
+    // If an unauthenticated profile tries to access a protected dashboard route, bounce them out
+    if (!isAuthenticated || !user) {
+      if (pathname !== '/login' && pathname !== '/register') {
+        log.warn('ProtectedRoute', 'Unauthenticated access attempt intercepted. Routing to login gateway.');
+        router.replace('/login');
       }
-    };
+    }
+  }, [isAuthenticated, user, isLoading, pathname, router]);
 
-    checkAuthentication();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [pathname, requiredRole, fallbackUrl, router]);
-
-  // Show loader while checking authentication
-  if (isLoading || isChecking) {
+  // 1. Initial State: Hold layout tree rendering while store hydrates from localStorage
+  if (isLoading) {
+    log.info('ProtectedRoute', 'Loading authentication state...');
     return showLoader ? <AuthLoader /> : null;
   }
 
-  // Show unauthorized if user doesn't have access
-  if (!hasAccess) {
-    return <UnauthorizedAccess requiredRole={requiredRole} userRole={user?.role} />;
+  // 2. Structural Guard Boundary: If data is missing, render an empty buffer fragment while the useEffect redirect processes
+  if (!isAuthenticated || !user) {
+    if (pathname === '/login' || pathname === '/register') {
+      return <>{children}</>;
+    }
+    return showLoader ? <AuthLoader /> : null;
   }
 
-  // Render children if authenticated and authorized
-  return <>{children}</>;
-};
-
-/**
- * Auth Guard for conditional rendering based on authentication
- */
-export const AuthGuards: React.FC<AuthGuardProps> = ({
-  children,
-  allowUnauthenticated = false,
-  ...protectedProps
-}) => {
-  const { isAuthenticated, isLoading } = useAuthStore();
-
-  if (isLoading) {
-    return protectedProps.showLoader !== false ? <AuthLoader /> : null;
+  // 3. Authorization Check: Validate explicitly targeted structural roles
+  if (requiredRole) {
+    const rolesArray = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+    if (!rolesArray.includes(user.role)) {
+      log.warn('ProtectedRoute', `Authorization failed for role: ${user.role} on path: ${pathname}`);
+      router.replace('/dashboard'); // Fallback to a safe dashboard page
+      return null;
+    }
   }
 
-  if (!isAuthenticated && !allowUnauthenticated) {
+  // 4. Ingress Routing Guard Check: Validate nested path permission structures
+  if (!canAccess(pathname)) {
+    log.error('ProtectedRoute', `Routing policy rejection on path allocation target: ${pathname}`);
+    router.replace('/dashboard');
     return null;
   }
 
-  if (isAuthenticated && (protectedProps.requiredRole || !allowUnauthenticated)) {
-    return <Protected {...protectedProps}>{children}</Protected>;
-  }
-
+  // All verification checks passed safely
   return <>{children}</>;
-};
-
-/**
- * Hook for using auth state in components
- */
-export const useAuth = () => {
-  const authState = useAuthStore();
-
-  return {
-    ...authState,
-    login: authService.login.bind(authService),
-    logout: authService.logout.bind(authService),
-    register: authService.register.bind(authService),
-    hasRole: authService.hasRole.bind(authService),
-    canAccess: authService.canAccess.bind(authService),
-  };
 };
 
 export default Protected;

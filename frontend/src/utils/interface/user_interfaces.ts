@@ -16,11 +16,10 @@ export interface IUser extends IProfile {
     }
 
 export interface IAuthState {
-  user: IUser | null;
+  user: any | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
+  isLoading: boolean; // 💡 The guard gatekeeper flag
   lastTokenRefresh: number | null;
-  sessionId: string | null;
 }
 
 export interface IAuthActions {
@@ -28,7 +27,6 @@ export interface IAuthActions {
   setLoading: (loading: boolean) => void;
   setAuthenticated: (authenticated: boolean) => void;
   updateLastTokenRefresh: () => void;
-  setSessionId: (sessionId: string | null) => void;
   logout: () => void;
   clearAuth: () => void;
 }

@@ -170,20 +170,4 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   return <>{children}</>;
 };
 
-/**
- * Hook for using auth state in components
- */
-export const useAuth = () => {
-  const authState = useAuthStore();
-  
-  return {
-    ...authState,
-    login: authService.login.bind(authService),
-    logout: authService.logout.bind(authService),
-    register: authService.register.bind(authService),
-    hasRole: authService.hasRole.bind(authService),
-    canAccess: authService.canAccess.bind(authService),
-  };
-};
-
 export default Protected;

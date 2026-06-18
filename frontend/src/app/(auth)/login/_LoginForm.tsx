@@ -1,65 +1,69 @@
 "use client";
+
+import React from "react";
 import { z } from "zod";
-import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useAppDispatch } from "@/lib/hooks";
-import { useLoginMutation } from "@/lib/features/auth/authApi";
 import CustomFormik from "@/components/custom/CustomFormik";
 import Loading from "@/components/custom/Loading";
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { FormField } from "@/utils/interface/FormikField";
-
-
+import { useLoginMutation } from "@/lib/api/auth"; // 💡 Adjusted naming to match your export target
+import log from "@/utils/logger";
 
 const formSchema = z.object({
-  username: z.string().min(3, { message: "Minimum of 6 characters" }),
-  password: z.string().min(6, { message: "Minimum of 6 characters" }),
+  username: z.string().min(3, { message: "Minimum of 3 characters required" }),
+  password: z.string().min(6, { message: "Minimum of 6 characters required" }),
 });
-type FormValues = z.infer<typeof formSchema>;
-const initialValues = { username: "", password: "" };
 
-function LoginForm({ }: {}) {
+type FormValues = z.infer<typeof formSchema>;
+const initialValues: FormValues = { username: "", password: "" };
+
+function LoginForm() {
   const t = useTranslations('LoginPage');
-  const locale = useLocale();
-  const LoginFields = new FormField(t('connectBtn'), [
+  const router = useRouter();
+  
+  // 💡 1. Initialize our decoupled TanStack session mutation channel
+  const { mutate: login, isPending } = useLoginMutation();
+
+  const LoginFields = new FormField(t('connectBtn') || 'Login', [
     { label: "Username", name: "username", type: "text" },
     { label: "Password", name: "password", type: "password" },
   ]);
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-  const [login, { data, error, isSuccess, isLoading }] = useLoginMutation();
-
-  useEffect(() => {
-    if (isSuccess) {
-      const message = data.message || "User logged in successfully";
-      toast.success(message);
-      // Redirect to home with locale prefix
-      router.push(`/`);
-    }
-    if (error) {
-      if ("data" in error) {
-        const errorData = error as any;
-        toast.error(errorData.data.message);
+  
+  // 💡 2. Fixed Synchronous Event Handler Routing
+  const onSubmit = (values: FormValues) => {
+    
+    login(values, {
+      onSuccess: (responseData: any) => {
+        const message = responseData?.message || "Session initialized successfully.";
+        toast.success(message);
+        router.push("/"); // Secure client routing transition
+      },
+      onError: (error: any) => {
+        const serverMessage = error?.response?.data?.message || "Authentication rejected. Verify credentials.";
+        toast.error(serverMessage);
+        log.error("LoginForm", "Authentication process failure context:", error);
       }
-    }
-  }, [isSuccess, error, data, router, dispatch, locale]);
-
-  const onSubmit = async ({ username, password }: FormValues) => {
-    await login({ username, password }).unwrap();
+    });
   };
 
+  // 💡 3. Component level return statement (Correctly scoped out of onSubmit)
   return (
-    <div className="max-w-[600px] mx-auto">
-      {isLoading ? <Loading /> :
+    <div className="max-w-[600px] mx-auto p-4">
+      {isPending ? (
+        <Loading />
+      ) : (
         <CustomFormik
           initialValues={initialValues}
           formSchema={formSchema}
           onSubmit={onSubmit}
           fields={LoginFields}
-          isLoading={isLoading}
-        />}
+          isLoading={isPending}
+        />
+      )}
     </div>
   );
 }
+
 export default LoginForm;

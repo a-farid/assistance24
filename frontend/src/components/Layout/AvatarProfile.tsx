@@ -1,14 +1,14 @@
 import { Avatar } from "@mui/material";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import Profile from "../Auth/Profile";
-
+// test
 type Props = {
   user: any;
-  setOpenProileBar: (value: boolean) => void;
-  openProileBar: boolean;
+  setOpenProfileBar: (value: boolean) => void;
+  openProfileBar: boolean;
 };
 
-const AvatarProfile = ({ user, openProileBar, setOpenProileBar }: Props) => {
+const AvatarProfile = ({ user, openProfileBar, setOpenProfileBar }: Props) => {
    const avatarPhoto = user && user.url_photo && user.url_photo !== 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo}` : `${process.env.NEXT_PUBLIC_API_URL}/images/default.png`;
 
   return (
@@ -16,7 +16,7 @@ const AvatarProfile = ({ user, openProileBar, setOpenProileBar }: Props) => {
       <div
         id="profileBtn"
         className="relative mx-3 cursor-pointer"
-        onClick={() => setOpenProileBar(!openProileBar)}
+        onClick={() => setOpenProfileBar(!openProfileBar)}
       >
         {user ? (
           <Avatar
@@ -26,8 +26,8 @@ const AvatarProfile = ({ user, openProileBar, setOpenProileBar }: Props) => {
         ) : (
           <HiOutlineUserCircle />
         )}
-        {openProileBar && (
-          <Profile user={user} setOpenProileBar={setOpenProileBar} />
+        {openProfileBar && (
+          <Profile user={user} setOpenProfileBar={setOpenProfileBar} />
         )}
       </div>
     </>

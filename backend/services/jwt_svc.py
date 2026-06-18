@@ -31,7 +31,6 @@ class JWTService:
             raise HTTPException(status_code=401, detail="Token expired or invalid")
 
     async def verify_login(self, access_token: Optional[str] = Cookie(None)):
-        print("Verifying login with access token:", access_token)
         if not access_token: return
 
         try:

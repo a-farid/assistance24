@@ -1,37 +1,50 @@
 "use client";
+
+import React from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { useLogoutMutation } from "@/lib/api/auth"; // Standardized naming targeting TanStack
+import log from "@/utils/logger";
 import { Avatar } from "@mui/material";
 import { KeyRound, LogOut, UserCog } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useLogoutMutation } from "@/lib/features/auth/authApi";
-import { useEffect } from "react";
-import toast from "react-hot-toast";
 
-type Props = {user: any; setOpenProileBar: (value: boolean) => void};
+type Props = {
+  user: any;
+  setOpenProfileBar: (value: boolean) => void; // Fixed minor typo in prop signature name
+};
 
-function Profile({ user, setOpenProileBar }: Props) {
+function Profile({ user, setOpenProfileBar }: Props) {
   const router = useRouter();
-  const [logout, { data, isLoading, isSuccess }] = useLogoutMutation();
-  const handleLogout = async () => {
-    try {
-      const response = await logout({}).unwrap();  // <--- unwrap gives you the actual data
-      toast.success(response.message || "User logged out successfully");
-      router.push("/login");
-    } catch (err) {
-      toast.error("Logout failed");
-      console.error(err);
-    }
+  
+  // 💡 1. Initialize our decoupled TanStack logout execution tunnel
+  const { mutate: logout, isPending } = useLogoutMutation();
+
+  // 💡 2. Clean Streamlined Event Handler
+   const handleLogout = () => {
+    log.info("ProfileBar", "Initiating session termination sequence...");
+    
+    logout(undefined, {
+      onSuccess: (responseData: any) => {
+        const message = responseData?.message || "Logged out successfully.";
+        toast.success(message);
+        setOpenProfileBar(false);
+        
+        // At this point, Zustand memory is already 100% clean because onSettled fired first.
+        // The Protected wrapper will see isAuthenticated = false and ignore this component.
+        router.push("/login"); 
+      },
+      onError: (error: any) => {
+        log.error("ProfileBar", "Logout network request exception:", error);
+        // Force the redirect even on a network failure to avoid trapping the user
+        router.push("/login");
+      }
+    });
   };
 
-
-  useEffect(() => {
-    if (isSuccess) {
-      router.push("/login");
-      toast.success(data.message || "User logged out successfully");
-    }
-  }, [isSuccess, router, data]);
-  if (!user) return null;
-  const avatarPhoto = user.url_photo && user.url_photo !== 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo}` : `${process.env.NEXT_PUBLIC_API_URL}/images/default.png`;
-
+  // Safe Fallback Resolution for System Image Assets
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://api.dev.local/api";
+  const isValidPhoto = user?.url_photo && user.url_photo !== "string" && user.url_photo.trim() !== "";
+  const avatarPhoto = isValidPhoto ? `${baseUrl}/${user.url_photo}` : `${baseUrl}/images/default.png`;
   return (
     <>
       <div className="absolute right-10 top-10 w-[280px] border p-2 bg-gradient-global text-black dark:bg-slate-900 dark:text-white rounded-md shadow-lg">
@@ -39,7 +52,7 @@ function Profile({ user, setOpenProileBar }: Props) {
           <div className="flex items-center justify-evenly w-full py-5">
             <Avatar
               alt={`${user.username} photo profile`}
-            src={avatarPhoto}
+              src={avatarPhoto}
             />
             <div>
               <h1 className="w-full text-center font-bold text-[15px]">
@@ -54,7 +67,7 @@ function Profile({ user, setOpenProileBar }: Props) {
                 className="w-full h-6 p-3 flex py-5 items-center justify-between gap-2 hover:bg-gray-50 dark:hover:bg-slate-700 hover:scale-105 hover:opacity-90 cursor-pointer"
                 onClick={() => {
                   router.push("/profile");
-                  setOpenProileBar(false);
+                  setOpenProfileBar(false);
                 }}
               >
                 <UserCog />
@@ -74,7 +87,7 @@ function Profile({ user, setOpenProileBar }: Props) {
               <button
                 className="w-full h-6 p-3 flex py-5 items-center justify-between gap-2 hover:bg-gray-50 dark:hover:bg-slate-700 hover:scale-105 hover:opacity-90 cursor-pointer"
                 onClick={handleLogout}
-                disabled={isLoading}
+                disabled={isPending}
               >
                 <LogOut />
                 <span className="font-bold text-[15px] w-full">

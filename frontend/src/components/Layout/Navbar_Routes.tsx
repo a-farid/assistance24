@@ -4,7 +4,6 @@ import { ThemeSwitcher } from "@/components/custom/themeSwitcher";
 import { HiOutlineMenuAlt3 } from "react-icons/hi";
 import { useState } from "react"; 
 // import NotificationsCount from "@/components/Layout/NotificationsCount";
-import { useAppSelector } from "@/lib/hooks";
 import AvatarProfile from "./AvatarProfile";
 import { Navbar_list_mobile } from "./Navbar_list_mobile";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
@@ -13,15 +12,14 @@ import { useAuthStore } from "@/lib/auth/authStore";
 const NavbarRoutes = () => {
   const [openSideBar, setOpenSideBar] = useState(false);
   const [openNotificationsBar, setOpenNotificationsBar] = useState(false);
-  const [openProileBar, setOpenProileBar] = useState(false);
-  // const { user } = useAppSelector((state: any) => state.auth);
+  const [openProfileBar, setOpenProfileBar] = useState(false);
 
-  const { user, isLoading } = useAuthStore();
+  const { user } = useAuthStore();
   
   const resetStates = () => {
     setOpenSideBar(false);
     setOpenNotificationsBar(false);
-    setOpenProileBar(false);
+    setOpenProfileBar(false);
   };
   return (
     <div className="flex items-center justify-between gap-x-2 p-4 h-[84px] w-full py-2">
@@ -35,8 +33,8 @@ const NavbarRoutes = () => {
         <LocaleSwitcher />
         <AvatarProfile
           user={user}
-          openProileBar={openProileBar}
-          setOpenProileBar={setOpenProileBar}
+          openProfileBar={openProfileBar}
+          setOpenProfileBar={setOpenProfileBar}
         />
         <div className="900px:hidden" id="sideBarMenuBtn">
           <HiOutlineMenuAlt3

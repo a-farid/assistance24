@@ -2,23 +2,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { userLoggedOut, AuthState, userLoggedIn } from "../auth/authSlice";
 import { RootState } from "../../store";
-import { Content } from "next/dist/compiled/@next/font/dist/google";
-
-// // ✅ Base API configuration
-// const baseQuery = fetchBaseQuery({
-//   baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://api.dev.local/api",
-//   credentials: "include",
-//   prepareHeaders: (headers, { getState }) => {
-//     const state = getState() as RootState;
-//     const { token } = state.auth as AuthState;
-//     if (token) {
-//       headers.set("access_Token", token);
-//       headers.set("Content-Type", "application/json");
-//       headers.set("Accept", "application/json");
-//     }
-//     return headers;
-//   },
-// });
 
 // ✅ Optimized Base API Client configuration
 const baseQuery = fetchBaseQuery({

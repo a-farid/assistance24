@@ -62,11 +62,10 @@ class AuthService {
       const data = await response.json();
 
       if (data.success) {
-        const { setUser, setAuthenticated, setSessionId, updateLastTokenRefresh } = useAuthStore.getState();
+        const { setUser, setAuthenticated, updateLastTokenRefresh } = useAuthStore.getState();
         
         setUser(data.data.user);
         setAuthenticated(true);
-        setSessionId(data.data.session_id);
         updateLastTokenRefresh();
         
         toast.success(data.message || 'Login successful');
@@ -190,11 +189,10 @@ class AuthService {
       const data = await response.json();
 
       if (data.success) {
-        const { setUser, setAuthenticated, setSessionId, updateLastTokenRefresh } = useAuthStore.getState();
+        const { setUser, setAuthenticated, updateLastTokenRefresh } = useAuthStore.getState();
         
         setUser(data.data.user);
         setAuthenticated(true);
-        setSessionId(data.data.session_id);
         updateLastTokenRefresh();
         
         toast.success(data.message || 'Registration successful');

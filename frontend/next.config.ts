@@ -12,7 +12,8 @@ images: {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'api.dev.local/',
+        hostname: 'api.dev.local',
+        port: '',
         pathname: '/api/images/**',
       },
       {

@@ -6,8 +6,9 @@ import './globals.css';
 import { Poppins, Roboto } from "next/font/google";
 import { ThemeProvider } from "../components/providers/theme-provider";
 import ToastProvider from "../components/providers/toaster-provider";
-import Providers from "../components/providers/redux-provider";
+// import Providers from "../components/providers/redux-provider";
 import { Metadata } from "next";
+import TanStackProvider from '@/components/providers/tanstack-provider';
 export const metadata: Metadata = {
   title: {
     default: "Assistenz365",
@@ -33,14 +34,14 @@ export default async function LocaleLayout({children}: {children: ReactNode}) {
   return (
     <html lang="en" >
       <body suppressHydrationWarning={true} className={`${poppins.variable} ${roboto.variable} bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-roboto`}>
-        <ThemeProvider>
-        <Providers>
-        <ToastProvider />
-          <NextIntlClientProvider messages={messages}>
-            {children}
-          </NextIntlClientProvider>
-        </Providers>
-        </ThemeProvider>
+        <TanStackProvider>
+          <ThemeProvider>
+          <ToastProvider />
+            <NextIntlClientProvider messages={messages}>
+              {children}
+            </NextIntlClientProvider>
+          </ThemeProvider>
+        </TanStackProvider>
       </body>
     </html>
   );

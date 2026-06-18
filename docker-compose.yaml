@@ -54,7 +54,6 @@ services:
       assistance24-db:
         condition: service_healthy # <-- Forces backend to wait until the DB healthcheck passes
 
-
   frontend:
     build:
       context: ./frontend
@@ -72,6 +71,8 @@ services:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://api.dev.local/api
     command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+    extra_hosts:
+      - "api.dev.local:host-gateway" # <-- Maps api.dev.local to the host machine's gateway IP
     depends_on:
       - backend
 

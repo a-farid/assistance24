@@ -1,83 +1,75 @@
-/**
- * Enhanced Authentication Store with Persistence
- * Provides secure token management with automatic refresh and persistence
- */
-
 import { IAuthActions, IAuthState } from '@/utils/interface/user_interfaces';
+import log from '@/utils/logger';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
-// Token refresh interval (5 minutes before expiry)
-const TOKEN_REFRESH_BUFFER = 5 * 60 * 1000;
+// Centralized Access Control Rules Matrix
+const accessRules: Record<string, string[]> = {
+  '/admin': ['admin'],
+  '/worker': ['worker', 'admin'],
+  '/client': ['client', 'admin'],
+  '/contracts': ['admin', 'worker', 'client'],
+};
 
 export const useAuthStore = create<IAuthState & IAuthActions>()(
   persist(
-    (set, get) => ({
-      // State
+    (set) => ({
       user: null,
       isAuthenticated: false,
       isLoading: true,
       lastTokenRefresh: null,
-      sessionId: null,
 
-      // Actions
       setUser: (user) => set({ user, isAuthenticated: !!user }),
-
       setLoading: (loading) => set({ isLoading: loading }),
-
       setAuthenticated: (authenticated) => set({ isAuthenticated: authenticated }),
-
       updateLastTokenRefresh: () => set({ lastTokenRefresh: Date.now() }),
-
-      setSessionId: (sessionId) => set({ sessionId }),
-
-      logout: () =>
-        set({
-          user: null,
-          isAuthenticated: false,
-          sessionId: null,
-          lastTokenRefresh: null
-        }),
-
-      clearAuth: () =>
-        set({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-          sessionId: null,
-          lastTokenRefresh: null
-        }),
+      logout: () => set({ user: null, isAuthenticated: false, lastTokenRefresh: null }),
+      clearAuth: () => set({ user: null, isAuthenticated: false, isLoading: false, lastTokenRefresh: null }),
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-        sessionId: state.sessionId,
-        lastTokenRefresh: state.lastTokenRefresh,
-      }),
+      storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (hydratedState, error) => {
+        if (error) {
+          log.error("Zustand", "Rehydration failed with critical framework exception:", error);
+          useAuthStore.getState().setLoading(false);
+          return;
+        }
+        if (hydratedState) {
+          hydratedState.isLoading = false;
+          log.info("Zustand", `Active profile complete. Context: ${hydratedState.user?.username || "Guest"}`);
+        } else {
+          useAuthStore.getState().setLoading(false);
+        }
+      }
     }
   )
 );
 
-// Helper functions
-export const shouldRefreshToken = (): boolean => {
-  const { lastTokenRefresh } = useAuthStore.getState();
-  if (!lastTokenRefresh) return true;
+/**
+ * High-Performance Atomic Selectors & Access Utility Hook
+ */
+export function useAuthAuthorization() {
+  // Pull fields atomically to minimize re-renders
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
-  const timeSinceRefresh = Date.now() - lastTokenRefresh;
-  const accessTokenExpiry = 15 * 60 * 1000; // 15 minutes (from your backend config)
-
-  return timeSinceRefresh >= (accessTokenExpiry - TOKEN_REFRESH_BUFFER);
-};
-
-export const getAuthHeaders = () => {
-  const { isAuthenticated, sessionId } = useAuthStore.getState();
-
-  if (!isAuthenticated || !sessionId) return {};
-
-  return {
-    'X-Session-ID': sessionId,
-    'Content-Type': 'application/json',
+  const hasRole = (requiredRoles: string | string[]): boolean => {
+    if (!user) return false;
+    const rolesArray = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+    return rolesArray.includes(user.role);
   };
-};
+
+  const verifyRouteAccess = (currentPath: string): boolean => {
+    if (!user) return false;
+    for (const [routePath, allowedRoles] of Object.entries(accessRules)) {
+      if (currentPath.startsWith(routePath)) {
+        return allowedRoles.includes(user.role);
+      }
+    }
+    return true; // Pass matching to general views
+  };
+
+  return { user, isLoading, isAuthenticated, hasRole, canAccess: verifyRouteAccess };
+}

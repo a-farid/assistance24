@@ -3,7 +3,7 @@ import React from 'react';
 import Loading from '@/components/custom/Loading';
 import { useGetClientsQuery } from '@/lib/features/clients/clientsApi';
 import CustomTableComponent from '@/components/custom/table/table';
-import { GetAllDataResponse } from '@/utils/interface/get_all_data';
+import { GetAllDataResponse } from '@/utils/interface/global';
 import { IUser } from '@/utils/interface/user_interfaces';
 import { allUsersHeadCells } from '@/components/custom/table/headers_cells';
 import { Button } from '@mui/material';
