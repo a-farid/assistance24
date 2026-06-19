@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useLogoutMutation } from "@/lib/api/auth"; // Standardized naming targeting TanStack
 import log from "@/utils/logger";
-import { Avatar } from "@mui/material";
 import { KeyRound, LogOut, UserCog } from "lucide-react";
+import UserImage from "./UserPhoto";
 
 type Props = {
   user: any;
@@ -41,19 +41,12 @@ function Profile({ user, setOpenProfileBar }: Props) {
     });
   };
 
-  // Safe Fallback Resolution for System Image Assets
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://api.dev.local/api";
-  const isValidPhoto = user?.url_photo && user.url_photo !== "string" && user.url_photo.trim() !== "";
-  const avatarPhoto = isValidPhoto ? `${baseUrl}/${user.url_photo}` : `${baseUrl}/images/default.png`;
   return (
     <>
       <div className="absolute right-10 top-10 w-[280px] border p-2 bg-gradient-global text-black dark:bg-slate-900 dark:text-white rounded-md shadow-lg">
         <div className="flex items-center justify-center flex-col w-full">
           <div className="flex items-center justify-evenly w-full py-5">
-            <Avatar
-              alt={`${user.username} photo profile`}
-              src={avatarPhoto}
-            />
+            <UserImage user={user} widthHeight={40} />
             <div>
               <h1 className="w-full text-center font-bold text-[15px]">
                 Mr  {user.username}

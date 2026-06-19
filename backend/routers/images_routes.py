@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from database import db
 from services.jwt_svc import JWTService
-from settings.standarization import json_response
+from settings.standarization import json_response_pagination
 
 router = APIRouter()
 jwt_s = JWTService()
@@ -39,5 +39,5 @@ async def get_image(image_name: str):
 async def update_image(image_name: str = Path(...), token =Ds(jwt_s.roles_allowed(["admin","worker", "client"]))):
     url_photo = f"assets/profiles/{image_name}.png"
     updated_user = await db.user.update(token.get("user_id"), url_photo=url_photo)
-    return json_response(data=updated_user, status_code=201, message="Image updated successfully")
+    return json_response_pagination(data=updated_user, status_code=201, message="Image updated successfully")
 

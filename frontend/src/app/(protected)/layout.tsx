@@ -3,12 +3,12 @@
  * Replace your existing protected layout with this improved version
  */
 
-import Protected from "@/components/Auth/ProtectedRoute.enhanced";
+import Protected from "../(auth)/_components/Protected";
 import { Navbar } from "../../components/Layout/Navbar";
 import Sidebar from "../../components/Layout/Sidebar";
 import React from "react";
 
-const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Protected showLoader={true}>
       <div className="flex flex-row h-full">
@@ -24,4 +24,4 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default DashboardLayout;
+export default ProtectedLayout;

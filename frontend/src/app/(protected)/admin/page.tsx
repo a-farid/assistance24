@@ -1,9 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Protected } from '@/components/Auth/ProtectedRoute.enhanced';
-import { useGetUsers } from '@/lib/api/users';
-import LinesSkeleton from '@/components/skeleton/LinesSkeleton';
 import { useAuthAuthorization } from '@/lib/auth/authStore';
 
 

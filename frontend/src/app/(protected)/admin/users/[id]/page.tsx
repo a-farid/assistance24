@@ -7,14 +7,11 @@ import Loading from '@/components/custom/Loading';
 import TextFieldData from '@/components/shared/TextFieldData';
 import Heading from '@/components/custom/Heading';
 import { Button } from '@mui/material';
-import Image from 'next/image'
 import { IUser } from '@/utils/interface/user_interfaces';
-import Fab from '@mui/material/Fab';
-import { EditIcon } from 'lucide-react';
 import BtnWithAction from '@/components/shared/BtnWithAction';
 import toast from 'react-hot-toast';
-
 import { useGetUserById, useToggleUserStatus } from '@/lib/api/users';
+import UserImage from '@/app/(auth)/_components/UserPhoto';
 
 const UserDetails = () => {
     const params = useParams()
@@ -54,8 +51,6 @@ const UserDetails = () => {
 
     // ✅ Use data.data directly - don't create a separate variable
     const user: IUser = data.data;
-    const profileImageSrc = user.url_photo ? `${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo}` : 'No photo available';
-
 
     const handleEditProfile = () => {
         // Redirect to edit page
@@ -82,26 +77,7 @@ const UserDetails = () => {
                 title={`${user.first_name} ${user.last_name} profile`} 
                 description={`${user.first_name} ${user.last_name} profile details in ASSISTENZ365`} 
             />
-            <div className='relative flex flex-col items-center justify-center mb-10'>
-                <Fab color="info" aria-label="edit" className="absolute right-14 top-10 z-10">
-                    <EditIcon />
-                </Fab>
-                {user.url_photo ? (
-            /* 💡 Optimized Production Pattern */
-            <Image
-                className="rounded-full mx-auto mb-4 object-cover"
-                src={profileImageSrc} // Using our safely constructed absolute path variable
-                width={200}
-                height={200}
-                priority={true} // Instructs Next.js to pre-render the avatar to improve LCP metrics
-                alt={`${user.first_name} ${user.last_name} profile picture`}
-            />
-            ) : (
-                <div className="w-[200px] h-[200px] rounded-full bg-gray-200 flex items-center justify-center mb-4">
-                    <span className="text-gray-500">No Photo</span>
-                </div>
-            )}
-            </div>
+            <UserImage className="mx-auto mb-4" user={user} widthHeight={200} />
             <TextFieldData label="Username" value={user.username} />
             <TextFieldData label="Role" value={user.role} />
             <TextFieldData label="Full name" value={`${user.first_name} ${user.last_name}`} />
@@ -111,23 +87,19 @@ const UserDetails = () => {
             <TextFieldData label="Disabled" value={user.disabled ? 'Yes' : 'No'} />
             <TextFieldData label="Verified" value={user.is_verified ? 'Yes' : 'No'} />
 
-            <Button variant="outlined" className="mt-5" onClick={() => router.push(`/admin/users/${user.id}/edit`)}>
-                Update Profile
-            </Button>
-            
-            <BtnWithAction
-                title="Edit Profile"
-                message="Are you sure you want to edit this profile?"
-                confirmText="Yes, Edit"
-                cancelText="Cancel"
-                onConfirm={handleEditProfile}
-            >
-                <Button variant="outlined" color='primary' className="mt-5">
-                    Edit Profile
-                </Button>
-            </BtnWithAction>
-
-            <BtnWithAction
+            <div className="mt-5 flex gap-4 justify-evenly items-center">
+                <BtnWithAction
+                    title="Edit Profile"
+                    message="Are you sure you want to edit this profile?"
+                    confirmText="Yes"
+                    cancelText="Cancel"
+                    onConfirm={() => router.push(`/admin/users/${user.id}/edit`)}
+                >
+                    <Button variant="outlined" color='primary' className="mt-5">
+                        Edit Profile
+                    </Button>
+                </BtnWithAction>
+                <BtnWithAction
                 title={user.disabled ? "Enable Profile" : "Disable Profile"}
                 message={
                     user.disabled 
@@ -159,6 +131,8 @@ const UserDetails = () => {
                     </Button>
                 )}
             </BtnWithAction>
+            </div>
+
         </div>
     )
 }

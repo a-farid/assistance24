@@ -61,7 +61,6 @@ export const Protected: React.FC<ProtectedProps> = ({
     return null;
   }
 
-  // All verification checks passed safely
   return <>{children}</>;
 };
 

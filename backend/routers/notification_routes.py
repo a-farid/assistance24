@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends as Ds, HTTPException, Path
 from schemas.notification_schemas import T_Notification
 from services.jwt_svc import JWTService
-from settings.standarization import format_paginated_response, json_response, pagination_params
+from settings.standarization import format_paginated_response, json_response_pagination, pagination_params
 from database import db
 
 
@@ -19,7 +19,7 @@ async def get_unread_notifications(pagination = Ds(pagination_params),payload= D
 
     result = await format_paginated_response(unread_notifications, T_Notification)
 
-    return json_response(**result, message="Unread notifications retrieved", status_code=200)
+    return json_response_pagination(**result, message="Unread notifications retrieved", status_code=200)
 
 @router.put("/{notification_id}/read")
 async def mark_notification_as_read(notification_id: str = Path(...), payload=Ds(jwt_s.authorized_token)):
@@ -32,7 +32,7 @@ async def mark_notification_as_read(notification_id: str = Path(...), payload=Ds
 
     updated_notification = await db.notification.update(notification_id, read=True)
 
-    return json_response(data=updated_notification, message="Notification marked as read", status_code=201)
+    return json_response_pagination(data=updated_notification, message="Notification marked as read", status_code=201)
 
 @router.delete("/{notification_id}")
 async def delete_notification(notification_id: str = Path(...), payload=Ds(jwt_s.authorized_token)):
@@ -45,4 +45,4 @@ async def delete_notification(notification_id: str = Path(...), payload=Ds(jwt_s
 
     await db.notification.delete(notification_id)
 
-    return json_response(message="Notification deleted", status_code=201)
+    return json_response_pagination(message="Notification deleted", status_code=201)

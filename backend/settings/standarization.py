@@ -27,6 +27,7 @@ def serialize_data(data):
         return [serialize_data(item) for item in data]
     return data
 
+
 async def format_paginated_response(result: Dict[str, Any], model: Type[BaseModel]):
     """Formats paginated response, converting the given data into a Pydantic model list."""
     items = result.get("data", [])
@@ -50,7 +51,7 @@ def pagination_params(page: int = Query(1, ge=1), limit: int = Query(10, ge=1, l
     return {"page": page, "limit": limit}
 
 
-def json_response(data=None, current_page=None, total_pages=None, total_records=None, limit=None, status_code=200, message=None):
+def json_response_pagination(data=None, current_page=None, total_pages=None, total_records=None, limit=None, status_code=200, message=None):
     """
     Standardized JSON response with optional pagination details.
 

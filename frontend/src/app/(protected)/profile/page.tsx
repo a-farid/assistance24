@@ -4,11 +4,12 @@ import React from "react";
 import { useAuthStore } from "@/lib/auth/authStore";
 import LinesSkeleton from "@/components/skeleton/LinesSkeleton";
 import TextFieldData from "@/components/shared/TextFieldData";
-import { Button } from "@mui/material";
+import { Button, Fab } from "@mui/material";
+import UserImage from "@/app/(auth)/_components/UserPhoto";
 
 type Props = {};
 
-const Profile = (props: Props) => {
+const ProfilePage = (props: Props) => {
 
   const { user, isLoading } = useAuthStore();
 
@@ -18,7 +19,8 @@ const Profile = (props: Props) => {
 
   return (
     <div className="max-w-[500px] mx-auto mt-10 flex flex-col gap-4">
-      <Heading title={"farid profile"} description="farid prof" />
+      <Heading title={"farid profilePage"} description="farid prof" />
+      <UserImage className="mx-auto mb-4" user={user} widthHeight={200} />
       <TextFieldData label="Username" value={user?.username} />
       <TextFieldData label="Role" value={user?.role} />
       <TextFieldData label="Full name" value={`${user?.first_name} ${user?.last_name}`} />
@@ -33,4 +35,4 @@ const Profile = (props: Props) => {
   );
 };
 
-export default Profile;
+export default ProfilePage;

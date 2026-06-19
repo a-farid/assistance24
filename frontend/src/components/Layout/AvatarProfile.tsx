@@ -1,6 +1,6 @@
-import { Avatar } from "@mui/material";
-import { HiOutlineUserCircle } from "react-icons/hi";
-import Profile from "../Auth/Profile";
+import Profile from "@/app/(auth)/_components/Profile";
+import UserImage from "@/app/(auth)/_components/UserPhoto";
+
 // test
 type Props = {
   user: any;
@@ -9,7 +9,6 @@ type Props = {
 };
 
 const AvatarProfile = ({ user, openProfileBar, setOpenProfileBar }: Props) => {
-   const avatarPhoto = user && user.url_photo && user.url_photo !== 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/${user.url_photo}` : `${process.env.NEXT_PUBLIC_API_URL}/images/default.png`;
 
   return (
     <>
@@ -18,14 +17,7 @@ const AvatarProfile = ({ user, openProfileBar, setOpenProfileBar }: Props) => {
         className="relative mx-3 cursor-pointer"
         onClick={() => setOpenProfileBar(!openProfileBar)}
       >
-        {user ? (
-          <Avatar
-            alt={`${user.username} photo profile`}
-            src={avatarPhoto}
-          />
-        ) : (
-          <HiOutlineUserCircle />
-        )}
+        <UserImage user={user} widthHeight={40} />
         {openProfileBar && (
           <Profile user={user} setOpenProfileBar={setOpenProfileBar} />
         )}

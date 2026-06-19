@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { z, ZodError } from "zod";
 import FormError from "@/components/custom/FormError";
-import { useActivationMutation } from "../../lib/features/auth/authApi";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
@@ -29,26 +28,26 @@ const validateForm = (values: FormValues) => {
 
 function VerificationForm({ setRoute }: Props) {
   const { token } = useSelector((state: any) => state.auth);
-  const [activation, { data, error, isSuccess }] = useActivationMutation();
+  // const [activation, { data, error, isSuccess }] = useActivationMutation();
 
-  useEffect(() => {
-    if (isSuccess) {
-      const message = data.message || "User activated successfully";
-      toast.success(message);
-      setRoute("Login");
-    }
-    if (error) {
-      if ("data" in error) {
-        const errorData = error as any;
-        toast.error(errorData.data.error || "An error occured");
-      }
-    }
-  }, [isSuccess, error, data?.message, setRoute]);
+  // useEffect(() => {
+  //   if (isSuccess) {
+  //     const message = data.message || "User activated successfully";
+  //     toast.success(message);
+  //     setRoute("Login");
+  //   }
+  //   if (error) {
+  //     if ("data" in error) {
+  //       const errorData = error as any;
+  //       toast.error(errorData.data.error || "An error occured");
+  //     }
+  //   }
+  // }, [isSuccess, error, data?.message, setRoute]);
 
   const onSubmit = async ({ activation_code }: FormValues) => {
     try {
       const data = { activation_code, activation_token: token };
-      await activation(data);
+      // await activation(data);
     } catch (error) {
       console.error("VerificationFormError", error);
     }

@@ -7,7 +7,7 @@ from schemas.user_schemas import T_Email, T_FCMToken, T_PasswordUpdate, T_ResetP
 from services.auth_svc import AuthServices
 from services.jwt_svc import JWTService
 from database import redis_delete
-from settings.standarization import ApiResponse, json_response
+from settings.standarization import ApiResponse, json_response_pagination
 from settings import Config
 
 router = APIRouter()
@@ -26,17 +26,17 @@ async def register(body: T_UserInDbAdmin = Body(...)):
 async def check_email(email: str = Path(...)):
     result=await auth_svc.check_email(email)
     if result:
-        return json_response(message="The email already exists on DB", data=result)
+        return json_response_pagination(message="The email already exists on DB", data=result)
     else:
-        return json_response(message="The email does not exist on DB", data=result)
+        return json_response_pagination(message="The email does not exist on DB", data=result)
 
 @router.get("/check_username/{username}", response_model=ApiResponse[T_User], description="Check if the username exists.")
 async def check_username(username: str = Path(...)):
     result=await auth_svc.check_username(username)
     if result:
-        return json_response(message="The username already exists on DB", data=result)
+        return json_response_pagination(message="The username already exists on DB", data=result)
     else:
-        return json_response(message="The username does not exist on DB", data=result)
+        return json_response_pagination(message="The username does not exist on DB", data=result)
 
 @router.post("/login", response_model=ApiResponse[T_User], description="Login the user and return the access token.")
 async def login_for_access_token(body: T_Login_User = Body(...), _= Ds(jwt_s.verify_login)):
@@ -76,7 +76,7 @@ async def logout(access_token=Ds(jwt_s.authorized_token)):
 
 @router.get("/me", response_model=ApiResponse[T_User], description="Get the connected user.")
 async def read_connected_user(current_user= Ds(auth_svc.get_user_from_token)):
-    return json_response(data=current_user)
+    return json_response_pagination(data=current_user)
 
 @router.put("/change_password", response_model=ApiResponse[str], description="Change the user's password.")
 async def change_password(body: T_PasswordUpdate = Body(...),user: T_User = Ds(auth_svc.get_user_from_token)):
@@ -84,7 +84,7 @@ async def change_password(body: T_PasswordUpdate = Body(...),user: T_User = Ds(a
     Change the user's password.
     """
     await auth_svc.change_password(body.model_dump(), user)
-    return json_response(message="Password changed successfully")
+    return json_response_pagination(message="Password changed successfully")
 
 @router.put("/set_password_activation", description="Set the user's password.")
 async def set_password_activation(new_password: str = Body(...), email=Ds(jwt_s.decode_activation_token)):
@@ -115,7 +115,7 @@ async def refresh_access_token(refresh_token: str = Cookie(None)):
 async def update_fcm_token(body: T_FCMToken= Body(...), _: dict = Ds(jwt_s.authorized_token)):
     """Store the Firebase Cloud Messaging (FCM) token for the user."""
     updated_user = await auth_svc.set_fcm_token(body)
-    return json_response(data=updated_user, message="FCM token updated succesfully")
+    return json_response_pagination(data=updated_user, message="FCM token updated succesfully")
 
 @router.post("/forgot_password")
 async def forgot_password(body: T_Email= Body(...)):
@@ -125,7 +125,7 @@ async def forgot_password(body: T_Email= Body(...)):
     if email is None:
         raise HTTPException(status_code=422, detail="Email is required")
     updated_user = await auth_svc.forgot_password(email)
-    return json_response(data=updated_user, message="FCM token updated succesfully")
+    return json_response_pagination(data=updated_user, message="FCM token updated succesfully")
 
 @router.post("/reset_password")
 async def reset_password(body: T_ResetPassword= Body(...)):
