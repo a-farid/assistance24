@@ -2,28 +2,18 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/axiosClient";
-import { GetAllDataResponse } from "@/utils/interface/global";
+import { I_ApiResponseAll, I_ApiResponseOne } from "@/utils/interface/global";
 import { IUser } from "@/utils/interface/user_interfaces";
 import { useAuthStore } from "../auth/authStore";
 import log from "@/utils/logger";
-
-interface PaginationParams {
-  page: number;
-  limit: number;
-}
-// Wrapper interface matching your backend's structural JSON response layout
-interface UserResponse {
-  data: IUser;
-  message?: string;
-}
 
 interface UpdateUserPayload {
   id: string;
   userData: Record<string, any>;
 }
 
-export function useGetUsers({ page, limit }: PaginationParams) {
-  return useQuery<GetAllDataResponse<IUser[]>>({
+export function useGetUsers({ page, limit }: {page: number; limit: number}) {
+  return useQuery<I_ApiResponseAll<IUser[]>>({
     // 💡 Reactive Cache Key: Changing page or limit automatically triggers a network re-fetch
     queryKey: ["users", { page, limit }],
     queryFn: async () => {
@@ -37,7 +27,7 @@ export function useGetUsers({ page, limit }: PaginationParams) {
 }
 
 export function useGetUserById(userId: string) {
-  return useQuery<UserResponse>({
+  return useQuery<I_ApiResponseOne<IUser>>({
     // Secure Identity Cache Key containing the specific resource identifier string
     queryKey: ["users", "detail", userId],
     queryFn: async () => {
@@ -48,11 +38,10 @@ export function useGetUserById(userId: string) {
   });
 }
 
-// ✅ 2. Replacing useToggleUserStatusMutation()
 export function useToggleUserStatus() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<I_ApiResponseOne<IUser>, Error, string>({
     mutationFn: async (userId: string) => {
       // Injects the parameter directly into the action path segment
       const response = await api.put(`/users/${userId}/toggle_status`); 
@@ -70,46 +59,46 @@ export function useEditConnectedUser() {
   const queryClient = useQueryClient();
   const setUser = useAuthStore((state) => state.setUser); // Extract the atomic state setter
 
-  return useMutation({
+  return useMutation<I_ApiResponseOne<IUser>, Error, Partial<IUser>>({
     mutationFn: async (userData: Partial<IUser>) => {
       const response = await api.put("/users/me", userData);
       return response.data;
     },
     onSuccess: (responseData) => {
       // 1. Core State Sync: Write the updated backend payload straight to Zustand memory
-      if (responseData?.data) {
-        setUser(responseData.data);
+      if (responseData?.item) {
+        setUser(responseData.item);
       }
 
       // 2. Cache Invalidation: Mark existing cached queries as dirty
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      if (responseData?.data?.id) {
-        queryClient.invalidateQueries({ queryKey: ["users", "detail", responseData.data.id] });
+      if (responseData?.item?.id) {
+        queryClient.invalidateQueries({ queryKey: ["users", "detail", responseData.item.id] });
       }
     },
   });
 }
 
+
 export function useUpdateUser() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  // 💡 4. Bind the mutation payload strictly to our UpdateUserPayload interface structure
+  return useMutation<I_ApiResponseOne<IUser>, Error, UpdateUserPayload>({
     mutationFn: async ({ id, userData }: UpdateUserPayload) => {
       const response = await api.put(`/users/${id}`, userData);
       return response.data;
     },
     onSuccess: (responseData, variables) => {
-      log.info("MutationEngine", `User record [${variables.id}] mutated successfully. Invaliding caches...`);
+      // ✅ Fixed the data access bug: variables now maps cleanly to our explicit interface properties
+      const updatedId = responseData.item?.id || variables.id;
+      log.info("MutationEngine", `User record [${updatedId}] mutated successfully. Invaliding caches...`);
 
-      // 💡 1. Invalidate the master overview list query cache line
-      queryClient.invalidateQueries({ queryKey: ["users", "list"] });
-
-      // 💡 2. Invalidate the specific single resource detail cache line
-      queryClient.invalidateQueries({ queryKey: ["users", "detail", variables.id] });
+      // Invalidate the broader 'users' cache space to safely wipe out stale entries across all views
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     onError: (error: any) => {
       log.error("MutationEngine", "User record modification failure context:", error);
     }
   });
 }
-

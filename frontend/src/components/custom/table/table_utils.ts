@@ -66,7 +66,7 @@ export type CustomTableProps<T> = {
     total_pages: number;
     total_records: number;
     limit: number;
-    data: T[];
+    items: T[];
   };
   headCells: readonly HeadCell[];
   onPageChange: (page: number) => void;

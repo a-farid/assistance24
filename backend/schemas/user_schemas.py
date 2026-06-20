@@ -49,11 +49,11 @@ class T_Login_User(BaseModel):
     password: StrictStr = Field(..., examples=["Aqwzsx@123"])
 
 class T_Profile(BaseModel):
-    adress: Optional[StrictStr] = Field(None, max_length=100, examples=["Rabat"])
-    first_name: Optional[StrictStr] = Field(None, max_length=50, examples=["Yassine"])
-    last_name: Optional[StrictStr] = Field(None, max_length=50, examples=["TASTINOUTE"])
-    url_photo: Optional[str] = None
-    phone: Optional[StrictStr] = Field(None, max_length=20, examples=["+212612345678"])
+    adress: Optional[StrictStr] = Field(None, max_length=100, examples=["Ex street, City, Country"])
+    first_name: Optional[StrictStr] = Field(None, max_length=50, examples=["John"])
+    last_name: Optional[StrictStr] = Field(None, max_length=50, examples=["Doe"])
+    url_photo: Optional[str] = Field(None, max_length=100, examples=["images/default.png"])
+    phone: Optional[StrictStr] = Field(None, max_length=20, examples=["212612345678"])
 
 class T_Email(BaseModel):
     email: EmailStr = Field(..., examples=["admin@mail.com"])

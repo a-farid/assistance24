@@ -6,6 +6,7 @@ import { useAuthAuthorization } from '@/lib/auth/authStore';
 import { AuthLoader } from './AuthLoader';
 import log from '@/utils/logger';
 import { ProtectedProps } from '@/utils/interface/global';
+import { toast } from 'react-hot-toast';
 
 export const Protected: React.FC<ProtectedProps> = ({
   children,
@@ -49,7 +50,7 @@ export const Protected: React.FC<ProtectedProps> = ({
     const rolesArray = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
     if (!rolesArray.includes(user.role)) {
       log.warn('ProtectedRoute', `Authorization failed for role: ${user.role} on path: ${pathname}`);
-      router.replace('/dashboard'); // Fallback to a safe dashboard page
+      router.replace('/'); // Fallback to a safe dashboard page
       return null;
     }
   }

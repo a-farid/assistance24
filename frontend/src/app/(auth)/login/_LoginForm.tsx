@@ -10,6 +10,8 @@ import { useTranslations } from 'next-intl';
 import { FormField } from "@/utils/interface/FormikField";
 import { useLoginMutation } from "@/lib/api/auth"; // 💡 Adjusted naming to match your export target
 import log from "@/utils/logger";
+import { I_ApiResponseOne } from "@/utils/interface/global";
+import { IUser } from "@/utils/interface/user_interfaces";
 
 const formSchema = z.object({
   username: z.string().min(3, { message: "Minimum of 3 characters required" }),
@@ -35,8 +37,9 @@ function LoginForm() {
   const onSubmit = (values: FormValues) => {
     
     login(values, {
-      onSuccess: (responseData: any) => {
-        const message = responseData?.message || "Session initialized successfully.";
+      onSuccess: (responseData: I_ApiResponseOne<IUser>) => {
+        log.info("LoginForm", responseData.message || "Login successful.");
+        const message = "Session initialized successfully.";
         toast.success(message);
         router.push("/"); // Secure client routing transition
       },

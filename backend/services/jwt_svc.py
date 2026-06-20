@@ -31,6 +31,7 @@ class JWTService:
             raise HTTPException(status_code=401, detail="Token expired or invalid")
 
     async def verify_login(self, access_token: Optional[str] = Cookie(None)):
+        return # Will be deleted after testing, just to check if the user is already logged in and prevent multiple logins in the same browser session
         if not access_token: return
 
         try:
@@ -101,11 +102,9 @@ class JWTService:
 
         response = JSONResponse(content={
             "success": True,
-            "data": {
-                "user": user.model_dump(),
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-            }
+            "message": "Test: Refresh tokens created successfully",
+            "item": user.model_dump(),
+            "status_code": 200,
         })
         response.set_cookie(
             key="access_token",

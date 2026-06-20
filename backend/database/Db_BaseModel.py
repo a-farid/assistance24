@@ -113,10 +113,10 @@ class DB_BaseModel(Base):
             query = query.limit(limit).offset(offset)
 
             result = await session.execute(query)
-            data = list(result.scalars().all() or [])
+            items = list(result.scalars().all() or [])
 
             return {
-                "data": data,
+                "items": items,
                 "total_records": int(total_records or 0),
                 "total_pages": int(total_pages or 0),
                 "current_page": int(page or 1),
@@ -151,10 +151,10 @@ class DB_BaseModel(Base):
             query = query.limit(limit).offset(offset)
 
             result = await session.execute(query)
-            data = result.scalars().all()
+            items = result.scalars().all()
 
             return {
-                "data": list(data or []),
+                "items": list(items or []),
                 "total_records": total_records,
                 "total_pages": total_pages,
                 "current_page": page,

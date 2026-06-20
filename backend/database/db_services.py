@@ -43,14 +43,14 @@ class DataBaseService:
     @classmethod
     async def filter_all(cls, relationships: Optional[List[str]] = None, limit: int = 10, page: int = 1, **criteria):
         """Filter records and return paginated matches."""
-        data = await cls.model.filter_all(relationships, limit=limit, page=page, **criteria)
-        return data
+        items = await cls.model.filter_all(relationships, limit=limit, page=page, **criteria)
+        return items
 
     @classmethod
     async def get_all(cls, relationships: Optional[List[str]] = None, limit: int = 10, page: int = 1):
         """Fetch all records with optional relationships and pagination."""
-        data = await cls.model.get_all(relationships, limit=limit, page=page)
-        return data
+        items = await cls.model.get_all(relationships, limit=limit, page=page)
+        return items
 
     @classmethod
     async def create(cls, unique_fields: Optional[List[str]] = None, **kwargs) -> DB_BaseModel:

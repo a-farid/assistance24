@@ -61,9 +61,12 @@ export function useAuthAuthorization() {
     return rolesArray.includes(user.role);
   };
 
-  const verifyRouteAccess = (currentPath: string): boolean => {
+  const canAccess = (currentPath: string): boolean => {
+    console.log('canAccess', currentPath);
     if (!user) return false;
     for (const [routePath, allowedRoles] of Object.entries(accessRules)) {
+      // console.log('The userRole', user.role, 'The allowedRoles', allowedRoles, 'The routePath', routePath, 'The currentPath', currentPath);
+      console.log('CurrentPath', currentPath, 'starts with routePath', routePath, 'checking roles...');
       if (currentPath.startsWith(routePath)) {
         return allowedRoles.includes(user.role);
       }
@@ -71,5 +74,5 @@ export function useAuthAuthorization() {
     return true; // Pass matching to general views
   };
 
-  return { user, isLoading, isAuthenticated, hasRole, canAccess: verifyRouteAccess };
+  return { user, isLoading, isAuthenticated, hasRole, canAccess };
 }

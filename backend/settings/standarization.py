@@ -8,12 +8,33 @@ from typing import Any, Dict
 from fastapi import Query # pyrefly: ignore [missing-import]
 
 
+# 1. Define the generic TypeVar to represent your dataset payload
 T = TypeVar("T")
 
 
-class ApiResponse(BaseModel, Generic[T]):
+# 2. Define the structural schema for the paginated wrapper and one record response
+class PaginatedPayload(BaseModel, Generic[T]):
+    items: Optional[T] = None
+    status_code: int = 200
+    message: Optional[str] = None
+    current_page: Optional[int] = None
+    total_pages: Optional[int] = None
+    total_records: Optional[int] = None
+    limit: Optional[int] = None
+
+class ApiResponseAll(BaseModel, Generic[T]):
     success: bool
-    data: Optional[T]
+    data: PaginatedPayload[T]
+class ApiResponseOne(BaseModel, Generic[T]):
+    success: bool
+    item: Optional[T] = None
+    status_code: int = 200
+    message: Optional[str] = None
+class ApiEmailResponse(BaseModel):
+    success: bool
+    email: str
+    activation_token: str
+
 
 def serialize_data(data):
     """Recursively apply custom serialization to handle special types."""
@@ -27,10 +48,9 @@ def serialize_data(data):
         return [serialize_data(item) for item in data]
     return data
 
-
 async def format_paginated_response(result: Dict[str, Any], model: Type[BaseModel]):
     """Formats paginated response, converting the given data into a Pydantic model list."""
-    items = result.get("data", [])
+    items = result.get("items", [])
 
     formatted_items = []
     for item in items:
@@ -38,25 +58,23 @@ async def format_paginated_response(result: Dict[str, Any], model: Type[BaseMode
         formatted_items.append(model.model_validate(item_dict))
 
     return {
-        "data": formatted_items,
+        "items": formatted_items,
         "total_records": result.get("total_records"),
         "total_pages": result.get("total_pages"),
         "current_page": result.get("current_page"),
         "limit": result.get("limit"),
     }
 
-
 def pagination_params(page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
     """Dependency to handle pagination parameters for all routes."""
     return {"page": page, "limit": limit}
 
-
-def json_response_pagination(data=None, current_page=None, total_pages=None, total_records=None, limit=None, status_code=200, message=None):
+def json_response_pagination(items=None, current_page=None, total_pages=None, total_records=None, limit=None, status_code=200, message=None):
     """
     Standardized JSON response with optional pagination details.
 
     Args:
-        data (optional): The response data (can be a list, dict, or any serializable type).
+        items (optional): The response items (can be a list, dict, or any serializable type).
         status_code (int): HTTP status code for the response.
         message (str, optional): A short description of the response.
         current_page (int, optional): The current page number.
@@ -68,7 +86,7 @@ def json_response_pagination(data=None, current_page=None, total_pages=None, tot
         JSONResponse: A FastAPI JSON response with a consistent structure.
     """
 
-    serialized_data = serialize_data(data)
+    serialized_data = serialize_data(items)
 
     response_content = {"success": True}
 
@@ -82,7 +100,33 @@ def json_response_pagination(data=None, current_page=None, total_pages=None, tot
         response_content["total_records"] = total_records
     if limit is not None:
         response_content["limit"] = limit
-    if data is not None:
-        response_content["data"] = jsonable_encoder(serialized_data)
+    if items is not None:
+        response_content["items"] = jsonable_encoder(serialized_data)
+
+    return JSONResponse(content=response_content, status_code=status_code)
+
+def json_response_one(item=None, status_code=200, message=None):
+    """
+    Standardized JSON response.
+
+    Args:
+        data (optional): The response data (can be a list, dict, or any serializable type).
+        status_code (int): HTTP status code for the response.
+        message (str, optional): A short description of the response.
+
+    Returns:
+        JSONResponse: A FastAPI JSON response with a consistent structure.
+    """
+
+    serialized_data = serialize_data(item)
+
+    response_content = {"success": True}
+
+    if message is not None:
+        response_content["message"] = message
+    if item is not None:
+        response_content["item"] = jsonable_encoder(serialized_data)
+    if status_code is not None:
+        response_content["status_code"] = status_code # type: ignore
 
     return JSONResponse(content=response_content, status_code=status_code)

@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/axiosClient";
 import { useAuthStore } from "@/lib/auth/authStore";
 import log from "@/utils/logger";
+import { I_ApiResponseOne } from "@/utils/interface/global";
+import { IUser } from "@/utils/interface/user_interfaces";
 
 interface LoginCredentials {
   username: string;
@@ -30,15 +32,15 @@ export function useLoginMutation() {
   const {setUser} = useAuthStore();
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<I_ApiResponseOne<IUser>, Error, LoginCredentials>({
     mutationFn: async (credentials: LoginCredentials) => {
       const response = await api.post("/auth/login", credentials);
-      return response.data as LoginResponse;
+      return response.data;
     },
-    onSuccess: (data: LoginResponse) => {
-      if (data?.success && data?.data?.user) {
+    onSuccess: (data: I_ApiResponseOne<IUser>) => {
+      if (data?.success && data?.item) {
         // Direct atomic update to persistent Zustand memory
-        setUser(data.data.user);
+        setUser(data.item);
         // Clear old caches from prior logged-in user profiles
         queryClient.clear();
       }
@@ -52,7 +54,6 @@ export function useLogoutMutation() {
   return useMutation({
     mutationFn: async () => {
       const response = await api.post("/auth/logout");
-      console.log('useLogoutMutation-response', response);
       return response.data as LogoutResponse;
     },
     // 💡 Architectural Fix: Use onSettled to guarantee state erasure BEFORE component lifecycle updates
