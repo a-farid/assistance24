@@ -4,7 +4,7 @@ import * as Select from '@radix-ui/react-select';
 import clsx from 'clsx';
 import {useTransition} from 'react';
 import {Locale} from '@/i18n/config';
-import {setUserLocale} from '@/services/locale';
+import {setUserLocale} from '@/i18n/locale';
 import { Check, Globe } from 'lucide-react';
 import { useTheme } from "next-themes";
 

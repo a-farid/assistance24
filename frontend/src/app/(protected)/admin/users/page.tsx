@@ -7,7 +7,7 @@ import { IUser } from '@/utils/interface/user_interfaces';
 import { allUsersHeadCells } from '@/components/custom/table/headers_cells';
 import { Button } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useGetUsers } from '@/lib/api/users';
+import { useGetUsers } from '@/lib/api/usersApi';
 
 const UsersPage = () => {
   const [page, setPage] = React.useState(1);

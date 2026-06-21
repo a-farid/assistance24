@@ -14,7 +14,7 @@ import { EditIcon } from 'lucide-react';
 import BtnWithAction from '@/components/shared/BtnWithAction';
 import toast from 'react-hot-toast';
 
-import { useGetUserById } from '@/lib/api/users';
+import { useGetUserById } from '@/lib/api/usersApi';
 
 const UserDetails = () => {
     const params = useParams()

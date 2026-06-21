@@ -1,5 +1,5 @@
 "use client";
-import { useAuthAuthorization } from "@/lib/auth/authStore";
+import { useAuthAuthorization } from "@/lib/store/authStore";
 import NavbarItem from "./Navbar_item";
 import { ROUTE_SECURITY, SystemRole } from "../../lib/constants/navigation";
 

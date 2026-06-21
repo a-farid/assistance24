@@ -6,8 +6,8 @@ import { useState } from "react";
 // import NotificationsCount from "@/components/Layout/NotificationsCount";
 import AvatarProfile from "@/components/Layout/AvatarProfile";
 import { Navbar_list_mobile } from "./Navbar_list_mobile";
-import LocaleSwitcher from "@/components/LocaleSwitcher";
-import { useAuthStore } from "@/lib/auth/authStore";
+import LocaleSwitcher from "@/components/shared/LocaleSwitcher";
+import { useAuthStore } from "@/lib/store/authStore";
 
 const NavbarRoutes = () => {
   const [openSideBar, setOpenSideBar] = useState(false);

@@ -12,12 +12,9 @@ const publicRoutes = [
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("access_token")?.value;
   const { pathname } = request.nextUrl;
-  console.log('Starting the check!!', publicRoutes, "|| With :", pathname);
-
 
   // 💡 2. Fast-Path Public Bypass: Immediately pass traffic to public landing zones
   if (publicRoutes.some(route => pathname.startsWith(route))) {
-    console.log('Starting the check!!');
     // If an authenticated user tries to visit /login, redirect them straight to /dashboard
     if (token && (pathname === '/login' || pathname === '/register')) {
       return NextResponse.redirect(new URL("/", request.url));
@@ -35,6 +32,7 @@ export function middleware(request: NextRequest) {
     const tokenSections = token.split(".");
     const decodedPayload = JSON.parse(atob(tokenSections[1]));
     const userRole = decodedPayload.role as SystemRole;
+    // const userRole = "worker"
 
     // 4. Dynamic Access Control Check
     const matchedRule = ROUTE_SECURITY.find((rule) => pathname.startsWith(rule.link) && rule.roles.includes(userRole));

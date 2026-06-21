@@ -1,8 +1,8 @@
 "use client";
 import Heading from "@/components/custom/Heading";
 import React from "react";
-import { useAuthStore } from "@/lib/auth/authStore";
-import LinesSkeleton from "@/components/skeleton/LinesSkeleton";
+import { useAuthStore } from "@/lib/store/authStore";
+import LinesSkeleton from "@/components/shared/LinesSkeleton";
 import TextFieldData from "@/components/shared/TextFieldData";
 import { Button, Fab } from "@mui/material";
 import UserImage from "@/app/(auth)/_components/UserPhoto";

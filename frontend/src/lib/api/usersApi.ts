@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/axiosClient";
 import { I_ApiResponseAll, I_ApiResponseOne } from "@/utils/interface/global";
 import { IUser } from "@/utils/interface/user_interfaces";
-import { useAuthStore } from "../auth/authStore";
+import { useAuthStore } from "../store/authStore";
 import log from "@/utils/logger";
 
 interface UpdateUserPayload {

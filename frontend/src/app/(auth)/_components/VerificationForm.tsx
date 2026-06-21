@@ -1,11 +1,11 @@
 "use client";
 import { Button } from "@mui/material";
-import React, { useEffect } from "react";
+import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import FormError from "@/components/custom/FormError";
-import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { validateForm } from "@/utils/validators";
 
 type Props = {
   setRoute: (route: string) => void;
@@ -16,34 +16,10 @@ const signupSchema = z.object({
 type FormValues = z.infer<typeof signupSchema>;
 
 const initialValues = { activation_code: "" };
-const validateForm = (values: FormValues) => {
-  try {
-    signupSchema.parse(values);
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return error.formErrors.fieldErrors;
-    }
-  }
-};
 
 function VerificationForm({ setRoute }: Props) {
   const { token } = useSelector((state: any) => state.auth);
-  // const [activation, { data, error, isSuccess }] = useActivationMutation();
-
-  // useEffect(() => {
-  //   if (isSuccess) {
-  //     const message = data.message || "User activated successfully";
-  //     toast.success(message);
-  //     setRoute("Login");
-  //   }
-  //   if (error) {
-  //     if ("data" in error) {
-  //       const errorData = error as any;
-  //       toast.error(errorData.data.error || "An error occured");
-  //     }
-  //   }
-  // }, [isSuccess, error, data?.message, setRoute]);
-
+ 
   const onSubmit = async ({ activation_code }: FormValues) => {
     try {
       const data = { activation_code, activation_token: token };
@@ -56,7 +32,7 @@ function VerificationForm({ setRoute }: Props) {
   return (
     <Formik<FormValues>
       initialValues={initialValues}
-      validate={validateForm}
+      validate={(values) => validateForm(values, signupSchema)}
       onSubmit={onSubmit}
       validateOnMount
     >

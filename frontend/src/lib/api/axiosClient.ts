@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { useAuthStore } from "@/lib/auth/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
 
 // 1. Instantiate the Singleton Global Network Gateway
 export const api = axios.create({
@@ -16,11 +16,11 @@ let isRefreshing = false;
 let failedQueue: any[] = [];
 
 const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
+  failedQueue.forEach((promiss) => {
     if (token) {
-      prom.resolve(token);
+      promiss.resolve(token);
     } else {
-      prom.reject(error);
+      promiss.reject(error);
     }
   });
   failedQueue = [];
@@ -31,6 +31,7 @@ api.interceptors.response.use(
   (response) => response, // Pass successful responses straight through unhindered
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    console.log('error on Axios', error);
 
     // Validate if the error signature represents an expired authorization state
     if (error.response?.status === 401 && !originalRequest._retry) {

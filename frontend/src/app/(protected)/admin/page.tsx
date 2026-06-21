@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAuthAuthorization } from '@/lib/auth/authStore';
+import { useAuthAuthorization } from '@/lib/store/authStore';
 
 
 const AdminUsersPage = () => {

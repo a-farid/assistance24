@@ -3,10 +3,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import FormError from "@/components/custom/FormError";
 import Button from "@mui/material/Button";
 import Loading from "@/components/custom/Loading";
-import { validateForm } from "@/utils/validateFormZ";
 import { z } from "zod";
 import { IField } from "@/utils/interface/FormikField";
 import { ReactNode } from "react";
+import { validateForm } from "@/utils/validators";
 
 type Props = {
   initialValues: any;

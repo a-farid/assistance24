@@ -10,7 +10,7 @@ import { Button } from '@mui/material';
 import { IUser } from '@/utils/interface/user_interfaces';
 import BtnWithAction from '@/components/shared/BtnWithAction';
 import toast from 'react-hot-toast';
-import { useGetUserById, useToggleUserStatus } from '@/lib/api/users';
+import { useGetUserById, useToggleUserStatus } from '@/lib/api/usersApi';
 import UserImage from '@/app/(auth)/_components/UserPhoto';
 
 const UserDetails = () => {

@@ -8,7 +8,7 @@ import CustomFormik from "@/components/custom/CustomFormik";
 import Loading from "@/components/custom/Loading";
 import { useTranslations } from 'next-intl';
 import { FormField } from "@/utils/interface/FormikField";
-import { useLoginMutation } from "@/lib/api/auth"; // 💡 Adjusted naming to match your export target
+import { useLoginMutation } from "@/lib/api/authApi"; // 💡 Adjusted naming to match your export target
 import log from "@/utils/logger";
 import { I_ApiResponseOne } from "@/utils/interface/global";
 import { IUser } from "@/utils/interface/user_interfaces";

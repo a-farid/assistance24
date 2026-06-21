@@ -5,7 +5,7 @@ import SidebarItem from "./SideBar_Item";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { ROUTE_SECURITY, SystemRole } from "../../lib/constants/navigation";
-import { useAuthAuthorization } from "@/lib/auth/authStore";
+import { useAuthAuthorization } from "@/lib/store/authStore";
 
 type Props = {};
 

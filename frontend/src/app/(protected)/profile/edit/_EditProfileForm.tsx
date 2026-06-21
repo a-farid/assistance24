@@ -7,11 +7,11 @@ import CustomFormik from "@/components/custom/CustomFormik"; //
 import Loading from "@/components/custom/Loading";
 import { useTranslations } from 'next-intl';
 import { FormField } from "@/utils/interface/FormikField";
-import LinesSkeleton from "@/components/skeleton/LinesSkeleton";
+import LinesSkeleton from "@/components/shared/LinesSkeleton";
 // import { useEditConnectedUserMutation } from "@/lib/features/users/usersApi"; // Will be deleted
-import { useAuthStore } from "@/lib/auth/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
 import log from "@/utils/logger";
-import { useEditConnectedUser } from "@/lib/api/users";
+import { useEditConnectedUser } from "@/lib/api/usersApi";
 
 
 

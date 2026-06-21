@@ -3,7 +3,7 @@ import { RootState } from "@/lib/store";
 import NavbarItem from "./Navbar_item";
 import { ROUTE_SECURITY, I_NavBarList, SystemRole } from "../../lib/constants/navigation";
 import { useEffect, useState } from "react";
-import { useAuthAuthorization, useAuthStore } from "@/lib/auth/authStore";
+import { useAuthAuthorization, useAuthStore } from "@/lib/store/authStore";
 
 type Props = {
   setOpenSideBar: (open: boolean) => void;

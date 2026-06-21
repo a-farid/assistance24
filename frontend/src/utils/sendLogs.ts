@@ -30,7 +30,7 @@ async function sendLogsEmail() {
   // Email options
   const mailOptions = {
     from: `"App Logger" <${process.env.SMTP_USER}>`, // sender address
-    to: process.env.LOG_RECIPIENT, // list of receivers (your dev email)
+    to: process.env.LOG_RECIPIENT, // list of receivers (dev emails)
     subject: `App Logs - ${new Date().toLocaleString()}`, // Subject line with date/time
     text: 'Attached are the application logs.', // plain text body
     attachments: [

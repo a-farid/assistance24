@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/axiosClient";
-import { useAuthStore } from "@/lib/auth/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
 import log from "@/utils/logger";
 import { I_ApiResponseOne } from "@/utils/interface/global";
 import { IUser } from "@/utils/interface/user_interfaces";

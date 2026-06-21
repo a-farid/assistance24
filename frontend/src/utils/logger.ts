@@ -14,7 +14,7 @@ function formatDate(date: Date): string {
   const dd = String(date.getDate()).padStart(2, '0');
   const HH = String(date.getHours()).padStart(2, '0');
   const MM = String(date.getMinutes()).padStart(2, '0');
-  return `${mm}-${dd} ${HH}:${MM}`;
+  return `${mm}/${dd} ${HH}:${MM}`;
 }
 
 function formatArgs(args: any[]): string {

@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { useLogoutMutation } from "@/lib/api/auth"; // Standardized naming targeting TanStack
+import { useLogoutMutation } from "@/lib/api/authApi"; // Standardized naming targeting TanStack
 import log from "@/utils/logger";
 import { KeyRound, LogOut, UserCog } from "lucide-react";
 import UserImage from "./UserPhoto";

@@ -2,10 +2,10 @@
 
 import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuthAuthorization } from '@/lib/auth/authStore';
 import { AuthLoader } from '../../app/(auth)/_components/AuthLoader';
 import log from '@/utils/logger';
 import { ProtectedProps } from '@/utils/interface/global';
+import { useAuthAuthorization } from '../../lib/store/authStore';
 
 export const Protected: React.FC<ProtectedProps> = ({ children, requiredRole, showLoader = true }) => {
   const pathname = usePathname();
