@@ -1,7 +1,7 @@
 // "use client";
 import { RootState } from "@/lib/store";
 import NavbarItem from "./Navbar_item";
-import { NAVBAR_LIST, I_NavBarList, SystemRole } from "./nav_list";
+import { ROUTE_SECURITY, I_NavBarList, SystemRole } from "../../lib/constants/navigation";
 import { useEffect, useState } from "react";
 import { useAuthAuthorization, useAuthStore } from "@/lib/auth/authStore";
 
@@ -15,7 +15,7 @@ export const Navbar_list_mobile = ({ setOpenSideBar }: Props) => {
       const userRole = (user?.role as SystemRole) || null;
     
       // 💡 Pure Architectural Filter Pipeline: Done completely at the parent container level!
-      const authorizedMenu = NAVBAR_LIST.filter(
+      const authorizedMenu = ROUTE_SECURITY.filter(
         (menuItem) => isAuthenticated && userRole && menuItem.roles.includes(userRole)
       );
     

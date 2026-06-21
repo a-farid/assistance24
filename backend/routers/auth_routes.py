@@ -98,8 +98,7 @@ async def refresh_access_token(refresh_token: str = Cookie(None)):
     """
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Refresh token is required")
-    token = refresh_token.replace("Bearer ", "")
-    payload = jwt.decode(token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
+    payload = jwt.decode(refresh_token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
     user = await auth_svc.get_user(payload.get("user_id"))
 
     return await jwt_s.create_refresh_access_tokens(user)

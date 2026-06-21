@@ -5,7 +5,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { ListItemIcon } from "@mui/material";
-import { I_SidebarItem } from "./nav_list";
+import { I_SidebarItem } from "../../lib/constants/navigation";
 
 const SidebarItem = ({ icon: Icon, label, href }: I_SidebarItem) => {
   const pathname = usePathname();

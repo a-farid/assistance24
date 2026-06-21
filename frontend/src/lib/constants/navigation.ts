@@ -22,8 +22,17 @@ export interface I_NavBarList {
   subItems?: I_SidebarItem[];
 }
 
-export const NAVBAR_LIST: I_NavBarList[] = [
+export const ROUTE_SECURITY: I_NavBarList[] = [
   {
+    name: "Admin",
+    link: "/admin",
+    icon: LayoutDashboard,
+    roles: ["admin"], // Strictly isolates the entire admin subtree configuration block
+    subItems: [
+      { label: "Users", href: "/admin/users", icon: Check },
+      { label: "FAQ", href: "/admin/faq", icon: Check },
+    ],
+  }, {
     name: "Contracts",
     link: "/contracts",
     icon: Newspaper,
@@ -53,18 +62,6 @@ export const NAVBAR_LIST: I_NavBarList[] = [
         icon: Check,
         roles: ["admin", "client", "worker"],
       },
-    ],
-  },
-  {
-    name: "Admin",
-    link: "/admin",
-    icon: LayoutDashboard,
-    roles: ["admin"], // Strictly isolates the entire admin subtree configuration block
-    subItems: [
-      { label: "Users", href: "/admin/users", icon: Check },
-      { label: "Clients", href: "/admin/clients", icon: Check },
-      { label: "Workers", href: "/admin/workers", icon: Check },
-      { label: "FAQ", href: "/admin/faq", icon: Check },
     ],
   },
 ];

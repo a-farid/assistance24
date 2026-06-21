@@ -3,7 +3,7 @@
  * Replace your existing protected layout with this improved version
  */
 
-import Protected from "../(auth)/_components/Protected";
+import Protected from "../../components/providers/Protected";
 import { Navbar } from "../../components/Layout/Navbar";
 import Sidebar from "../../components/Layout/Sidebar";
 import React from "react";

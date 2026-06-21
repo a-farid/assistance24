@@ -4,7 +4,7 @@ import List from "@mui/material/List";
 import SidebarItem from "./SideBar_Item";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { NAVBAR_LIST, SystemRole } from "./nav_list";
+import { ROUTE_SECURITY, SystemRole } from "../../lib/constants/navigation";
 import { useAuthAuthorization } from "@/lib/auth/authStore";
 
 type Props = {};
@@ -26,7 +26,7 @@ function SideBar_routes({}: Props) {
     if (!isAuthenticated || !userRole) return [];
 
     // Identify the active top-level section array block (e.g., matching '/contracts')
-    const activeParentRoute = NAVBAR_LIST.find((item) => pathName.startsWith(item.link));
+    const activeParentRoute = ROUTE_SECURITY.find((item) => pathName.startsWith(item.link));
     if (!activeParentRoute) return [];
 
     // Filter sub-items: items are valid if they don't specify roles, or if the user's role is permitted

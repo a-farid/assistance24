@@ -3,7 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { I_NavBarList } from "./nav_list";
+import { I_NavBarList } from "../../lib/constants/navigation";
 
 interface I_NavbarItemProps extends I_NavBarList {
   setOpenSideBar: (open: boolean) => void;

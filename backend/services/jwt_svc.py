@@ -22,21 +22,18 @@ class JWTService:
     async def authorized_token(self, access_token: Optional[str] = Cookie(None)):
         if not access_token:
             raise HTTPException(status_code=401, detail="Token is required")
-
-        token = access_token.replace("Bearer ", "")
         try:
-            payload = jwt.decode(token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
+            payload = jwt.decode(access_token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
             return payload
         except JWTError:
             raise HTTPException(status_code=401, detail="Token expired or invalid")
 
     async def verify_login(self, access_token: Optional[str] = Cookie(None)):
-        return # Will be deleted after testing, just to check if the user is already logged in and prevent multiple logins in the same browser session
+        # return # Will be deleted after testing, just to check if the user is already logged in and prevent multiple logins in the same browser session
         if not access_token: return
 
         try:
-            token = access_token.replace("Bearer ", "")
-            jwt.decode(token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
+            jwt.decode(access_token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
             raise HTTPException(status_code=400, detail="You are already logged in.")
         except JWTError: return
 
@@ -108,7 +105,7 @@ class JWTService:
         })
         response.set_cookie(
             key="access_token",
-            value=f"Bearer {access_token}",
+            value=access_token,
             httponly=True,
             secure=Config.COOKIE_SECURE,
             samesite="lax",
@@ -116,7 +113,7 @@ class JWTService:
         )
         response.set_cookie(
             key="refresh_token",
-            value=f"Bearer {refresh_token}",
+            value=refresh_token,
             httponly=True,
             secure=Config.COOKIE_SECURE,
             samesite="lax",
