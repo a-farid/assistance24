@@ -1,31 +1,30 @@
 "use client";
+import { useAuthAuthorization } from "@/lib/auth/authStore";
 import NavbarItem from "./Navbar_item";
-import { admin_navbar_list, client_navbar_list, I_NavBarList, worker_navbar_list } from "./nav_list";
-import { useEffect, useState } from "react";
-import { useAuthStore } from "@/lib/auth/authStore";
+import { NAVBAR_LIST, SystemRole } from "./nav_list";
+
 
 type Props = {
   setOpenSideBar: (open: boolean) => void;
 };
 
+interface SidebarProps {
+  setOpenSideBar: (open: boolean) => void;
+}
 export const Navbar_list_laptop = ({ setOpenSideBar }: Props) => {
-    const { user } = useAuthStore();
-  
-      const [navbar_list, setNavbarList] = useState<I_NavBarList[]>([]);
+  const { user, isAuthenticated } = useAuthAuthorization();
 
-      useEffect(() => {
-        if (user?.role === "client") {
-          setNavbarList(client_navbar_list);
-        } else if (user?.role === "worker") {
-          setNavbarList(worker_navbar_list);
-        } else {
-          setNavbarList(admin_navbar_list);
-        }
-      }, [user]);
+  const userRole = (user?.role as SystemRole) || null;
+
+  // 💡 Pure Architectural Filter Pipeline: Done completely at the parent container level!
+  const authorizedMenu = NAVBAR_LIST.filter(
+    (menuItem) => isAuthenticated && userRole && menuItem.roles.includes(userRole)
+  );
+
   return (
     <>
       <div className="hidden 900px:flex">
-        {navbar_list.map((item, index) => (
+        {authorizedMenu.map((item, index) => (
           <NavbarItem key={index} setOpenSideBar={setOpenSideBar} {...item} />
         ))}
       </div>

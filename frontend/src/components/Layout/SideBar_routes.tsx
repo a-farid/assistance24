@@ -4,7 +4,7 @@ import List from "@mui/material/List";
 import SidebarItem from "./SideBar_Item";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { I_SidebarItem, admin_navbar_list } from "./nav_list";
+import { I_SidebarItem, NAVBAR_LIST } from "./nav_list";
 
 type Props = {};
 
@@ -16,7 +16,7 @@ function SideBar_routes({}: Props) {
   };
   const pathName = usePathname();
   const subItems = () => {
-    const it = admin_navbar_list.filter((item) => pathName.startsWith(item.link));
+    const it = NAVBAR_LIST.filter((item) => pathName.startsWith(item.link));
     return it[0]?.subItems || [];
   };
   const items = subItems() as I_SidebarItem[];

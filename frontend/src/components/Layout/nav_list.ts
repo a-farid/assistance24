@@ -1,196 +1,87 @@
-import {LucideIcon, Check, Newspaper, LayoutDashboard } from "lucide-react";
+import { LucideIcon, Check, Newspaper, LayoutDashboard } from "lucide-react";
 
-  export interface I_SidebarItem {
-    label: string;
-    href: string;
-    icon: LucideIcon;
-  }
-  export interface I_NavBarList {
-    name: string;
-    link: string;
-    icon: LucideIcon;
-    subItems?: I_SidebarItem[];
-  }
+// Explicitly define your system roles as a strict union type
+export type SystemRole = 'admin' | 'worker' | 'client';
 
-  export const admin_navbar_list: I_NavBarList[] = [
-    {
-      name: "Contracts",
-      link: "/contracts",
-      icon: Newspaper,
-      subItems: [
-        {
-          label: "All contracts",
-          href: "/contracts/all",
-          icon: Check,
-        },
-        {
-          label: "Create new contract",
-          href: "/contracts/create",
-          icon: Check,
-        },
-        {
-          label: "Statistiques",
-          href: "/contracts/statistiques",
-          icon: Check,
-        },
-      ],
-    },
-    {
-      name: "Admin",
-      link: "/admin",
-      icon: LayoutDashboard,
-      subItems: [
-        {
-          label: "Users",
-          href: "/admin/users",
-          icon: Check,
-        },
-        {
-          label: "Clients",
-          href: "/admin/clients",
-          icon: Check,
-        },
-        {
-          label: "Workers",
-          href: "/admin/workers",
-          icon: Check,
-        },
-        {
-          label: "FAQ",
-          href: "/admin/faq",
-          icon: Check,
-        },
-      ],
-    },
-  ];
+export interface I_SidebarItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  /**
+   * 💡 Roles authorized to view this specific sub-item. 
+   * If omitted, it defaults to public access within the parent boundary.
+   */
+  roles?: SystemRole[]; 
+}
 
+export interface I_NavBarList {
+  name: string;
+  link: string;
+  icon: LucideIcon;
+  roles: SystemRole[]; // 💡 Explicit access policy control for the root-level workspace item
+  subItems?: I_SidebarItem[];
+}
 
-  export const client_navbar_list: I_NavBarList[] = [
-    {
-      name: "Contracts",
-      link: "/contracts",
-      icon: Check,
-      subItems: [
-        {
-          label: "Statistiques",
-          href: "/dossiers/nouveau",
-          icon: Check,
-        },
-        {
-          label: "Documents",
-          href: "/dossiers/en-cours",
-          icon: Check,
-        },
-        {
-          label: "Coordination",
-          href: "/dossiers/clotures",
-          icon: Check,
-        },
-      ],
-    },
-  ];
-
-
-  export const worker_navbar_list: I_NavBarList[] = [
-    {
-      name: "Dossiers",
-      link: "/dossiers",
-      icon: Check,
-      subItems: [
-        {
-          label: "Statistiques",
-          href: "/dossiers/nouveau",
-          icon: Check,
-        },
-        {
-          label: "Documents",
-          href: "/dossiers/en-cours",
-          icon: Check,
-        },
-        {
-          label: "Coordination",
-          href: "/dossiers/clotures",
-          icon: Check,
-        },
-      ],
-    },
-  ];
-
-  // export const navbar_list: I_NavBarList[] = [
-  //   {
-  //     name: "Secretariat",
-  //     link: "/secretariat",
-  //     icon: Check,
-  //     subItems: [
-  //       {
-  //         label: "Agenda",
-  //         href: "/secretariat/agenda",
-  //         icon: Check,
-  //       },
-  //       {
-  //         label: "Militaire",
-  //         href: "/secretariat/militaire",
-  //         icon: Check,
-  //       },
-  //       {
-  //         label: "Autorisations",
-  //         href: "/secretariat/autorisations",
-  //         icon: Check,
-  //       },
-  //       {
-  //         label: "Permissions",
-  //         href: "/secretariat/permissions",
-  //         icon: Check,
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     name: "Dossiers",
-  //     link: "/dossiers",
-  //     icon: Check,
-  //     subItems: [
-  //       {
-  //         label: "Statistiques",
-  //         href: "/dossiers/nouveau",
-  //         icon: Check,
-  //       },
-  //       {
-  //         label: "Documents",
-  //         href: "/dossiers/en-cours",
-  //         icon: Check,
-  //       },
-  //       {
-  //         label: "Coordination",
-  //         href: "/dossiers/clotures",
-  //         icon: Check,
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     name: "Admin",
-  //     link: "/admin",
-  //     icon: Check,
-  //     subItems: [
-  //       {
-  //         label: "Pointage GR",
-  //         href: "/pointage",
-  //         icon: Check,
-  //       },
-  //       {
-  //         label: "Users",
-  //         href: "/admin/users",
-  //         icon: Check,
-  //       },
-  //       {
-  //         label: "Roles",
-  //         href: "/admin/roles",
-  //         icon: Check,
-  //       },
-  //       {
-  //         label: "Permissions",
-  //         href: "/admin/permissions",
-  //         icon: Check,
-  //       },
-  //     ],
-  //   },
-  // ];
+export const NAVBAR_LIST: I_NavBarList[] = [
+  {
+    name: "Contracts",
+    link: "/contracts",
+    icon: Newspaper,
+    roles: ["admin", "client"], // Only accessible by administrators and client profiles
+    subItems: [
+      {
+        label: "All contracts",
+        href: "/contracts/all",
+        icon: Check,
+        roles: ["admin"], // Further restrict specific sub-actions to admins only
+      },
+      {
+        label: "Create new contract",
+        href: "/contracts/create",
+        icon: Check,
+        roles: ["admin"],
+      },
+      {
+        label: "Statistiques",
+        href: "/contracts/statistiques",
+        icon: Check,
+        roles: ["admin", "client"],
+      },
+      {
+        label: "Documents",
+        href: "/dossiers/en-cours",
+        icon: Check,
+        roles: ["client"], // Visible only to clients under the contracts section
+      },
+      {
+        label: "Coordination",
+        href: "/dossiers/clotures",
+        icon: Check,
+        roles: ["client"],
+      },
+    ],
+  },
+  {
+    name: "Admin",
+    link: "/admin",
+    icon: LayoutDashboard,
+    roles: ["admin"], // Strictly isolates the entire admin subtree configuration block
+    subItems: [
+      { label: "Users", href: "/admin/users", icon: Check },
+      { label: "Clients", href: "/admin/clients", icon: Check },
+      { label: "Workers", href: "/admin/workers", icon: Check },
+      { label: "FAQ", href: "/admin/faq", icon: Check },
+    ],
+  },
+  {
+    name: "Dossiers",
+    link: "/dossiers",
+    icon: Check,
+    roles: ["worker"], // Worker-specific execution space
+    subItems: [
+      { label: "Statistiques", href: "/dossiers/nouveau", icon: Check },
+      { label: "Documents", href: "/dossiers/en-cours", icon: Check },
+      { label: "Coordination", href: "/dossiers/clotures", icon: Check },
+    ],
+  },
+];
