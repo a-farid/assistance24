@@ -13,7 +13,6 @@ export const NavbarItem = ({
   icon: Icon,
   name,
   link,
-  roles,
   setOpenSideBar,
 }: I_NavbarItemProps) => {
   const pathname = usePathname();

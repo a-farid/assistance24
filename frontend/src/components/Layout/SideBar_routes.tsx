@@ -4,7 +4,8 @@ import List from "@mui/material/List";
 import SidebarItem from "./SideBar_Item";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { I_SidebarItem, NAVBAR_LIST } from "./nav_list";
+import { NAVBAR_LIST, SystemRole } from "./nav_list";
+import { useAuthAuthorization } from "@/lib/auth/authStore";
 
 type Props = {};
 
@@ -15,11 +16,31 @@ function SideBar_routes({}: Props) {
     setOpen(newOpen);
   };
   const pathName = usePathname();
-  const subItems = () => {
-    const it = NAVBAR_LIST.filter((item) => pathName.startsWith(item.link));
-    return it[0]?.subItems || [];
+  
+  // 1. Ingress the active session metadata from the global cache
+  const { user, isAuthenticated } = useAuthAuthorization();
+  const userRole = (user?.role as SystemRole) || null;
+  
+  // 💡 2. Pure Pipeline: Filter sub-items matching the active path prefix AND user role clearance
+  const getAuthorizedSubItems = () => {
+    if (!isAuthenticated || !userRole) return [];
+
+    // Identify the active top-level section array block (e.g., matching '/contracts')
+    const activeParentRoute = NAVBAR_LIST.find((item) => pathName.startsWith(item.link));
+    if (!activeParentRoute) return [];
+
+    // Filter sub-items: items are valid if they don't specify roles, or if the user's role is permitted
+    return (activeParentRoute.subItems || []).filter(
+      (subItem) => !subItem.roles || subItem.roles.includes(userRole)
+    );
   };
-  const items = subItems() as I_SidebarItem[];
+
+  const visibleItems = getAuthorizedSubItems();
+
+  // If no elements pass our authorization rules, unmount the layout container completely
+  if (visibleItems.length === 0) return null;
+
+  
   return (
     <Box
       sx={{ width: 224 }}
@@ -27,7 +48,7 @@ function SideBar_routes({}: Props) {
       onClick={() => toggleDrawer(false)}
     >
       <List className="h-full">
-        {items.map((text) => (
+        {visibleItems.map((text) => (
           <SidebarItem key={text.label} {...text} />
         ))}
       </List>

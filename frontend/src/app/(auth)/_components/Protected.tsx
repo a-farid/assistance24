@@ -22,7 +22,7 @@ export const Protected: React.FC<ProtectedProps> = ({
     // Hold evaluation until the store finishes loading from local memory
     if (isLoading) return;
 
-    // If an unauthenticated profile tries to access a protected dashboard route, bounce them out
+    // If an unauthenticated profile tries to access a protected route, bounce them out
     if (!isAuthenticated || !user) {
       if (pathname !== '/login' && pathname !== '/register') {
         log.warn('ProtectedRoute', 'Unauthenticated access attempt intercepted. Routing to login gateway.');
@@ -50,17 +50,18 @@ export const Protected: React.FC<ProtectedProps> = ({
     const rolesArray = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
     if (!rolesArray.includes(user.role)) {
       log.warn('ProtectedRoute', `Authorization failed for role: ${user.role} on path: ${pathname}`);
-      router.replace('/'); // Fallback to a safe dashboard page
+      router.replace('/'); // Fallback to a safe home page
       return null;
     }
   }
 
-  // 4. Ingress Routing Guard Check: Validate nested path permission structures
-  if (!canAccess(pathname)) {
-    log.error('ProtectedRoute', `Routing policy rejection on path allocation target: ${pathname}`);
-    router.replace('/dashboard');
-    return null;
-  }
+  // // 4. Ingress Routing Guard Check: Validate nested path permission structures
+  // if (!canAccess(pathname)) {
+  //   log.warn('ProtectedRoute', `Routing policy rejection on path allocation target: ${pathname}`);
+  //   toast.error('You do not have permission to access this page.');
+  //   router.replace('/');
+  //   return null;
+  // }
 
   return <>{children}</>;
 };

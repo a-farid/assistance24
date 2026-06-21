@@ -27,13 +27,13 @@ export const NAVBAR_LIST: I_NavBarList[] = [
     name: "Contracts",
     link: "/contracts",
     icon: Newspaper,
-    roles: ["admin", "client"], // Only accessible by administrators and client profiles
+    roles: ["admin", "client", "worker"],
     subItems: [
       {
         label: "All contracts",
         href: "/contracts/all",
         icon: Check,
-        roles: ["admin"], // Further restrict specific sub-actions to admins only
+        roles: ["admin"],
       },
       {
         label: "Create new contract",
@@ -42,22 +42,16 @@ export const NAVBAR_LIST: I_NavBarList[] = [
         roles: ["admin"],
       },
       {
+        label: "My contracts",
+        href: "/contracts/my-contracts",
+        icon: Check,
+        roles: ["client", "worker"],
+      },
+      {
         label: "Statistiques",
         href: "/contracts/statistiques",
         icon: Check,
-        roles: ["admin", "client"],
-      },
-      {
-        label: "Documents",
-        href: "/dossiers/en-cours",
-        icon: Check,
-        roles: ["client"], // Visible only to clients under the contracts section
-      },
-      {
-        label: "Coordination",
-        href: "/dossiers/clotures",
-        icon: Check,
-        roles: ["client"],
+        roles: ["admin", "client", "worker"],
       },
     ],
   },
@@ -71,17 +65,6 @@ export const NAVBAR_LIST: I_NavBarList[] = [
       { label: "Clients", href: "/admin/clients", icon: Check },
       { label: "Workers", href: "/admin/workers", icon: Check },
       { label: "FAQ", href: "/admin/faq", icon: Check },
-    ],
-  },
-  {
-    name: "Dossiers",
-    link: "/dossiers",
-    icon: Check,
-    roles: ["worker"], // Worker-specific execution space
-    subItems: [
-      { label: "Statistiques", href: "/dossiers/nouveau", icon: Check },
-      { label: "Documents", href: "/dossiers/en-cours", icon: Check },
-      { label: "Coordination", href: "/dossiers/clotures", icon: Check },
     ],
   },
 ];
