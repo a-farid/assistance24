@@ -42,7 +42,7 @@ async def login_for_access_token(body: T_Login_User = Body(...), _= Ds(jwt_s.ver
     return await jwt_s.create_refresh_access_tokens(user)
 
 @router.post("/logout", status_code=200, response_model=ApiResponseOne[str], description="Logout the user by clearing the authentication cookie.")
-async def logout(access_token=Ds(jwt_s.authorized_token)):
+async def logout(access_token=Ds(jwt_s.authorized_refresh_token)):
     """
     Logout the user by clearing the authentication cookie.
     """
@@ -69,7 +69,7 @@ async def logout(access_token=Ds(jwt_s.authorized_token)):
 
     # Evict the user's active session from the Redis caching layer
     await redis_delete(access_token.get("user_id"))
-
+    print("Logout success back")
     return response
 
 @router.get("/me", response_model=ApiResponseOne[T_User], description="Get the connected user.")
@@ -91,7 +91,7 @@ async def verify_email_activation(email: str = Query(...), token: str = Query(..
     activated_user = await auth_svc.verify_email(email, token)
     return jwt_s.create_email_activation_tokens(activated_user)
 
-@router.get("/refresh", response_model=ApiResponseOne[T_User], description="Refresh the access token using the refresh token.")
+@router.post("/refresh", response_model=ApiResponseOne[T_User], description="Refresh the access token using the refresh token.")
 async def refresh_access_token(refresh_token: str = Cookie(None)):
     """
     Refresh the access token using the refresh token.

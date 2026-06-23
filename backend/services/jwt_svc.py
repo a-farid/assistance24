@@ -24,8 +24,24 @@ class JWTService:
             raise HTTPException(status_code=401, detail="Token is required")
         try:
             payload = jwt.decode(access_token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
+            print("access_token-payload BACKEND", payload)
             return payload
         except JWTError:
+            print("HTTPException, Token expired or invalid")
+
+            raise HTTPException(status_code=401, detail="Token expired or invalid")
+    async def authorized_refresh_token(self, refresh_token: Optional[str] = Cookie(None)):
+        print('refresh_token', refresh_token)
+        if not refresh_token:
+            print("HTTPException, Refresh_token is required")
+            raise HTTPException(status_code=401, detail="Token is required")
+        try:
+            payload = jwt.decode(refresh_token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
+            print("payload refresh_token", payload)
+            return payload
+        except JWTError:
+            print("HTTPException, Token expired or invalid")
+
             raise HTTPException(status_code=401, detail="Token expired or invalid")
 
     async def verify_login(self, access_token: Optional[str] = Cookie(None)):
@@ -33,14 +49,16 @@ class JWTService:
         if not access_token: return
 
         try:
-            jwt.decode(access_token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
+            decoded = jwt.decode(access_token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
+            print('verify_login', decoded)
             raise HTTPException(status_code=400, detail="You are already logged in.")
         except JWTError: return
 
     async def create_token(self, data: dict, token_type: str) -> str:
         """Create a JWT token (access or refresh)."""
         token_expiry = {
-            "access": timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINUTES),
+            # "access": timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINUTES),
+            "access": timedelta(seconds=20),
             "refresh": timedelta(days=Config.REFRESH_TOKEN_EXPIRE_DAYS),
             "activation": timedelta(days=1),
             "reset": timedelta(minutes=15),
@@ -99,7 +117,7 @@ class JWTService:
 
         response = JSONResponse(content={
             "success": True,
-            "message": "Test: Refresh tokens created successfully",
+            "message": "(Access & Refresh) tokens created successfully",
             "item": user.model_dump(),
             "status_code": 200,
         })

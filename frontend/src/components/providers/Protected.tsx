@@ -19,8 +19,10 @@ export const Protected: React.FC<ProtectedProps> = ({ children, requiredRole, sh
 
     // If an unauthenticated profile tries to access a protected route, bounce them out
     if (!isAuthenticated || !user) {
+      console.log('Noth authenticated, and no user');
       if (pathname !== '/login' && pathname !== '/register') {
         log.warn('Unauthenticated access attempt intercepted. Routing to login gateway.');
+        console.log('It must go to /login in here');
         router.replace('/login');
       }
     }
@@ -37,6 +39,7 @@ export const Protected: React.FC<ProtectedProps> = ({ children, requiredRole, sh
     if (pathname === '/login' || pathname === '/register') {
       return <>{children}</>;
     }
+    console.log('showLoader', showLoader);
     return showLoader ? <AuthLoader /> : null;
   }
 
@@ -45,6 +48,7 @@ export const Protected: React.FC<ProtectedProps> = ({ children, requiredRole, sh
     const rolesArray = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
     if (!rolesArray.includes(user.role)) {
       log.warn('ProtectedRoute', `Authorization failed for role: ${user.role} on path: ${pathname}`);
+
       router.replace('/');
       return null;
     }

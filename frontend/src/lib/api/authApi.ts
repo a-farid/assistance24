@@ -47,24 +47,34 @@ export function useLoginMutation() {
     },
   });
 }
+
 export function useLogoutMutation() {
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
+      // 💡 Architectural Fix: If the token is missing, bypass the backend call entirely to avoid a 401 loop
+      const hasToken = document.cookie.includes("access_token");
+      if (!hasToken) {
+        log.info("AuthMutation", "No active token found in storage. Proceeding with local cache purge...");
+        return { message: "Locally logged out." };
+      }
+
       const response = await api.post("/auth/logout");
-      return response.data as LogoutResponse;
+      return response.data;
     },
-    // 💡 Architectural Fix: Use onSettled to guarantee state erasure BEFORE component lifecycle updates
+    onMutate: () => {
+      // 💡 Architectural Fix: Optimistically wipe local state immediately so the UI doesn't hang
+      log.info("AuthMutation", "Executing optimistic local session teardown...");
+      clearAuth();
+      queryClient.clear();
+    },
     onSettled: () => {
-      log.info("AuthMutation", "Flushing local client caches and state registers...");
-      
-      // 1. Wipe Zustand memory completely (Flips isAuthenticated to false synchronously)
-      clearAuth(); 
-      
-      // 2. Clear all cached TanStack queries
-      queryClient.clear(); 
+      // Ensure the user is pushed to the login screen regardless of network success or failure
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     },
   });
 }

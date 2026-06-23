@@ -7,14 +7,15 @@ import { useLogoutMutation } from "@/lib/api/authApi"; // Standardized naming ta
 import log from "@/utils/logger";
 import { KeyRound, LogOut, UserCog } from "lucide-react";
 import UserImage from "./UserPhoto";
+import { useAuthAuthorization } from "@/lib/store/authStore";
 
-type Props = {
-  user: any;
-  setOpenProfileBar: (value: boolean) => void; // Fixed minor typo in prop signature name
+type ProfileProps = {
+  setOpenProfileBar: (value: boolean) => void;
 };
 
-function Profile({ user, setOpenProfileBar }: Props) {
+function Profile({ setOpenProfileBar }: ProfileProps) {
   const router = useRouter();
+  const { user } = useAuthAuthorization()
   
   // 💡 1. Initialize our decoupled TanStack logout execution tunnel
   const { mutate: logout, isPending } = useLogoutMutation();
@@ -28,14 +29,10 @@ function Profile({ user, setOpenProfileBar }: Props) {
         const message = responseData?.message || "Logged out successfully.";
         toast.success(message);
         setOpenProfileBar(false);
-        
-        // At this point, Zustand memory is already 100% clean because onSettled fired first.
-        // The Protected wrapper will see isAuthenticated = false and ignore this component.
         router.push("/login"); 
       },
       onError: (error: any) => {
         log.error("ProfileBar", "Logout network request exception:", error);
-        // Force the redirect even on a network failure to avoid trapping the user
         router.push("/login");
       }
     });
@@ -45,13 +42,10 @@ function Profile({ user, setOpenProfileBar }: Props) {
     <>
       <div className="absolute right-10 top-10 w-[280px] border p-2 bg-gradient-global text-black dark:bg-slate-900 dark:text-white rounded-md shadow-lg">
         <div className="flex items-center justify-center flex-col w-full">
-          <div className="flex items-center justify-evenly w-full py-5">
-            <UserImage user={user} widthHeight={40} />
+          <div className="flex items-center justify-center w-full py-5">
+            <UserImage widthHeight={40} />
             <div>
-              <h1 className="w-full text-center font-bold text-[15px]">
-                Mr  {user.username}
-              </h1>
-              <p className="w-full text-center">{user.departement}</p>
+              <h1 className="w-full text-start font-bold text-[20px]"> {user.username} </h1>
             </div>
           </div>
           <div className="w-full px-5">

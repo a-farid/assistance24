@@ -3,22 +3,19 @@ import { Navbar_list_laptop } from "./Navbar_list_laptop";
 import { ThemeSwitcher } from "@/components/custom/themeSwitcher";
 import { HiOutlineMenuAlt3 } from "react-icons/hi";
 import { useState } from "react"; 
-// import NotificationsCount from "@/components/Layout/NotificationsCount";
 import AvatarProfile from "@/components/Layout/AvatarProfile";
 import { Navbar_list_mobile } from "./Navbar_list_mobile";
 import LocaleSwitcher from "@/components/shared/LocaleSwitcher";
-import { useAuthStore } from "@/lib/store/authStore";
+// import NotificationsCount from "@/components/Layout/NotificationsCount";
 
 const NavbarRoutes = () => {
   const [openSideBar, setOpenSideBar] = useState(false);
-  const [openNotificationsBar, setOpenNotificationsBar] = useState(false);
   const [openProfileBar, setOpenProfileBar] = useState(false);
-
-  const { user } = useAuthStore();
+  // const [openNotificationsBar, setOpenNotificationsBar] = useState(false);
   
   const resetStates = () => {
     setOpenSideBar(false);
-    setOpenNotificationsBar(false);
+    // setOpenNotificationsBar(false);
     setOpenProfileBar(false);
   };
   return (
@@ -32,7 +29,6 @@ const NavbarRoutes = () => {
         <ThemeSwitcher />
         <LocaleSwitcher />
         <AvatarProfile
-          user={user}
           openProfileBar={openProfileBar}
           setOpenProfileBar={setOpenProfileBar}
         />

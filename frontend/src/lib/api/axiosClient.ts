@@ -1,4 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios from "axios";
 import { useAuthStore } from "@/lib/store/authStore";
 
 // 1. Instantiate the Singleton Global Network Gateway
@@ -26,66 +26,60 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// 2. Egress Interceptor: Catching and Remedating 401 Authentication Dropping
-api.interceptors.response.use(
-  (response) => response, // Pass successful responses straight through unhindered
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-    console.log('error on Axios', error);
 
-    // Validate if the error signature represents an expired authorization state
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      
-      // If we are already executing a refresh cycle, queue this request until it finishes
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    const requestUrl = originalRequest?.url || "";
+
+    const isAuthRoute = requestUrl.includes("/auth/logout") || requestUrl.includes("/auth/refresh");
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then(() => {
-            return api(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
+          .then(() => api(originalRequest))
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
+      console.warn("NetworkEngine", "Access token expired. Initiating silent refresh...");
+
       try {
-        console.log("Network Gateway Interceptor: 401 Detected. Initiating token rotation sequence...");
-        
-        // Execute the isolated background token re-verification call
-        const response = await axios.post(
+        const refreshResponse = await axios.post(
           `${api.defaults.baseURL}/auth/refresh`,
           {},
           { withCredentials: true }
-        );
+        )
+        const updatedUser = refreshResponse.data?.item;
 
-        // Update your persistent Zustand store with the fresh session metrics
-        const { setUser, updateLastTokenRefresh } = useAuthStore.getState();
-        if (response.data.user) {
-          setUser(response.data.user);
-          updateLastTokenRefresh();
+        if (updatedUser) {
+          useAuthStore.getState().setUser(updatedUser);
         }
+        useAuthStore.getState().updateLastTokenRefresh();
 
-        processQueue(null, "success");
+        processQueue(null);
         isRefreshing = false;
 
-        // Re-execute the original stalled request with the new active session parameters
         return api(originalRequest);
       } catch (refreshError) {
-        console.error("Network Gateway Interceptor: Token rotation failed. Terminating session context.");
         processQueue(refreshError, null);
         isRefreshing = false;
-
-        // Clear local auth state if the refresh token itself has expired
-        useAuthStore.getState().clearAuth();
         
-        // Force route redirect to landing/login context
-        window.location.href = "/login";
+        useAuthStore.getState().clearAuth();
+        if (typeof window !== "undefined") window.location.href = "/login";
         return Promise.reject(refreshError);
       }
+    }
+
+    if (error.response?.status === 401 && requestUrl.includes("/auth/logout")) {
+      console.error("NetworkEngine", "Intercepted unauthorized logout. Hard flushing client session states...");
+      useAuthStore.getState().clearAuth();
+      if (typeof window !== "undefined") window.location.href = "/login";
     }
 
     return Promise.reject(error);

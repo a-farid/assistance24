@@ -3,12 +3,11 @@ import UserImage from "@/app/(auth)/_components/UserPhoto";
 
 // test
 type Props = {
-  user: any;
   setOpenProfileBar: (value: boolean) => void;
   openProfileBar: boolean;
 };
 
-const AvatarProfile = ({ user, openProfileBar, setOpenProfileBar }: Props) => {
+const AvatarProfile = ({ openProfileBar, setOpenProfileBar }: Props) => {
 
   return (
     <>
@@ -17,10 +16,8 @@ const AvatarProfile = ({ user, openProfileBar, setOpenProfileBar }: Props) => {
         className="relative mx-3 cursor-pointer"
         onClick={() => setOpenProfileBar(!openProfileBar)}
       >
-        <UserImage user={user} widthHeight={40} />
-        {openProfileBar && (
-          <Profile user={user} setOpenProfileBar={setOpenProfileBar} />
-        )}
+        <UserImage widthHeight={40} />
+        {openProfileBar && (<Profile setOpenProfileBar={setOpenProfileBar} />)}
       </div>
     </>
   );

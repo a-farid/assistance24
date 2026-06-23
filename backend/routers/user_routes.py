@@ -11,14 +11,14 @@ jwt_s = JWTService()
 
 
 @router.post("/create", description="Create a new user [admin]")
-async def create_new_user(body: T_UserInDb = Body(...), dt=Ds(jwt_s.roles_allowed(["admin"]))):
+async def create_new_user(body: T_UserInDb = Body(...), _=Ds(jwt_s.roles_allowed(["admin"]))):
     new_user = await user_service.create_user(body)
     return json_response_one(item=new_user, message="User created succesfully")
 
 @router.get("/all", status_code=200, description="Get all users [admin]")
-async def get_users(page: int = 1, limit: int = 5, _=Ds(jwt_s.roles_allowed(["admin"]))):
+async def get_users(page: int = 1, limit: int = 5, dt=Ds(jwt_s.roles_allowed(["admin"]))):
+    print("get_users token", dt)
     users_list = await user_service.get_all_users(page=page, limit=limit)
-    print("Users list:", users_list)
     return json_response_pagination(**users_list, message="All users retrieved")
 
 @router.get("/workers/all", status_code=200, description="Get all workers [admin]")

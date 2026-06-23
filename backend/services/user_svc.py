@@ -96,7 +96,6 @@ class UserServices:
 
     async def get_all_users(self, page: int, limit: int):
         result = await db.user.get_all(limit=limit, page=page)
-        print("Raw result from DB:", result)
         return await format_paginated_response(result, T_User)
 
     async def get_all_workers(self, page: int, limit: int):
