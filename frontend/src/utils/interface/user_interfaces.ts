@@ -1,17 +1,17 @@
 export interface IProfile {
     first_name: string;
     last_name: string;
-    phone: string;
-    adress: string;
-    url_photo: string;
+    phone?: string;
+    adress?: string;
+    url_photo?: string;
+    username: string;
+    email: string;
+    role: 'admin' | 'worker' | 'client';
     }
 
 export interface IUser extends IProfile {
     id: string;
-    username: string;
-    email: string;
     disabled: boolean;
-    role: 'admin' | 'worker' | 'client';
     is_verified?: boolean;
     }
 
@@ -30,3 +30,5 @@ export interface IAuthActions {
   logout: () => void;
   clearAuth: () => void;
 }
+
+export type FilterRoleType = 'all' | 'admin' | 'worker' | 'client';

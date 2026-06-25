@@ -2,8 +2,8 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/axiosClient";
-import { I_ApiResponseAll, I_ApiResponseOne } from "@/utils/interface/global";
-import { IUser } from "@/utils/interface/user_interfaces";
+import { I_ApiResponseAll, I_ApiResponseOne } from "@/utils/interface/standard_interface";
+import { IProfile, IUser } from "@/utils/interface/user_interfaces";
 import { useAuthStore } from "../store/authStore";
 import log from "@/utils/logger";
 
@@ -11,15 +11,18 @@ interface UpdateUserPayload {
   id: string;
   userData: Record<string, any>;
 }
+interface CreateUserPayload {
+  id: string;
+  userData: Record<string, any>;
+}
 
-export function useGetUsers({ page, limit }: {page: number; limit: number}) {
+export function useGetUsers({ page, limit, role }: {page: number; limit: number; role?: string}) {
   return useQuery<I_ApiResponseAll<IUser[]>>({
     // 💡 Reactive Cache Key: Changing page or limit automatically triggers a network re-fetch
-    queryKey: ["users", { page, limit }],
+    queryKey: ["users", { page, limit, role }],
     queryFn: async () => {
-      // Axios maps 'params' directly to '?page=X&limit=Y' query strings cleanly
       const response = await api.get("/users/all", {
-        params: { page, limit },
+        params: { page, limit, role },
       });
       return response.data;
     },
@@ -41,16 +44,18 @@ export function useGetUserById(userId: string) {
 export function useToggleUserStatus() {
   const queryClient = useQueryClient();
 
-  return useMutation<I_ApiResponseOne<IUser>, Error, string>({
+  return useMutation({
     mutationFn: async (userId: string) => {
-      // Injects the parameter directly into the action path segment
-      const response = await api.put(`/users/${userId}/toggle_status`); 
+      // Direct PATCH or POST interaction with your FastAPI state engine
+      const response = await api.put(`/users/${userId}/toggle_status`);
       return response.data;
     },
-    // The Caching Sync Trigger Callback
-    onSuccess: (data, userId) => {
-      // Re-fetch the specific user detail cache tree to reflect the status change instantly on-screen
-      queryClient.invalidateQueries({ queryKey: ["users", "detail", userId] });
+    onSuccess: () => {
+      log.info("NetworkEngine", "Status mutation verified on backend. Invalidating users data cache...");
+      
+      // 💡 Architectural Core: Force TanStack Query to mark the list as stale 
+      // and refetch it in the background instantly
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 }
@@ -99,6 +104,28 @@ export function useUpdateUser() {
     },
     onError: (error: any) => {
       log.error("MutationEngine", "User record modification failure context:", error);
+    }
+  });
+}
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+
+  // 💡 4. Bind the mutation payload strictly to our UpdateUserPayload interface structure
+  return useMutation<I_ApiResponseOne<IUser>, Error, IProfile>({
+    mutationFn: async (userData: IProfile) => {
+      const response = await api.post(`/users/create`, userData);
+      return response.data as I_ApiResponseOne<IUser>;
+    },
+    onSuccess: (responseData, variables) => {
+      // ✅ Fixed the data access bug: variables now maps cleanly to our explicit interface properties
+      const updatedId = responseData.item?.id
+      log.info("useCreateUser", `User record [${updatedId}] created successfully. Invaliding caches...`);
+
+      // Invalidate the broader 'users' cache space to safely wipe out stale entries across all views
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (error: any) => {
+      log.error("useCreateUser", "User record creation failure context:", error);
     }
   });
 }

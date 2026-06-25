@@ -1,28 +1,35 @@
 import Image from 'next/image';
-import { IUser } from '@/utils/interface/user_interfaces';
 import { HiOutlineUserCircle } from 'react-icons/hi';
 import { useAuthAuthorization } from '@/lib/store/authStore';
+import { IUser } from '@/utils/interface/user_interfaces';
 
 type Props = {
+  userImg?: IUser,
   widthHeight?: number;
   className?: string;
 };
 
-function UserImage({  widthHeight, className }: Props) {
+function UserImage({  userImg, widthHeight, className }: Props) {
+  let tempUser = {} as IUser
+  if(userImg){
+  tempUser  = userImg
+  } else {
   const { user } = useAuthAuthorization()
+  tempUser = user
+  }
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://api.dev.local/api";
-  const isValidPhoto = user?.url_photo && user.url_photo !== "string" && user.url_photo.trim() !== "";
-  const userPhoto = isValidPhoto ? `${baseUrl}/${user.url_photo}` : `${baseUrl}/images/default.png`;
+  const isValidPhoto = tempUser?.url_photo && tempUser.url_photo !== "string" && tempUser.url_photo.trim() !== "";
+  const userPhoto = isValidPhoto ? `${baseUrl}/${tempUser.url_photo}` : `${baseUrl}/images/default.png`;
 
   
- return (user ?
+ return (tempUser ?
     <Image
       className={`rounded-full ${className || ''}`}
       src={userPhoto}
       width={widthHeight}
       height={widthHeight}
       priority={true}
-      alt={`${user.first_name} ${user.last_name} profile picture`}
+      alt={`${tempUser.first_name} ${tempUser.last_name} profile picture`}
     /> : 
     <HiOutlineUserCircle />
   );

@@ -94,9 +94,13 @@ class UserServices:
         else:
             raise HTTPException(status_code=400, detail="No data provided, accepted fields : adress, first_name, last_name, phone")
 
-    async def get_all_users(self, page: int, limit: int):
-        result = await db.user.get_all(limit=limit, page=page)
-        return await format_paginated_response(result, T_User)
+    async def get_all_users(self, page: int, limit: int, role: str):
+        if role:
+            result = await db.user.filter_all(limit=limit, page=page, role=role)
+            return await format_paginated_response(result, T_User)
+        else:
+            result = await db.user.get_all(limit=limit, page=page)
+            return await format_paginated_response(result, T_User)
 
     async def get_all_workers(self, page: int, limit: int):
         result = await db.user.filter_all(limit=limit, page=page, role="worker")

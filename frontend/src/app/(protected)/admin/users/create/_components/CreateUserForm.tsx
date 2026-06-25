@@ -7,7 +7,10 @@ import Loading from "@/components/custom/Loading";
 import { useLocale, useTranslations } from "next-intl";
 import { FormField } from "@/utils/interface/FormikField";
 import { CreateUserFields_en, CreateUserFields_de } from "./CreateUserFields";
-import { useCreateUserMutation } from "@/lib/features/users/usersApi";
+import { useCreateUser } from "@/lib/api/usersApi";
+import { I_ApiResponseOne } from "@/utils/interface/standard_interface";
+import { IUser } from "@/utils/interface/user_interfaces";
+import log from "@/utils/logger";
 
 const formSchema = z.object({
   first_name: z.string().min(1, { message: "First name is required" }),
@@ -38,29 +41,34 @@ function CreateUserForm() {
   const CreateUserFields = locale === "de" ? CreateUserFields_de : CreateUserFields_en;
   const formField = new FormField(CreateUserFields.submitBtn, CreateUserFields.data);
 
-  const [createUser, { isLoading }] = useCreateUserMutation();
+  const { mutate: createUser, isPending } = useCreateUser();
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      const result = await createUser(data).unwrap();
-      toast.success(result.message || t("userCreatedSuccessfully"));
-      router.push("/admin/users");
-    } catch (err: any) {
-      console.error("CreateUserForm error:", err);
-      const message = err?.data?.message || t("createUserError");
-      toast.error(message);
-    }
+  const onSubmit = async (values: FormValues) => {
+    createUser(values, {
+      onSuccess: (responseData: I_ApiResponseOne<IUser>) => {
+        log.info("LoginForm", t("userCreatedSuccessfully"));
+        toast.success(t("userCreatedSuccessfully"));
+        router.push("/admin/users"); // Secure client routing transition
+      },
+      onError: (error: any) => {
+        const serverMessage = t("createUserError") || "Authentication rejected. Verify credentials.";
+        toast.error(serverMessage);
+        log.error("LoginForm", serverMessage, error);
+      }
+    });
+
+
   };
 
   return (
     <div className="max-w-[600px] mx-auto">
-      {isLoading ? ( <Loading /> ) :
+      {isPending ? ( <Loading /> ) :
         (<CustomFormik
           initialValues={initialValues}
           formSchema={formSchema}
           onSubmit={onSubmit}
           fields={formField}
-          isLoading={isLoading}
+          isLoading={isPending}
         /> )}
     </div>
   );

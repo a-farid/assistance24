@@ -13,6 +13,7 @@ import toast from 'react-hot-toast';
 import { useGetUserById, useToggleUserStatus } from '@/lib/api/usersApi';
 import UserImage from '@/app/(auth)/_components/UserPhoto';
 
+
 const UserDetails = () => {
     const params = useParams()
     const router = useRouter();
@@ -25,11 +26,6 @@ const UserDetails = () => {
     
     const { data, isLoading, isError, error } = useGetUserById(userId);
     const { mutate: toggleUserStatus, isPending: isToggling } = useToggleUserStatus();
-
-
-
-    // const { data, isLoading, isError, error } = useGetUserByIdQuery(userId);
-    // const [toggleUserStatus, { isLoading: isToggling }] = useToggleUserStatusMutation();
 
     if (isLoading) { return <Loading />}
     
@@ -45,19 +41,13 @@ const UserDetails = () => {
     }
 
     // Check if data and user data exist
-    if (!data?.data) {
+    if (!data?.item) {
         return <div>No user data found</div>;
     }
 
-    // ✅ Use data.data directly - don't create a separate variable
-    const user: IUser = data.data;
+    const user: IUser = data.item;
 
-    const handleEditProfile = () => {
-        // Redirect to edit page
-        window.location.href = `/admin/users/${user.id}/edit`;
-    };
-
-    const handleToggleUserStatus = () => {
+    const handleToggleUserStatus = (user:any) => {
         // Execute the mutation payload down through the network gateway
         log.info("UserDetails", `Toggling user status for userId: ${user.id}, current status: ${user.disabled ? "Disabled" : "Enabled"}`);
         toggleUserStatus(user.id, {
@@ -77,7 +67,7 @@ const UserDetails = () => {
                 title={`${user.first_name} ${user.last_name} profile`} 
                 description={`${user.first_name} ${user.last_name} profile details in ASSISTENZ365`} 
             />
-            <UserImage className="mx-auto mb-4" user={user} widthHeight={200} />
+            <UserImage className="mx-auto mb-4" widthHeight={200} />
             <TextFieldData label="Username" value={user.username} />
             <TextFieldData label="Role" value={user.role} />
             <TextFieldData label="Full name" value={`${user.first_name} ${user.last_name}`} />
@@ -100,7 +90,7 @@ const UserDetails = () => {
                     </Button>
                 </BtnWithAction>
                 <BtnWithAction
-                title={user.disabled ? "Enable Profile" : "Disable Profile"}
+                title={user.disabled ? "Enable" : "Disable"}
                 message={
                     user.disabled 
                         ? `Are you sure you want to enable ${user.first_name} ${user.last_name}'s profile? The user will be able to access the system again.`
@@ -108,7 +98,7 @@ const UserDetails = () => {
                 }
                 confirmText={user.disabled ? "Yes, Enable" : "Yes, Disable"}
                 cancelText="Cancel"
-                onConfirm={handleToggleUserStatus}
+                onConfirm={()=>handleToggleUserStatus(user)}
                 disabled={isToggling}
             >
                 {!user.disabled ? (
@@ -118,7 +108,7 @@ const UserDetails = () => {
                         className="mt-5"
                         disabled={isToggling}
                     >
-                        {isToggling ? 'DISABLING...' : 'DISABLE Profile'}
+                        {isToggling ? 'DISABLING...' : 'DISABLE'}
                     </Button>
                 ) : (
                     <Button 
@@ -127,7 +117,7 @@ const UserDetails = () => {
                         className="mt-5"
                         disabled={isToggling}
                     >
-                        {isToggling ? 'ENABLING...' : 'ENABLE Profile'}
+                        {isToggling ? 'ENABLING...' : 'ENABLE'}
                     </Button>
                 )}
             </BtnWithAction>

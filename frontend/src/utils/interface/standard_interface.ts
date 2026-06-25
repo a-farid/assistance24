@@ -25,19 +25,14 @@ export interface ProtectedProps {
   showLoader?: boolean;
 }
 
-// 1. Mirror the backend's PaginatedPayload structural schema
-export interface PaginatedPayload<T> {
+// 2. Mirror the ApiResponseAll schema
+export interface I_ApiResponseAll<T> {
+  success: boolean;
   items: T[] | null; // Ensures arrays map correctly to generic sets
   current_page: number | null;
   total_pages: number | null;
   total_records: number | null;
   limit: number | null;
-}
-
-// 2. Mirror the ApiResponseAll schema
-export interface I_ApiResponseAll<T> {
-  success: boolean;
-  data: PaginatedPayload<T>;
 }
 
 // 3. Mirror the ApiResponseOne schema

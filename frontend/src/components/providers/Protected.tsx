@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AuthLoader } from '../../app/(auth)/_components/AuthLoader';
 import log from '@/utils/logger';
-import { ProtectedProps } from '@/utils/interface/global';
+import { ProtectedProps } from '@/utils/interface/standard_interface';
 import { useAuthAuthorization } from '../../lib/store/authStore';
 
 export const Protected: React.FC<ProtectedProps> = ({ children, requiredRole, showLoader = true }) => {

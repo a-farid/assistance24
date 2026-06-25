@@ -28,11 +28,6 @@ const UserDetails = () => {
     
     const { data, isLoading, isError, error } = useGetUserById(userId);
 
-
-
-    // const { data, isLoading, isError, error } = useGetUserByIdQuery(userId);
-    // const [toggleUserStatus, { isLoading: isToggling }] = useToggleUserStatusMutation();
-
     if (isLoading) { return <Loading />}
     
     if (isError) {
@@ -47,7 +42,7 @@ const UserDetails = () => {
     }
 
     // Check if data and user data exist
-    if (!data?.data) {
+    if (!data?.item) {
         return <div>No user data found</div>;
     }
 

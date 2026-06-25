@@ -1,42 +1,51 @@
 'use client';
-import React from 'react';
+
+import React, { useState } from 'react';
 import Loading from '@/components/custom/Loading';
-import CustomTableComponent from '@/components/custom/table/table';
-import { GetAllDataResponse } from '@/utils/interface/global';
-import { IUser } from '@/utils/interface/user_interfaces';
-import { allUsersHeadCells } from '@/components/custom/table/headers_cells';
 import { Button } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useGetUsers } from '@/lib/api/usersApi';
+import UsersPagination from './_components/usersPagination';
+import UsersGridTable from './_components/UsersGridTable';
+import FilterUsersRole from './_components/FilterUsersRole';
+import { FilterRoleType } from '@/utils/interface/user_interfaces';
 
-const UsersPage = () => {
-  const [page, setPage] = React.useState(1);
-  const [limit, setLimit] = React.useState(5);
-  const t = useTranslations('GetAllUsersPage')
 
-  const { data, isLoading, error } = useGetUsers({ page, limit }) as unknown  as GetAllDataResponse<IUser[]>;;
-    
+export const UsersGridPage = () => {
+
+  const t = useTranslations('GetAllUsersPage');  
+  
+  // 💡 1. One-Indexed State Management (Backend Baseline)
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(3);
+  const [roleFilter, setRoleFilter] = useState<FilterRoleType>('all');
+  
+
+
+  // 2. Fetch data slice reactively based on state mutations
+  const { data: responseEnvelope, isLoading, error } = useGetUsers({ 
+    page, 
+    limit, 
+    role: roleFilter === 'all' ? undefined : roleFilter 
+  });
+
   if (isLoading) return <Loading />;
-  if (error) return <div>Error loading users</div>;
-  if (data) {
-    return (
-      <div>
-        <h2 className='pl-3'>{t('title')}</h2>
-        <CustomTableComponent
-          rawData={data}
-          headCells={allUsersHeadCells}
-          onPageChange={(newPage) => setPage(newPage)}
-          onRowsPerPageChange={(newLimit) => setLimit(newLimit)}
-          onRowClickRoute="/admin/users/"
-        />
-        <div className='flex justify-end mt-4'>
-          <Button className='ml-auto' variant="contained" disableElevation href="/admin/users/create">
-            {t('addUser')}
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (error) return <div className="p-4 text-red-500">Error loading users data grid</div>;
+
+  const usersList = responseEnvelope?.items || [];
+  const total_records = responseEnvelope?.total_records || 0;
+  const current_page = responseEnvelope?.current_page || 1;
+
+  return (
+    <div className="p-6 space-y-6">
+      <FilterUsersRole setPage={setPage} setRoleFilter={setRoleFilter} roleFilter={roleFilter}/>
+      <UsersGridTable usersList={usersList}/>
+      <UsersPagination total_records={total_records} limit={limit} current_page={current_page} setPage={setPage} setLimit={setLimit} />
+      <Button variant="contained" disableElevation href="/admin/users/create" className="h-fit">
+        {t('addUser')}
+      </Button>
+    </div>
+  );
 };
 
-export default UsersPage;
+export default UsersGridPage;

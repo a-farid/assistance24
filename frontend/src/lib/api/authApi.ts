@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/axiosClient";
 import { useAuthStore } from "@/lib/store/authStore";
 import log from "@/utils/logger";
-import { I_ApiResponseOne } from "@/utils/interface/global";
+import { I_ApiResponseOne } from "@/utils/interface/standard_interface";
 import { IUser } from "@/utils/interface/user_interfaces";
 
 interface LoginCredentials {
@@ -19,11 +19,6 @@ interface LoginResponse {
     refresh_token: string;
     user: any; // Adjust this type based on your actual user data structure
   };
-  message?: string;
-}
-
-interface LogoutResponse {
-  success: boolean;
   message?: string;
 }
 
